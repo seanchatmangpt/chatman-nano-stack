@@ -1,0 +1,138 @@
+2025-07-22 23:28:57,804 - TestOrchestrator - INFO - Running tests sequentially
+2025-07-22 23:28:57,805 - TestAgent.OntologyCreator - INFO - Starting test agent: OntologyCreator
+2025-07-22 23:28:57,805 - TestAgent.OntologyCreator - INFO - Creating test ontology files
+2025-07-22 23:28:57,805 - TestAgent.OntologyCreator - INFO - Test agent completed: OntologyCreator
+2025-07-22 23:28:57,805 - TestAgent.CompilerTest - INFO - Starting test agent: CompilerTest
+2025-07-22 23:28:57,805 - TestAgent.CompilerTest - INFO - Testing OWL compiler functionality
+2025-07-22 23:28:57,806 - owl_compiler - INFO - Compiling OWL specification: /Users/sac/cns/owl_compiler_tests/test_data/basic_ontology.ttl
+2025-07-22 23:28:57,808 - owl_compiler - INFO - Parsed 30 triples from /Users/sac/cns/owl_compiler_tests/test_data/basic_ontology.ttl
+2025-07-22 23:28:57,810 - owl_compiler - INFO - Parsed 25 triples from /Users/sac/cns/owl_compiler_tests/test_data/shacl_ontology.ttl
+2025-07-22 23:28:57,810 - TestAgent.CompilerTest - INFO - Test agent completed: CompilerTest
+2025-07-22 23:28:57,810 - TestAgent.LifecycleTest - INFO - Starting test agent: LifecycleTest
+2025-07-22 23:28:57,810 - TestAgent.LifecycleTest - INFO - Testing compiler lifecycle functionality
+2025-07-22 23:28:57,956 - TestAgent.LifecycleTest - INFO - Test agent completed: LifecycleTest
+2025-07-22 23:28:57,956 - TestAgent.CCodeValidation - INFO - Starting test agent: CCodeValidation
+2025-07-22 23:28:57,956 - TestAgent.CCodeValidation - INFO - Validating generated C code
+2025-07-22 23:28:57,957 - TestAgent.CCodeValidation - INFO - Test agent completed: CCodeValidation
+2025-07-22 23:29:50,821 - owl_compiler_lifecycle - INFO - Starting stage: initialization
+2025-07-22 23:29:50,821 - owl_compiler_lifecycle - INFO - Initializing compilation environment
+2025-07-22 23:29:50,821 - owl_compiler_lifecycle - INFO - Completed stage: initialization
+2025-07-22 23:29:50,821 - owl_compiler_lifecycle - INFO - Starting stage: parsing
+2025-07-22 23:29:50,821 - owl_compiler_lifecycle - INFO - Parsing ontology files
+2025-07-22 23:29:50,821 - owl_compiler_lifecycle - INFO - Parsing file: /Users/sac/cns/owl_compiler_tests/test_data/eightfold_ontology.ttl
+2025-07-22 23:29:50,822 - owl_compiler_lifecycle - INFO - Completed stage: parsing
+2025-07-22 23:29:50,822 - owl_compiler_lifecycle - INFO - Starting stage: extraction
+2025-07-22 23:29:50,822 - owl_compiler_lifecycle - INFO - Extracting ontology components
+2025-07-22 23:29:50,822 - owl_compiler_lifecycle - INFO - Completed stage: extraction
+2025-07-22 23:29:50,822 - owl_compiler_lifecycle - INFO - Starting stage: inference
+2025-07-22 23:29:50,822 - owl_compiler_lifecycle - INFO - Applying inference and reasoning
+2025-07-22 23:29:50,822 - owl_compiler_lifecycle - INFO - Completed stage: inference
+2025-07-22 23:29:50,822 - owl_compiler_lifecycle - INFO - Starting stage: optimization
+2025-07-22 23:29:50,822 - owl_compiler_lifecycle - INFO - Applying optimizations (level 1)
+2025-07-22 23:29:50,822 - owl_compiler_lifecycle - INFO - Completed stage: optimization
+2025-07-22 23:29:50,822 - owl_compiler_lifecycle - INFO - Starting stage: code_generation
+2025-07-22 23:29:50,822 - owl_compiler_lifecycle - INFO - Generating C code
+2025-07-22 23:29:50,843 - owl_compiler_lifecycle - INFO - Completed stage: code_generation
+2025-07-22 23:29:50,843 - owl_compiler_lifecycle - INFO - Starting stage: compilation
+2025-07-22 23:29:50,843 - owl_compiler_lifecycle - INFO - Compiling generated C code
+2025-07-22 23:29:50,883 - owl_compiler_lifecycle - ERROR - Failed stage compilation: compilation: C compilation failed for /Users/sac/cns/owl_compiler_tests/generated_code/pipeline/owl_ontology.c
+2025-07-22 23:29:50,884 - owl_compiler_lifecycle - ERROR - Compilation failed at stage compilation: C compilation failed for /Users/sac/cns/owl_compiler_tests/generated_code/pipeline/owl_ontology.c
+2025-07-22 23:29:50,884 - owl_compiler_lifecycle - INFO - Cleaning up temporary resources
+2025-07-22 23:32:22,512 - TestOrchestrator - INFO - Running tests sequentially
+2025-07-22 23:32:22,512 - TestAgent.OntologyCreator - INFO - Starting test agent: OntologyCreator
+2025-07-22 23:32:22,512 - TestAgent.OntologyCreator - INFO - Creating test ontology files
+2025-07-22 23:32:22,513 - TestAgent.OntologyCreator - INFO - Test agent completed: OntologyCreator
+2025-07-22 23:32:22,513 - TestAgent.CompilerTest - INFO - Starting test agent: CompilerTest
+2025-07-22 23:32:22,513 - TestAgent.CompilerTest - INFO - Testing OWL compiler functionality
+2025-07-22 23:32:22,514 - owl_compiler - INFO - Compiling OWL specification: /Users/sac/cns/owl_compiler_tests/test_data/basic_ontology.ttl
+2025-07-22 23:32:22,516 - owl_compiler - INFO - Parsed 30 triples from /Users/sac/cns/owl_compiler_tests/test_data/basic_ontology.ttl
+2025-07-22 23:32:22,517 - owl_compiler - INFO - Applying OWL inference...
+2025-07-22 23:32:22,525 - owl_compiler - INFO - Generated c_header output: /Users/sac/cns/owl_compiler_tests/generated_code/basic/basic_ontology.h
+2025-07-22 23:32:22,536 - owl_compiler - INFO - Generated c_implementation output: /Users/sac/cns/owl_compiler_tests/generated_code/basic/basic_ontology.c
+2025-07-22 23:32:22,542 - owl_compiler - INFO - Generated json output: /Users/sac/cns/owl_compiler_tests/generated_code/basic/basic_ontology.json
+2025-07-22 23:32:22,544 - owl_compiler - INFO - Parsed 25 triples from /Users/sac/cns/owl_compiler_tests/test_data/shacl_ontology.ttl
+2025-07-22 23:32:22,544 - TestAgent.CompilerTest - INFO - Test agent completed: CompilerTest
+2025-07-22 23:32:22,544 - TestAgent.LifecycleTest - INFO - Starting test agent: LifecycleTest
+2025-07-22 23:32:22,544 - TestAgent.LifecycleTest - INFO - Testing compiler lifecycle functionality
+2025-07-22 23:32:22,544 - owl_compiler_lifecycle - INFO - Starting stage: initialization
+2025-07-22 23:32:22,544 - owl_compiler_lifecycle - INFO - Initializing compilation environment
+2025-07-22 23:32:22,544 - owl_compiler_lifecycle - INFO - Completed stage: initialization
+2025-07-22 23:32:22,544 - owl_compiler_lifecycle - INFO - Starting stage: parsing
+2025-07-22 23:32:22,544 - owl_compiler_lifecycle - INFO - Parsing ontology files
+2025-07-22 23:32:22,544 - owl_compiler_lifecycle - INFO - Parsing file: /Users/sac/cns/owl_compiler_tests/test_data/eightfold_ontology.ttl
+2025-07-22 23:32:22,545 - owl_compiler - INFO - Parsed 34 triples from /Users/sac/cns/owl_compiler_tests/test_data/eightfold_ontology.ttl
+2025-07-22 23:32:22,545 - owl_compiler_lifecycle - INFO - Completed stage: parsing
+2025-07-22 23:32:22,545 - owl_compiler_lifecycle - INFO - Starting stage: extraction
+2025-07-22 23:32:22,545 - owl_compiler_lifecycle - INFO - Extracting ontology components
+2025-07-22 23:32:22,546 - owl_compiler_lifecycle - INFO - Completed stage: extraction
+2025-07-22 23:32:22,546 - owl_compiler_lifecycle - INFO - Starting stage: inference
+2025-07-22 23:32:22,546 - owl_compiler_lifecycle - INFO - Applying inference and reasoning
+2025-07-22 23:32:22,546 - owl_compiler - INFO - Applying OWL inference...
+2025-07-22 23:32:22,546 - owl_compiler_lifecycle - INFO - Completed stage: inference
+2025-07-22 23:32:22,546 - owl_compiler_lifecycle - INFO - Starting stage: optimization
+2025-07-22 23:32:22,546 - owl_compiler_lifecycle - INFO - Applying optimizations (level 1)
+2025-07-22 23:32:22,546 - owl_compiler_lifecycle - INFO - Completed stage: optimization
+2025-07-22 23:32:22,546 - owl_compiler_lifecycle - INFO - Starting stage: code_generation
+2025-07-22 23:32:22,546 - owl_compiler_lifecycle - INFO - Generating C code
+2025-07-22 23:32:22,553 - owl_compiler - INFO - Generated c_header output: /Users/sac/cns/owl_compiler_tests/generated_code/pipeline/owl_ontology.h
+2025-07-22 23:32:22,566 - owl_compiler - INFO - Generated c_implementation output: /Users/sac/cns/owl_compiler_tests/generated_code/pipeline/owl_ontology.c
+2025-07-22 23:32:22,571 - owl_compiler - INFO - Generated json output: /Users/sac/cns/owl_compiler_tests/generated_code/pipeline/owl_ontology.json
+2025-07-22 23:32:22,571 - owl_compiler_lifecycle - INFO - Completed stage: code_generation
+2025-07-22 23:32:22,571 - owl_compiler_lifecycle - INFO - Starting stage: compilation
+2025-07-22 23:32:22,571 - owl_compiler_lifecycle - INFO - Compiling generated C code
+2025-07-22 23:32:22,756 - owl_compiler_lifecycle - ERROR - Failed stage compilation: compilation: C compilation failed for /Users/sac/cns/owl_compiler_tests/generated_code/pipeline/owl_ontology.c
+2025-07-22 23:32:22,756 - owl_compiler_lifecycle - ERROR - Compilation failed at stage compilation: C compilation failed for /Users/sac/cns/owl_compiler_tests/generated_code/pipeline/owl_ontology.c
+2025-07-22 23:32:22,757 - owl_compiler_lifecycle - INFO - Cleaning up temporary resources
+2025-07-22 23:32:22,782 - TestAgent.LifecycleTest - INFO - Test agent completed: LifecycleTest
+2025-07-22 23:32:22,782 - TestAgent.CCodeValidation - INFO - Starting test agent: CCodeValidation
+2025-07-22 23:32:22,782 - TestAgent.CCodeValidation - INFO - Validating generated C code
+2025-07-22 23:32:23,009 - TestAgent.CCodeValidation - INFO - Test agent completed: CCodeValidation
+2025-07-22 23:35:47,092 - TestOrchestrator - INFO - Running tests sequentially
+2025-07-22 23:35:47,092 - TestAgent.OntologyCreator - INFO - Starting test agent: OntologyCreator
+2025-07-22 23:35:47,092 - TestAgent.OntologyCreator - INFO - Creating test ontology files
+2025-07-22 23:35:47,093 - TestAgent.OntologyCreator - INFO - Test agent completed: OntologyCreator
+2025-07-22 23:35:47,093 - TestAgent.CompilerTest - INFO - Starting test agent: CompilerTest
+2025-07-22 23:35:47,093 - TestAgent.CompilerTest - INFO - Testing OWL compiler functionality
+2025-07-22 23:35:47,094 - owl_compiler - INFO - Compiling OWL specification: /Users/sac/cns/owl_compiler_tests/test_data/basic_ontology.ttl
+2025-07-22 23:35:47,096 - owl_compiler - INFO - Parsed 30 triples from /Users/sac/cns/owl_compiler_tests/test_data/basic_ontology.ttl
+2025-07-22 23:35:47,097 - owl_compiler - INFO - Applying OWL inference...
+2025-07-22 23:35:47,104 - owl_compiler - INFO - Generated c_header output: /Users/sac/cns/owl_compiler_tests/generated_code/basic/basic_ontology.h
+2025-07-22 23:35:47,115 - owl_compiler - INFO - Generated c_implementation output: /Users/sac/cns/owl_compiler_tests/generated_code/basic/basic_ontology.c
+2025-07-22 23:35:47,119 - owl_compiler - INFO - Generated json output: /Users/sac/cns/owl_compiler_tests/generated_code/basic/basic_ontology.json
+2025-07-22 23:35:47,120 - owl_compiler - INFO - Parsed 25 triples from /Users/sac/cns/owl_compiler_tests/test_data/shacl_ontology.ttl
+2025-07-22 23:35:47,121 - TestAgent.CompilerTest - INFO - Test agent completed: CompilerTest
+2025-07-22 23:35:47,121 - TestAgent.LifecycleTest - INFO - Starting test agent: LifecycleTest
+2025-07-22 23:35:47,121 - TestAgent.LifecycleTest - INFO - Testing compiler lifecycle functionality
+2025-07-22 23:35:47,121 - owl_compiler_lifecycle - INFO - Starting stage: initialization
+2025-07-22 23:35:47,121 - owl_compiler_lifecycle - INFO - Initializing compilation environment
+2025-07-22 23:35:47,121 - owl_compiler_lifecycle - INFO - Completed stage: initialization
+2025-07-22 23:35:47,121 - owl_compiler_lifecycle - INFO - Starting stage: parsing
+2025-07-22 23:35:47,121 - owl_compiler_lifecycle - INFO - Parsing ontology files
+2025-07-22 23:35:47,121 - owl_compiler_lifecycle - INFO - Parsing file: /Users/sac/cns/owl_compiler_tests/test_data/eightfold_ontology.ttl
+2025-07-22 23:35:47,122 - owl_compiler - INFO - Parsed 34 triples from /Users/sac/cns/owl_compiler_tests/test_data/eightfold_ontology.ttl
+2025-07-22 23:35:47,122 - owl_compiler_lifecycle - INFO - Completed stage: parsing
+2025-07-22 23:35:47,122 - owl_compiler_lifecycle - INFO - Starting stage: extraction
+2025-07-22 23:35:47,122 - owl_compiler_lifecycle - INFO - Extracting ontology components
+2025-07-22 23:35:47,122 - owl_compiler_lifecycle - INFO - Completed stage: extraction
+2025-07-22 23:35:47,122 - owl_compiler_lifecycle - INFO - Starting stage: inference
+2025-07-22 23:35:47,122 - owl_compiler_lifecycle - INFO - Applying inference and reasoning
+2025-07-22 23:35:47,122 - owl_compiler - INFO - Applying OWL inference...
+2025-07-22 23:35:47,122 - owl_compiler_lifecycle - INFO - Completed stage: inference
+2025-07-22 23:35:47,122 - owl_compiler_lifecycle - INFO - Starting stage: optimization
+2025-07-22 23:35:47,122 - owl_compiler_lifecycle - INFO - Applying optimizations (level 1)
+2025-07-22 23:35:47,122 - owl_compiler_lifecycle - INFO - Completed stage: optimization
+2025-07-22 23:35:47,122 - owl_compiler_lifecycle - INFO - Starting stage: code_generation
+2025-07-22 23:35:47,122 - owl_compiler_lifecycle - INFO - Generating C code
+2025-07-22 23:35:47,128 - owl_compiler - INFO - Generated c_header output: /Users/sac/cns/owl_compiler_tests/generated_code/pipeline/owl_ontology.h
+2025-07-22 23:35:47,139 - owl_compiler - INFO - Generated c_implementation output: /Users/sac/cns/owl_compiler_tests/generated_code/pipeline/owl_ontology.c
+2025-07-22 23:35:47,143 - owl_compiler - INFO - Generated json output: /Users/sac/cns/owl_compiler_tests/generated_code/pipeline/owl_ontology.json
+2025-07-22 23:35:47,143 - owl_compiler_lifecycle - INFO - Completed stage: code_generation
+2025-07-22 23:35:47,143 - owl_compiler_lifecycle - INFO - Starting stage: compilation
+2025-07-22 23:35:47,143 - owl_compiler_lifecycle - INFO - Compiling generated C code
+2025-07-22 23:35:47,169 - owl_compiler_lifecycle - ERROR - Failed stage compilation: compilation: C compilation failed for /Users/sac/cns/owl_compiler_tests/generated_code/pipeline/owl_ontology.c
+2025-07-22 23:35:47,169 - owl_compiler_lifecycle - ERROR - Compilation failed at stage compilation: C compilation failed for /Users/sac/cns/owl_compiler_tests/generated_code/pipeline/owl_ontology.c
+2025-07-22 23:35:47,169 - owl_compiler_lifecycle - INFO - Cleaning up temporary resources
+2025-07-22 23:35:47,193 - TestAgent.LifecycleTest - INFO - Test agent completed: LifecycleTest
+2025-07-22 23:35:47,193 - TestAgent.CCodeValidation - INFO - Starting test agent: CCodeValidation
+2025-07-22 23:35:47,193 - TestAgent.CCodeValidation - INFO - Validating generated C code
+2025-07-22 23:35:47,289 - TestAgent.CCodeValidation - INFO - Test agent completed: CCodeValidation

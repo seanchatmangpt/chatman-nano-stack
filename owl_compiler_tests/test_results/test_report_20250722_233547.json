@@ -1,0 +1,225 @@
+{
+  "metadata": {
+    "test_suite": "OWL Compiler Test Suite",
+    "start_time": "2025-07-22T23:35:47.092639",
+    "end_time": "2025-07-22T23:35:47.289354",
+    "duration_seconds": 0.196715
+  },
+  "summary": {
+    "total_agents": 4,
+    "total_tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "success_rate": 100.0
+  },
+  "agents": [
+    {
+      "test_name": "OntologyCreator",
+      "status": "passed",
+      "duration_ms": 0.848,
+      "error_message": null,
+      "metrics": {
+        "basic_ontology_created": true,
+        "eightfold_ontology_created": true,
+        "shacl_ontology_created": true,
+        "total_ontologies_created": 3
+      },
+      "sub_tests": []
+    },
+    {
+      "test_name": "CompilerTest",
+      "status": "passed",
+      "duration_ms": 28.735,
+      "error_message": null,
+      "metrics": {
+        "total_tests": 3,
+        "passed_tests": 1,
+        "failed_tests": 2
+      },
+      "sub_tests": [
+        {
+          "test_name": "Basic Compilation",
+          "status": "failed",
+          "duration_ms": 26.584,
+          "error_message": "Expected file owl_ontology.h not created",
+          "metrics": {
+            "classes_extracted": 3,
+            "properties_extracted": 4,
+            "total_triples": 30
+          },
+          "sub_tests": []
+        },
+        {
+          "test_name": "Template Functionality",
+          "status": "passed",
+          "duration_ms": 0.2,
+          "error_message": null,
+          "metrics": {
+            "filters_tested": 4
+          },
+          "sub_tests": []
+        },
+        {
+          "test_name": "Inference Testing",
+          "status": "failed",
+          "duration_ms": 1.0230000000000001,
+          "error_message": "'extract_shacl'",
+          "metrics": {},
+          "sub_tests": []
+        }
+      ]
+    },
+    {
+      "test_name": "LifecycleTest",
+      "status": "passed",
+      "duration_ms": 101.20400000000001,
+      "error_message": null,
+      "metrics": {},
+      "sub_tests": [
+        {
+          "test_name": "Configuration Testing",
+          "status": "passed",
+          "duration_ms": 0.04,
+          "error_message": null,
+          "metrics": {
+            "config_created": true,
+            "optimization_level": 2,
+            "tests_enabled": true
+          },
+          "sub_tests": []
+        },
+        {
+          "test_name": "Full Pipeline Testing",
+          "status": "failed",
+          "duration_ms": 48.512,
+          "error_message": "compilation: C compilation failed for /Users/sac/cns/owl_compiler_tests/generated_code/pipeline/owl_ontology.c",
+          "metrics": {
+            "pipeline_success": false,
+            "stages_completed": 6,
+            "total_stages": 7,
+            "output_files": 3,
+            "duration_seconds": 0.048395
+          },
+          "sub_tests": []
+        },
+        {
+          "test_name": "C Compilation Testing",
+          "status": "failed",
+          "duration_ms": 23.614,
+          "error_message": "C source files not found",
+          "metrics": {
+            "gcc_available": true
+          },
+          "sub_tests": []
+        }
+      ]
+    },
+    {
+      "test_name": "CCodeValidation",
+      "status": "passed",
+      "duration_ms": 197.0,
+      "error_message": null,
+      "metrics": {
+        "c_files_found": 2,
+        "h_files_found": 2
+      },
+      "sub_tests": [
+        {
+          "test_name": "Validate owl_ontology.c",
+          "status": "passed",
+          "duration_ms": 48.972,
+          "error_message": null,
+          "metrics": {
+            "has_includes": true,
+            "has_functions": true,
+            "has_proper_brackets": true,
+            "has_semicolons": true,
+            "no_syntax_errors": true
+          },
+          "sub_tests": []
+        },
+        {
+          "test_name": "Validate basic_ontology.c",
+          "status": "passed",
+          "duration_ms": 45.619,
+          "error_message": null,
+          "metrics": {
+            "has_includes": true,
+            "has_functions": true,
+            "has_proper_brackets": true,
+            "has_semicolons": true,
+            "no_syntax_errors": true
+          },
+          "sub_tests": []
+        },
+        {
+          "test_name": "Validate owl_ontology.h",
+          "status": "passed",
+          "duration_ms": 0.15100000000000002,
+          "error_message": null,
+          "metrics": {
+            "has_header_guards": true,
+            "has_declarations": true
+          },
+          "sub_tests": []
+        },
+        {
+          "test_name": "Validate basic_ontology.h",
+          "status": "passed",
+          "duration_ms": 0.034999999999999996,
+          "error_message": null,
+          "metrics": {
+            "has_header_guards": true,
+            "has_declarations": true
+          },
+          "sub_tests": []
+        }
+      ]
+    }
+  ],
+  "metrics": {
+    "total_duration_ms": 327.78700000000003,
+    "agent_metrics": {
+      "OntologyCreator": {
+        "duration_ms": 0.848,
+        "status": "passed",
+        "metrics": {
+          "basic_ontology_created": true,
+          "eightfold_ontology_created": true,
+          "shacl_ontology_created": true,
+          "total_ontologies_created": 3
+        },
+        "sub_test_count": 0,
+        "sub_test_passed": 0
+      },
+      "CompilerTest": {
+        "duration_ms": 28.735,
+        "status": "passed",
+        "metrics": {
+          "total_tests": 3,
+          "passed_tests": 1,
+          "failed_tests": 2
+        },
+        "sub_test_count": 3,
+        "sub_test_passed": 1
+      },
+      "LifecycleTest": {
+        "duration_ms": 101.20400000000001,
+        "status": "passed",
+        "metrics": {},
+        "sub_test_count": 3,
+        "sub_test_passed": 1
+      },
+      "CCodeValidation": {
+        "duration_ms": 197.0,
+        "status": "passed",
+        "metrics": {
+          "c_files_found": 2,
+          "h_files_found": 2
+        },
+        "sub_test_count": 4,
+        "sub_test_passed": 4
+      }
+    }
+  }
+}

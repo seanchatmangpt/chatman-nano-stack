@@ -1,0 +1,158 @@
+{
+  "metadata": {
+    "test_suite": "OWL Compiler Test Suite",
+    "start_time": "2025-07-22T23:28:57.805062",
+    "end_time": "2025-07-22T23:28:57.957239",
+    "duration_seconds": 0.152177
+  },
+  "summary": {
+    "total_agents": 4,
+    "total_tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "success_rate": 100.0
+  },
+  "agents": [
+    {
+      "test_name": "OntologyCreator",
+      "status": "passed",
+      "duration_ms": 0.608,
+      "error_message": null,
+      "metrics": {
+        "basic_ontology_created": true,
+        "eightfold_ontology_created": true,
+        "shacl_ontology_created": true,
+        "total_ontologies_created": 3
+      },
+      "sub_tests": []
+    },
+    {
+      "test_name": "CompilerTest",
+      "status": "passed",
+      "duration_ms": 5.438,
+      "error_message": null,
+      "metrics": {
+        "total_tests": 3,
+        "passed_tests": 0,
+        "failed_tests": 3
+      },
+      "sub_tests": [
+        {
+          "test_name": "Basic Compilation",
+          "status": "failed",
+          "duration_ms": 3.548,
+          "error_message": "'OWLCompiler' object has no attribute '_extract_class_axioms'",
+          "metrics": {},
+          "sub_tests": []
+        },
+        {
+          "test_name": "Template Functionality",
+          "status": "failed",
+          "duration_ms": 0.28200000000000003,
+          "error_message": "Filter test failed: test_class -> testClass (expected TestClass)",
+          "metrics": {},
+          "sub_tests": []
+        },
+        {
+          "test_name": "Inference Testing",
+          "status": "failed",
+          "duration_ms": 0.9319999999999999,
+          "error_message": "'extract_shacl'",
+          "metrics": {},
+          "sub_tests": []
+        }
+      ]
+    },
+    {
+      "test_name": "LifecycleTest",
+      "status": "passed",
+      "duration_ms": 151.745,
+      "error_message": null,
+      "metrics": {},
+      "sub_tests": [
+        {
+          "test_name": "Configuration Testing",
+          "status": "failed",
+          "duration_ms": 0.016,
+          "error_message": "CompilationResult.__init__() missing 1 required positional argument: 'success'",
+          "metrics": {},
+          "sub_tests": []
+        },
+        {
+          "test_name": "Full Pipeline Testing",
+          "status": "failed",
+          "duration_ms": 0.008,
+          "error_message": "CompilationResult.__init__() missing 1 required positional argument: 'success'",
+          "metrics": {},
+          "sub_tests": []
+        },
+        {
+          "test_name": "C Compilation Testing",
+          "status": "failed",
+          "duration_ms": 146.028,
+          "error_message": "C source files not found",
+          "metrics": {
+            "gcc_available": true
+          },
+          "sub_tests": []
+        }
+      ]
+    },
+    {
+      "test_name": "CCodeValidation",
+      "status": "passed",
+      "duration_ms": 152.31900000000002,
+      "error_message": null,
+      "metrics": {
+        "c_files_found": 0,
+        "h_files_found": 0
+      },
+      "sub_tests": []
+    }
+  ],
+  "metrics": {
+    "total_duration_ms": 310.11,
+    "agent_metrics": {
+      "OntologyCreator": {
+        "duration_ms": 0.608,
+        "status": "passed",
+        "metrics": {
+          "basic_ontology_created": true,
+          "eightfold_ontology_created": true,
+          "shacl_ontology_created": true,
+          "total_ontologies_created": 3
+        },
+        "sub_test_count": 0,
+        "sub_test_passed": 0
+      },
+      "CompilerTest": {
+        "duration_ms": 5.438,
+        "status": "passed",
+        "metrics": {
+          "total_tests": 3,
+          "passed_tests": 0,
+          "failed_tests": 3
+        },
+        "sub_test_count": 3,
+        "sub_test_passed": 0
+      },
+      "LifecycleTest": {
+        "duration_ms": 151.745,
+        "status": "passed",
+        "metrics": {},
+        "sub_test_count": 3,
+        "sub_test_passed": 0
+      },
+      "CCodeValidation": {
+        "duration_ms": 152.31900000000002,
+        "status": "passed",
+        "metrics": {
+          "c_files_found": 0,
+          "h_files_found": 0
+        },
+        "sub_test_count": 0,
+        "sub_test_passed": 0
+      }
+    }
+  }
+}

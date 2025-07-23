@@ -1,0 +1,362 @@
+# CNS v8.0 Business Queries - SPARQL
+# High-level business logic queries compiled into hyper-optimized C functions
+# These queries define the semantic operations of the trading system
+
+PREFIX cns: <http://cns.v8.org/ontology#>
+PREFIX uhft: <http://cns.v8.org/uhft#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# =============================================================================
+# CRITICAL TRADING QUERIES (8-TICK COMPLIANCE REQUIRED)
+# =============================================================================
+
+# Query: Get Best Bid/Ask for Symbol
+# Compiled to: uhft_get_best_quotes_for_symbol()
+# Performance Target: ≤3 CPU cycles
+SELECT ?bidPrice ?askPrice ?bidVolume ?askVolume ?timestamp
+WHERE {
+    ?quote a uhft:MarketQuote ;
+           uhft:hasSymbol ?symbol ;
+           uhft:hasBidPrice ?bidPrice ;
+           uhft:hasAskPrice ?askPrice ;
+           uhft:hasBidVolume ?bidVolume ;
+           uhft:hasAskVolume ?askVolume ;
+           uhft:hasTimestamp ?timestamp .
+    
+    # Only consider quotes less than 1ms old
+    FILTER(?timestamp > (NOW() - "PT0.001S"^^xsd:duration))
+    
+    # Get the most recent quote
+    {
+        SELECT ?symbol (MAX(?timestamp) AS ?maxTime)
+        WHERE {
+            ?q a uhft:MarketQuote ;
+               uhft:hasSymbol ?symbol ;
+               uhft:hasTimestamp ?timestamp .
+        }
+        GROUP BY ?symbol
+    }
+    FILTER(?timestamp = ?maxTime)
+}
+
+# Query: Calculate Position Risk Score
+# Compiled to: uhft_calculate_position_risk()
+# Performance Target: ≤5 CPU cycles
+SELECT ?position ?riskScore ?exposureRatio
+WHERE {
+    ?position a uhft:Position ;
+              uhft:hasSymbol ?symbol ;
+              uhft:hasQuantity ?quantity ;
+              uhft:hasPrice ?avgPrice ;
+              uhft:hasExposure ?exposure .
+    
+    # Get current market price
+    ?currentQuote a uhft:MarketQuote ;
+                  uhft:hasSymbol ?symbol ;
+                  uhft:hasMidPrice ?currentPrice ;
+                  uhft:hasTimestamp ?quoteTime .
+    
+    # Only use fresh quotes (< 500μs)
+    FILTER(?quoteTime > (NOW() - "PT0.0005S"^^xsd:duration))
+    
+    # Calculate unrealized P&L
+    BIND((?currentPrice - ?avgPrice) * ?quantity AS ?unrealizedPnL)
+    
+    # Calculate risk metrics
+    BIND(?exposure / 10000000.0 AS ?exposureRatio)  # Normalize to $10M limit
+    BIND(ABS(?unrealizedPnL) / ?exposure AS ?volatilityRisk)
+    
+    # Composite risk score (0.0 = no risk, 1.0 = maximum risk)
+    BIND(?exposureRatio * 0.4 + ?volatilityRisk * 0.6 AS ?riskScore)
+    
+    # Only return positions with significant risk
+    FILTER(?riskScore > 0.1)
+}
+ORDER BY DESC(?riskScore)
+
+# Query: Find Arbitrage Opportunities
+# Compiled to: uhft_find_arbitrage_opportunities()
+# Performance Target: ≤8 CPU cycles
+SELECT ?symbol ?exchange1 ?exchange2 ?spreadBps ?profitPotential
+WHERE {
+    # Get quotes from exchange 1
+    ?quote1 a uhft:MarketQuote ;
+            uhft:hasSymbol ?symbol ;
+            uhft:hasExchange ?exchange1 ;
+            uhft:hasAskPrice ?ask1 ;
+            uhft:hasTimestamp ?time1 .
+    
+    # Get quotes from exchange 2
+    ?quote2 a uhft:MarketQuote ;
+            uhft:hasSymbol ?symbol ;
+            uhft:hasExchange ?exchange2 ;
+            uhft:hasBidPrice ?bid2 ;
+            uhft:hasTimestamp ?time2 .
+    
+    # Ensure we have fresh data from both exchanges
+    FILTER(?time1 > (NOW() - "PT0.001S"^^xsd:duration))
+    FILTER(?time2 > (NOW() - "PT0.001S"^^xsd:duration))
+    FILTER(?exchange1 != ?exchange2)
+    
+    # Calculate spread (buy low, sell high)
+    FILTER(?bid2 > ?ask1)
+    BIND((?bid2 - ?ask1) / ?ask1 * 10000 AS ?spreadBps)  # Spread in basis points
+    
+    # Estimate profit potential (considering transaction costs)
+    BIND((?bid2 - ?ask1 - 0.01) * 1000 AS ?profitPotential)  # $0.01 transaction cost
+    
+    # Only return profitable opportunities
+    FILTER(?profitPotential > 5.0)  # Minimum $5 profit per 1000 shares
+}
+ORDER BY DESC(?profitPotential)
+LIMIT 10
+
+# =============================================================================
+# RISK MANAGEMENT QUERIES
+# =============================================================================
+
+# Query: Check Portfolio Exposure Limits
+# Compiled to: uhft_check_exposure_limits()
+SELECT ?portfolio ?totalExposure ?utilizationRatio ?isOverLimit
+WHERE {
+    ?portfolio a uhft:Portfolio .
+    
+    {
+        SELECT ?portfolio (SUM(?exposure) AS ?totalExposure)
+        WHERE {
+            ?position a uhft:Position ;
+                      uhft:belongsToPortfolio ?portfolio ;
+                      uhft:hasExposure ?exposure .
+        }
+        GROUP BY ?portfolio
+    }
+    
+    # Get portfolio limits
+    ?portfolio uhft:hasMaxExposure ?maxExposure .
+    
+    # Calculate utilization
+    BIND(?totalExposure / ?maxExposure AS ?utilizationRatio)
+    BIND(?utilizationRatio > 0.9 AS ?isOverLimit)
+    
+    # Only return portfolios approaching or exceeding limits
+    FILTER(?utilizationRatio > 0.8)
+}
+ORDER BY DESC(?utilizationRatio)
+
+# Query: Identify Correlated Positions
+# Compiled to: uhft_identify_correlated_positions()
+SELECT ?symbol1 ?symbol2 ?correlation ?combinedRisk
+WHERE {
+    ?pos1 a uhft:Position ;
+          uhft:hasSymbol ?symbol1 ;
+          uhft:hasExposure ?exposure1 .
+    
+    ?pos2 a uhft:Position ;
+          uhft:hasSymbol ?symbol2 ;
+          uhft:hasExposure ?exposure2 .
+    
+    # Get correlation data
+    ?corrData a uhft:CorrelationData ;
+              uhft:hasSymbol1 ?symbol1 ;
+              uhft:hasSymbol2 ?symbol2 ;
+              uhft:hasCorrelation ?correlation ;
+              uhft:hasTimestamp ?corrTime .
+    
+    # Use recent correlation data (< 1 hour)
+    FILTER(?corrTime > (NOW() - "PT1H"^^xsd:duration))
+    FILTER(?symbol1 != ?symbol2)
+    
+    # Only high correlations
+    FILTER(ABS(?correlation) > 0.7)
+    
+    # Calculate combined risk
+    BIND(SQRT(?exposure1 * ?exposure2) * ABS(?correlation) AS ?combinedRisk)
+    
+    # Filter for significant combined risk
+    FILTER(?combinedRisk > 100000)  # $100K threshold
+}
+ORDER BY DESC(?combinedRisk)
+
+# =============================================================================
+# PERFORMANCE MONITORING QUERIES
+# =============================================================================
+
+# Query: System Performance Metrics
+# Compiled to: uhft_get_performance_metrics()
+SELECT ?component ?avgLatency ?maxLatency ?throughput ?errorRate
+WHERE {
+    ?metric a uhft:PerformanceMetric ;
+            uhft:hasComponent ?component ;
+            uhft:hasAvgLatency ?avgLatency ;
+            uhft:hasMaxLatency ?maxLatency ;
+            uhft:hasThroughput ?throughput ;
+            uhft:hasErrorRate ?errorRate ;
+            uhft:hasTimestamp ?timestamp .
+    
+    # Only recent metrics (last 60 seconds)
+    FILTER(?timestamp > (NOW() - "PT60S"^^xsd:duration))
+    
+    # Flag performance issues
+    FILTER(?avgLatency > 50 || ?maxLatency > 100 || ?errorRate > 0.001)
+}
+ORDER BY DESC(?errorRate) DESC(?maxLatency)
+
+# Query: Trading Algorithm Performance
+# Compiled to: uhft_get_algorithm_performance()
+SELECT ?algorithm ?totalTrades ?winRate ?avgPnL ?sharpeRatio
+WHERE {
+    ?trade a uhft:Trade ;
+           uhft:hasAlgorithm ?algorithm ;
+           uhft:hasPnL ?pnl ;
+           uhft:hasTimestamp ?tradeTime .
+    
+    # Only trades from today
+    FILTER(?tradeTime >= ?todayStart)
+    FILTER(?tradeTime < ?tomorrowStart)
+    
+    {
+        SELECT ?algorithm 
+               (COUNT(?trade) AS ?totalTrades)
+               (AVG(?pnl) AS ?avgPnL)
+               (COUNT(?winning) / COUNT(?trade) AS ?winRate)
+               (AVG(?pnl) / (SQRT(COUNT(?trade)) * ?stdDev) AS ?sharpeRatio)
+        WHERE {
+            ?trade a uhft:Trade ;
+                   uhft:hasAlgorithm ?algorithm ;
+                   uhft:hasPnL ?pnl .
+            
+            OPTIONAL {
+                SELECT ?algorithm (MAX(?pnl) AS ?winning) WHERE {
+                    ?t uhft:hasAlgorithm ?algorithm ;
+                       uhft:hasPnL ?pnl .
+                    FILTER(?pnl > 0)
+                }
+                GROUP BY ?algorithm
+            }
+            
+            # Calculate standard deviation (simplified)
+            {
+                SELECT ?algorithm (SQRT(AVG(?pnl * ?pnl) - AVG(?pnl) * AVG(?pnl)) AS ?stdDev)
+                WHERE {
+                    ?t uhft:hasAlgorithm ?algorithm ;
+                       uhft:hasPnL ?pnl .
+                }
+                GROUP BY ?algorithm
+            }
+        }
+        GROUP BY ?algorithm
+    }
+    
+    # Only algorithms with significant activity
+    FILTER(?totalTrades >= 10)
+}
+ORDER BY DESC(?sharpeRatio)
+
+# =============================================================================
+# COMPLIANCE AND AUDIT QUERIES
+# =============================================================================
+
+# Query: Audit Trail for Trade
+# Compiled to: uhft_get_trade_audit_trail()
+SELECT ?trade ?event ?timestamp ?user ?details
+WHERE {
+    ?trade a uhft:Trade ;
+           uhft:hasTradeId ?tradeId .
+    
+    ?auditEvent a uhft:AuditEvent ;
+                uhft:relatesTo ?trade ;
+                uhft:hasEventType ?event ;
+                uhft:hasTimestamp ?timestamp ;
+                uhft:hasUser ?user ;
+                uhft:hasDetails ?details .
+}
+ORDER BY ?timestamp
+
+# Query: Regulatory Compliance Check
+# Compiled to: uhft_check_regulatory_compliance()
+SELECT ?trade ?violations ?riskLevel
+WHERE {
+    ?trade a uhft:Trade ;
+           uhft:hasTimestamp ?tradeTime .
+    
+    # Check for violations
+    OPTIONAL {
+        ?violation a uhft:ComplianceViolation ;
+                   uhft:relatesTo ?trade ;
+                   uhft:hasViolationType ?violationType .
+    }
+    
+    # Aggregate violations
+    {
+        SELECT ?trade (COUNT(?violation) AS ?violations)
+        WHERE {
+            OPTIONAL {
+                ?violation uhft:relatesTo ?trade .
+            }
+        }
+        GROUP BY ?trade
+    }
+    
+    # Calculate risk level
+    BIND(
+        IF(?violations = 0, "LOW",
+        IF(?violations <= 2, "MEDIUM", "HIGH"))
+        AS ?riskLevel
+    )
+    
+    # Only return trades with violations or high risk
+    FILTER(?violations > 0 || ?riskLevel = "HIGH")
+}
+ORDER BY DESC(?violations)
+
+# =============================================================================
+# SELF-HEALING QUERIES
+# =============================================================================
+
+# Query: System Health Status
+# Compiled to: uhft_get_system_health()
+SELECT ?component ?status ?lastHeartbeat ?isHealthy
+WHERE {
+    ?component a uhft:SystemComponent ;
+               uhft:hasStatus ?status ;
+               uhft:hasLastHeartbeat ?lastHeartbeat .
+    
+    # Component is healthy if heartbeat within last 5 seconds
+    BIND(?lastHeartbeat > (NOW() - "PT5S"^^xsd:duration) AS ?isHealthy)
+    
+    # Flag unhealthy components
+    FILTER(?isHealthy = false || ?status != uhft:Operational)
+}
+ORDER BY ?lastHeartbeat
+
+# Query: Healing Agent Status
+# Compiled to: uhft_get_healing_status()
+SELECT ?agent ?healingActions ?successRate ?lastAction
+WHERE {
+    ?agent a cns:HealingAgent ;
+           uhft:hasAgentType ?agentType .
+    
+    {
+        SELECT ?agent 
+               (COUNT(?action) AS ?healingActions)
+               (COUNT(?success) / COUNT(?action) AS ?successRate)
+               (MAX(?timestamp) AS ?lastAction)
+        WHERE {
+            ?action a uhft:HealingAction ;
+                    uhft:performedBy ?agent ;
+                    uhft:hasTimestamp ?timestamp .
+            
+            OPTIONAL {
+                ?action uhft:wasSuccessful true .
+                BIND(?action AS ?success)
+            }
+        }
+        GROUP BY ?agent
+    }
+    
+    # Filter for active agents with recent actions
+    FILTER(?lastAction > (NOW() - "PT1H"^^xsd:duration))
+}
+ORDER BY DESC(?lastAction)
