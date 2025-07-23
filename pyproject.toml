@@ -25,7 +25,7 @@ classifiers = [
     "Intended Audience :: Information Technology",
     "Topic :: Software Development :: Code Generators",
     "Topic :: Software Development :: Compilers",
-    "Topic :: System :: Real Time",
+    "Topic :: System :: Distributed Computing",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -110,6 +110,7 @@ dev-dependencies = [
     "mypy>=1.5.0",
     "black>=23.0.0",
     "ruff>=0.1.0",
+    "pytest-asyncio>=1.1.0",
 ]
 
 [tool.uv.workspace]
@@ -214,6 +215,7 @@ markers = [
     "integration: marks tests as integration tests",
     "benchmark: marks tests as benchmark tests",
     "realtime: marks tests as real-time system specific",
+    "asyncio: marks tests as async tests",
 ]
 
 [tool.coverage.run]

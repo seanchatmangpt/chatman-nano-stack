@@ -1,6 +1,6 @@
 /*
  * Generated OWL C Implementation
- * Timestamp: 2025-07-23T10:39:24.536734
+ * Timestamp: 2025-07-23T10:39:23.858051
  * Compiler: OWL AOT Compiler with Jinja 1.0.0
  */
 
@@ -559,7 +559,7 @@ int owl_self_test() {
 
 int main(int argc, char* argv[]) {
     printf("CNS Ontology Runtime v1.0.0\n");
-    printf("Generated: 2025-07-23T10:39:24.516627\n");
+    printf("Generated: 2025-07-23T10:39:23.838578\n");
     printf("Classes: 3, Properties: 4, Rules: 0\n\n");
     
     /* Check for command line arguments */
@@ -599,7 +599,7 @@ int main(int argc, char* argv[]) {
     /* Default behavior - show system info */
     printf("🔍 System Information:\n");
     printf("- Ontology URI: Unknown\n");
-    printf("- Compilation timestamp: 2025-07-23T10:39:24.516627\n");
+    printf("- Compilation timestamp: 2025-07-23T10:39:23.838578\n");
     printf("- Eightfold stages: %d\n", EIGHTFOLD_STAGE_COUNT);
     printf("- Performance guarantee: <8 CPU cycles\n");
     printf("- Memory model: 8-byte quantum aligned\n");

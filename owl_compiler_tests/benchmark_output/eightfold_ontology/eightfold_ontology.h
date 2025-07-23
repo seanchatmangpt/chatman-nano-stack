@@ -1,11 +1,11 @@
 /*
  * Generated OWL C Header
- * Timestamp: 2025-07-23T10:39:24.552410
+ * Timestamp: 2025-07-23T10:39:24.029787
  * Compiler: OWL AOT Compiler with Jinja 1.0.0
  */
 
-#ifndef OWL_ONTOLOGY_H
-#define OWL_ONTOLOGY_H
+#ifndef EIGHTFOLD_ONTOLOGY_H
+#define EIGHTFOLD_ONTOLOGY_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -17,7 +17,7 @@ extern "C" {
 
 /* Ontology Metadata */
 #define ONTOLOGY_VERSION "1.0.0"
-#define ONTOLOGY_TIMESTAMP "2025-07-23T10:39:24.546797"
+#define ONTOLOGY_TIMESTAMP "2025-07-23T10:39:24.022922"
 #define TOTAL_CLASSES 8
 #define TOTAL_PROPERTIES 0
 #define TOTAL_RULES 0
@@ -328,4 +328,4 @@ bool eightfold_execute_stage(eightfold_context_t* ctx, eightfold_stage_t stage);
 }
 #endif
 
-#endif /* OWL_ONTOLOGY_H */
+#endif /* EIGHTFOLD_ONTOLOGY_H */

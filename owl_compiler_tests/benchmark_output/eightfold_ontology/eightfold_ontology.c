@@ -1,10 +1,10 @@
 /*
  * Generated OWL C Implementation
- * Timestamp: 2025-07-23T10:39:24.564940
+ * Timestamp: 2025-07-23T10:39:24.042640
  * Compiler: OWL AOT Compiler with Jinja 1.0.0
  */
 
-#include "owl_ontology.h"
+#include "eightfold_ontology.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -823,7 +823,7 @@ int owl_self_test() {
 
 int main(int argc, char* argv[]) {
     printf("CNS Ontology Runtime v1.0.0\n");
-    printf("Generated: 2025-07-23T10:39:24.546797\n");
+    printf("Generated: 2025-07-23T10:39:24.022922\n");
     printf("Classes: 8, Properties: 0, Rules: 0\n\n");
     
     /* Check for command line arguments */
@@ -863,7 +863,7 @@ int main(int argc, char* argv[]) {
     /* Default behavior - show system info */
     printf("🔍 System Information:\n");
     printf("- Ontology URI: Unknown\n");
-    printf("- Compilation timestamp: 2025-07-23T10:39:24.546797\n");
+    printf("- Compilation timestamp: 2025-07-23T10:39:24.022922\n");
     printf("- Eightfold stages: %d\n", EIGHTFOLD_STAGE_COUNT);
     printf("- Performance guarantee: <8 CPU cycles\n");
     printf("- Memory model: 8-byte quantum aligned\n");

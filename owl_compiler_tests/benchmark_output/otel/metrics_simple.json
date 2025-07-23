@@ -1,0 +1,229 @@
+{
+  "resource": {
+    "attributes": {
+      "service.name": "owl-compiler",
+      "service.version": "1.0.0"
+    }
+  },
+  "metrics": [
+    {
+      "name": "owl.compile.duration",
+      "value": 135.6191635131836,
+      "unit": "ms",
+      "labels": {
+        "file": "basic_ontology.ttl",
+        "status": "success"
+      },
+      "timestamp": 1753292363878835.0
+    },
+    {
+      "name": "c.compile.duration",
+      "value": 50.7960319519043,
+      "unit": "ms",
+      "labels": {
+        "file": "basic_ontology.ttl"
+      },
+      "timestamp": 1753292363929746.0
+    },
+    {
+      "name": "owl.output.size",
+      "value": 6933,
+      "unit": "bytes",
+      "labels": {
+        "file": "basic_ontology.ttl",
+        "type": ".h"
+      },
+      "timestamp": 1753292363929840.0
+    },
+    {
+      "name": "owl.output.size",
+      "value": 17228,
+      "unit": "bytes",
+      "labels": {
+        "file": "basic_ontology.ttl",
+        "type": ".c"
+      },
+      "timestamp": 1753292363929865.0
+    },
+    {
+      "name": "owl.output.size",
+      "value": 5617,
+      "unit": "bytes",
+      "labels": {
+        "file": "basic_ontology.ttl",
+        "type": ".json"
+      },
+      "timestamp": 1753292363929885.0
+    },
+    {
+      "name": "owl.triples.count",
+      "value": 30,
+      "unit": "triples",
+      "labels": {
+        "file": "basic_ontology.ttl"
+      },
+      "timestamp": 1753292363929887.0
+    },
+    {
+      "name": "owl.classes.count",
+      "value": 3,
+      "unit": "classes",
+      "labels": {
+        "file": "basic_ontology.ttl"
+      },
+      "timestamp": 1753292363929888.0
+    },
+    {
+      "name": "owl.properties.count",
+      "value": 4,
+      "unit": "properties",
+      "labels": {
+        "file": "basic_ontology.ttl"
+      },
+      "timestamp": 1753292363929888.0
+    },
+    {
+      "name": "owl.compile.duration",
+      "value": 133.9111328125,
+      "unit": "ms",
+      "labels": {
+        "file": "eightfold_ontology.ttl",
+        "status": "success"
+      },
+      "timestamp": 1753292364063815.8
+    },
+    {
+      "name": "c.compile.duration",
+      "value": 50.44198036193848,
+      "unit": "ms",
+      "labels": {
+        "file": "eightfold_ontology.ttl"
+      },
+      "timestamp": 1753292364114346.0
+    },
+    {
+      "name": "owl.output.size",
+      "value": 9772,
+      "unit": "bytes",
+      "labels": {
+        "file": "eightfold_ontology.ttl",
+        "type": ".h"
+      },
+      "timestamp": 1753292364114432.0
+    },
+    {
+      "name": "owl.output.size",
+      "value": 25902,
+      "unit": "bytes",
+      "labels": {
+        "file": "eightfold_ontology.ttl",
+        "type": ".c"
+      },
+      "timestamp": 1753292364114448.8
+    },
+    {
+      "name": "owl.output.size",
+      "value": 5910,
+      "unit": "bytes",
+      "labels": {
+        "file": "eightfold_ontology.ttl",
+        "type": ".json"
+      },
+      "timestamp": 1753292364114463.0
+    },
+    {
+      "name": "owl.triples.count",
+      "value": 34,
+      "unit": "triples",
+      "labels": {
+        "file": "eightfold_ontology.ttl"
+      },
+      "timestamp": 1753292364114465.0
+    },
+    {
+      "name": "owl.classes.count",
+      "value": 8,
+      "unit": "classes",
+      "labels": {
+        "file": "eightfold_ontology.ttl"
+      },
+      "timestamp": 1753292364114465.0
+    },
+    {
+      "name": "owl.properties.count",
+      "value": 0,
+      "unit": "properties",
+      "labels": {
+        "file": "eightfold_ontology.ttl"
+      },
+      "timestamp": 1753292364114466.0
+    },
+    {
+      "name": "owl.compile.duration",
+      "value": 135.98179817199707,
+      "unit": "ms",
+      "labels": {
+        "file": "shacl_ontology.ttl",
+        "status": "success"
+      },
+      "timestamp": 1753292364250473.0
+    },
+    {
+      "name": "owl.output.size",
+      "value": 5959,
+      "unit": "bytes",
+      "labels": {
+        "file": "shacl_ontology.ttl",
+        "type": ".h"
+      },
+      "timestamp": 1753292364302770.8
+    },
+    {
+      "name": "owl.output.size",
+      "value": 12865,
+      "unit": "bytes",
+      "labels": {
+        "file": "shacl_ontology.ttl",
+        "type": ".c"
+      },
+      "timestamp": 1753292364302791.0
+    },
+    {
+      "name": "owl.output.size",
+      "value": 4293,
+      "unit": "bytes",
+      "labels": {
+        "file": "shacl_ontology.ttl",
+        "type": ".json"
+      },
+      "timestamp": 1753292364302806.0
+    },
+    {
+      "name": "owl.triples.count",
+      "value": 25,
+      "unit": "triples",
+      "labels": {
+        "file": "shacl_ontology.ttl"
+      },
+      "timestamp": 1753292364302809.0
+    },
+    {
+      "name": "owl.classes.count",
+      "value": 1,
+      "unit": "classes",
+      "labels": {
+        "file": "shacl_ontology.ttl"
+      },
+      "timestamp": 1753292364302809.0
+    },
+    {
+      "name": "owl.properties.count",
+      "value": 3,
+      "unit": "properties",
+      "labels": {
+        "file": "shacl_ontology.ttl"
+      },
+      "timestamp": 1753292364302809.0
+    }
+  ]
+}

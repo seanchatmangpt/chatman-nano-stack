@@ -2,7 +2,8 @@
 #include <string.h>
 #include <stdio.h>
 
-static void* g_arena_ptr = NULL;
+static char g_arena_memory[1024 * 1024];  // 1MB arena
+static void* g_arena_ptr = g_arena_memory;
 static order_t* g_order_buffer = NULL;
 static fast_proof_t g_proof = {.capability = 0x1234567890ABCDEF, .hash = 0xB3C4D5E6F7A8B9C0};
 static rule_t g_rule = {.mask = 0xFFFF, .threshold = 100, .action = 1};

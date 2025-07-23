@@ -1,11 +1,11 @@
 /*
  * Generated OWL C Header
- * Timestamp: 2025-07-23T10:39:24.552410
+ * Timestamp: 2025-07-23T10:39:24.213769
  * Compiler: OWL AOT Compiler with Jinja 1.0.0
  */
 
-#ifndef OWL_ONTOLOGY_H
-#define OWL_ONTOLOGY_H
+#ifndef SHACL_ONTOLOGY_H
+#define SHACL_ONTOLOGY_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -17,10 +17,10 @@ extern "C" {
 
 /* Ontology Metadata */
 #define ONTOLOGY_VERSION "1.0.0"
-#define ONTOLOGY_TIMESTAMP "2025-07-23T10:39:24.546797"
-#define TOTAL_CLASSES 8
-#define TOTAL_PROPERTIES 0
-#define TOTAL_RULES 0
+#define ONTOLOGY_TIMESTAMP "2025-07-23T10:39:24.206880"
+#define TOTAL_CLASSES 1
+#define TOTAL_PROPERTIES 3
+#define TOTAL_RULES 1
 
 /* Namespace Prefixes */
 #define PREFIX_BRICK_URI "https://brickschema.org/schema/Brick#"
@@ -53,18 +53,11 @@ extern "C" {
 #define PREFIX_XML_URI "http://www.w3.org/XML/1998/namespace"
 #define PREFIX_CNS_URI "http://cns.io/ontology#"
 #define PREFIX_EH_URI "http://cns.io/eightfold#"
-#define PREFIX_SHACL_URI "http://www.w3.org/ns/shacl#"
-#define PREFIX__URI "http://example.org/eightfold#"
+#define PREFIX__URI "http://example.org/shacl#"
+#define PREFIX_SH_URI "http://www.w3.org/ns/shacl#"
 
 /* Forward Declarations */
-typedef struct Knowledge_Base_s Knowledge_Base_t;
-typedef struct Intention_Processor_s Intention_Processor_t;
-typedef struct Communication_Interface_s Communication_Interface_t;
-typedef struct Execution_Engine_s Execution_Engine_t;
-typedef struct Maintenance_System_s Maintenance_System_t;
-typedef struct Optimization_Module_s Optimization_Module_t;
-typedef struct Monitoring_Service_s Monitoring_Service_t;
-typedef struct Integration_Hub_s Integration_Hub_t;
+typedef struct Validated_Person_s Validated_Person_t;
 
 /* Eightfold Path Stages */
 typedef enum {
@@ -121,8 +114,8 @@ typedef struct {
 } property_descriptor_t;
 
 /* Class Definitions */
-/*  * Base knowledge representation */
-struct Knowledge_Base_s {
+/* Class: Validated Person */
+struct Validated_Person_s {
     owl_object_t base;
     
     /* Parent class data */
@@ -130,150 +123,19 @@ struct Knowledge_Base_s {
     /* Properties */
     
     /* Constraint validation flags */
+    bool constraint_0_valid;
     
     /* Optimization hints */
 };
 
-/* Constructor/Destructor for Knowledge Base */
-Knowledge_Base_t* knowledge_base_create(void);
-void knowledge_base_destroy(Knowledge_Base_t* obj);
-bool knowledge_base_validate(const Knowledge_Base_t* obj);
-
-/*  * Processes intentions and plans */
-struct Intention_Processor_s {
-    owl_object_t base;
-    
-    /* Parent class data */
-    
-    /* Properties */
-    
-    /* Constraint validation flags */
-    
-    /* Optimization hints */
-};
-
-/* Constructor/Destructor for Intention Processor */
-Intention_Processor_t* intention_processor_create(void);
-void intention_processor_destroy(Intention_Processor_t* obj);
-bool intention_processor_validate(const Intention_Processor_t* obj);
-
-/*  * Handles communication protocols */
-struct Communication_Interface_s {
-    owl_object_t base;
-    
-    /* Parent class data */
-    
-    /* Properties */
-    
-    /* Constraint validation flags */
-    
-    /* Optimization hints */
-};
-
-/* Constructor/Destructor for Communication Interface */
-Communication_Interface_t* communication_interface_create(void);
-void communication_interface_destroy(Communication_Interface_t* obj);
-bool communication_interface_validate(const Communication_Interface_t* obj);
-
-/*  * Executes planned actions */
-struct Execution_Engine_s {
-    owl_object_t base;
-    
-    /* Parent class data */
-    
-    /* Properties */
-    
-    /* Constraint validation flags */
-    
-    /* Optimization hints */
-    struct {
-        bool performance_critical_enabled;
-    } optimization;
-};
-
-/* Constructor/Destructor for Execution Engine */
-Execution_Engine_t* execution_engine_create(void);
-void execution_engine_destroy(Execution_Engine_t* obj);
-bool execution_engine_validate(const Execution_Engine_t* obj);
-
-/*  * Maintains system sustainability */
-struct Maintenance_System_s {
-    owl_object_t base;
-    
-    /* Parent class data */
-    
-    /* Properties */
-    
-    /* Constraint validation flags */
-    
-    /* Optimization hints */
-};
-
-/* Constructor/Destructor for Maintenance System */
-Maintenance_System_t* maintenance_system_create(void);
-void maintenance_system_destroy(Maintenance_System_t* obj);
-bool maintenance_system_validate(const Maintenance_System_t* obj);
-
-/*  * Optimizes system performance */
-struct Optimization_Module_s {
-    owl_object_t base;
-    
-    /* Parent class data */
-    
-    /* Properties */
-    
-    /* Constraint validation flags */
-    
-    /* Optimization hints */
-    struct {
-        bool performance_critical_enabled;
-    } optimization;
-};
-
-/* Constructor/Destructor for Optimization Module */
-Optimization_Module_t* optimization_module_create(void);
-void optimization_module_destroy(Optimization_Module_t* obj);
-bool optimization_module_validate(const Optimization_Module_t* obj);
-
-/*  * Monitors system state */
-struct Monitoring_Service_s {
-    owl_object_t base;
-    
-    /* Parent class data */
-    
-    /* Properties */
-    
-    /* Constraint validation flags */
-    
-    /* Optimization hints */
-};
-
-/* Constructor/Destructor for Monitoring Service */
-Monitoring_Service_t* monitoring_service_create(void);
-void monitoring_service_destroy(Monitoring_Service_t* obj);
-bool monitoring_service_validate(const Monitoring_Service_t* obj);
-
-/*  * Integrates all components */
-struct Integration_Hub_s {
-    owl_object_t base;
-    
-    /* Parent class data */
-    
-    /* Properties */
-    
-    /* Constraint validation flags */
-    
-    /* Optimization hints */
-};
-
-/* Constructor/Destructor for Integration Hub */
-Integration_Hub_t* integration_hub_create(void);
-void integration_hub_destroy(Integration_Hub_t* obj);
-bool integration_hub_validate(const Integration_Hub_t* obj);
+/* Constructor/Destructor for Validated Person */
+Validated_Person_t* validated_person_create(void);
+void validated_person_destroy(Validated_Person_t* obj);
+bool validated_person_validate(const Validated_Person_t* obj);
 
 
 /* Property Descriptors Array */
-extern const property_descriptor_t g_property_descriptors[0];
+extern const property_descriptor_t g_property_descriptors[3];
 
 /* Class Registry */
 typedef struct {
@@ -288,7 +150,7 @@ typedef struct {
     bool (*validator)(const owl_object_t*);
 } class_descriptor_t;
 
-extern const class_descriptor_t g_class_descriptors[8];
+extern const class_descriptor_t g_class_descriptors[1];
 
 /* Reasoning Engine */
 typedef struct {
@@ -299,7 +161,7 @@ typedef struct {
     bool (*apply_rule)(owl_object_t* subject);
 } reasoning_rule_t;
 
-extern const reasoning_rule_t g_reasoning_rules[0];
+extern const reasoning_rule_t g_reasoning_rules[1];
 
 /* API Functions */
 owl_object_t* owl_create_instance(const char* class_uri);
@@ -328,4 +190,4 @@ bool eightfold_execute_stage(eightfold_context_t* ctx, eightfold_stage_t stage);
 }
 #endif
 
-#endif /* OWL_ONTOLOGY_H */
+#endif /* SHACL_ONTOLOGY_H */

@@ -22,7 +22,7 @@ from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.metrics.export import ConsoleMetricExporter, PeriodicExportingMetricReader
 from opentelemetry.sdk.trace.export import ConsoleSpanExporter, BatchSpanProcessor
-from opentelemetry.instrumentation.system_metrics import SystemMetricsInstrumentor
+# from opentelemetry.instrumentation.system_metrics import SystemMetricsInstrumentor
 
 
 @dataclass
@@ -61,7 +61,7 @@ class CNSPipelineValidator:
         tracer_provider.add_span_processor(span_processor)
         
         # System metrics instrumentation
-        SystemMetricsInstrumentor().instrument()
+        # SystemMetricsInstrumentor().instrument()
         
         self.meter = metrics.get_meter("cns.pipeline.validator", version="1.0.0")
         self.tracer = trace.get_tracer("cns.pipeline.validator")
@@ -987,7 +987,7 @@ class CNSPipelineValidator:
             
             print(f"8-Tick (≤8 CPU cycles):    {eight_tick} ({latency} cycles)")
             print(f"8-Hour (Reliability):      {eight_hour} ({overall_score:.1f}/100 score)")
-            print(f"8-MB/s (Throughput):       {eight_mb} ({throughput:.0f} ops/sec)")
+            print(f"8-MB/s (Throughput):       {eight_mb} ({throughput if isinstance(throughput, (int, float)) else 'N/A'} ops/sec)")
         
         # Recommendations
         all_recommendations = []

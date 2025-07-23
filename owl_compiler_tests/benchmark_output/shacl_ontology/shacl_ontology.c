@@ -1,10 +1,10 @@
 /*
  * Generated OWL C Implementation
- * Timestamp: 2025-07-23T10:39:24.536734
+ * Timestamp: 2025-07-23T10:39:24.226654
  * Compiler: OWL AOT Compiler with Jinja 1.0.0
  */
 
-#include "basic_ontology.h"
+#include "shacl_ontology.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -12,159 +12,111 @@
 #include <time.h>
 
 /* Property Descriptors */
-const property_descriptor_t g_property_descriptors[4] = {
+const property_descriptor_t g_property_descriptors[3] = {
     {
-        .uri = "http://example.org/ontology#worksFor",
-        .label = "works for",
+        .uri = "http://example.org/shacl#hasParent",
+        .label = "has parent",
         .type = PROPERTY_TYPE_OBJECT,
-        .characteristics = 0,
+        .characteristics = Irreflexive,
         .domain_classes = (const char*[]){
-            "http://example.org/ontology#Employee",
             NULL
         },
         .range_classes = (const char*[]){
-            "http://example.org/ontology#Organization",
             NULL
         },
         .inverse_property = NULL,
-        .domain_count = 1,
-        .range_count = 1
+        .domain_count = 0,
+        .range_count = 0
     },
     {
-        .uri = "http://example.org/ontology#employs",
-        .label = "employs",
+        .uri = "http://example.org/shacl#hasSibling",
+        .label = "has sibling",
         .type = PROPERTY_TYPE_OBJECT,
-        .characteristics = 0,
+        .characteristics = Symmetric,
         .domain_classes = (const char*[]){
-            "http://example.org/ontology#Organization",
             NULL
         },
         .range_classes = (const char*[]){
-            "http://example.org/ontology#Employee",
-            NULL
-        },
-        .inverse_property = "http://example.org/ontology#worksFor",
-        .domain_count = 1,
-        .range_count = 1
-    },
-    {
-        .uri = "http://example.org/ontology#hasName",
-        .label = "has name",
-        .type = PROPERTY_TYPE_DATATYPE,
-        .characteristics = 0,
-        .domain_classes = (const char*[]){
-            "http://example.org/ontology#Person",
-            NULL
-        },
-        .range_classes = (const char*[]){
-            "http://www.w3.org/2001/XMLSchema#string",
             NULL
         },
         .inverse_property = NULL,
-        .domain_count = 1,
-        .range_count = 1
+        .domain_count = 0,
+        .range_count = 0
     },
     {
-        .uri = "http://example.org/ontology#hasAge",
-        .label = "has age",
-        .type = PROPERTY_TYPE_DATATYPE,
-        .characteristics = 0,
+        .uri = "http://example.org/shacl#hasAncestor",
+        .label = "has ancestor",
+        .type = PROPERTY_TYPE_OBJECT,
+        .characteristics = Transitive,
         .domain_classes = (const char*[]){
-            "http://example.org/ontology#Person",
             NULL
         },
         .range_classes = (const char*[]){
-            "http://www.w3.org/2001/XMLSchema#integer",
             NULL
         },
         .inverse_property = NULL,
-        .domain_count = 1,
-        .range_count = 1
+        .domain_count = 0,
+        .range_count = 0
     }
 };
 
 /* Forward Declarations for Constructors/Destructors */
-owl_object_t* person_constructor(void);
-void person_destructor(owl_object_t* obj);
-bool person_validator(const owl_object_t* obj);
-owl_object_t* organization_constructor(void);
-void organization_destructor(owl_object_t* obj);
-bool organization_validator(const owl_object_t* obj);
-owl_object_t* employee_constructor(void);
-void employee_destructor(owl_object_t* obj);
-bool employee_validator(const owl_object_t* obj);
+owl_object_t* validated_person_constructor(void);
+void validated_person_destructor(owl_object_t* obj);
+bool validated_person_validator(const owl_object_t* obj);
 
 /* Class Descriptors */
-const class_descriptor_t g_class_descriptors[3] = {
+const class_descriptor_t g_class_descriptors[1] = {
     {
-        .uri = "http://example.org/ontology#Person",
-        .label = "Person",
-        .instance_size = sizeof(Person_t),
+        .uri = "http://example.org/shacl#ValidatedPerson",
+        .label = "Validated Person",
+        .instance_size = sizeof(Validated_Person_t),
         .eightfold_stage = EIGHTFOLD_STAGE_COUNT,
         .parent_classes = (const char*[]){
             NULL
         },
         .parent_count = 0,
-        .constructor = person_constructor,
-        .destructor = person_destructor,
-        .validator = person_validator
-    },
-    {
-        .uri = "http://example.org/ontology#Organization",
-        .label = "Organization",
-        .instance_size = sizeof(Organization_t),
-        .eightfold_stage = EIGHTFOLD_STAGE_COUNT,
-        .parent_classes = (const char*[]){
-            NULL
-        },
-        .parent_count = 0,
-        .constructor = organization_constructor,
-        .destructor = organization_destructor,
-        .validator = organization_validator
-    },
-    {
-        .uri = "http://example.org/ontology#Employee",
-        .label = "Employee",
-        .instance_size = sizeof(Employee_t),
-        .eightfold_stage = EIGHTFOLD_STAGE_COUNT,
-        .parent_classes = (const char*[]){
-            "http://example.org/ontology#Person",
-            NULL
-        },
-        .parent_count = 1,
-        .constructor = employee_constructor,
-        .destructor = employee_destructor,
-        .validator = employee_validator
+        .constructor = validated_person_constructor,
+        .destructor = validated_person_destructor,
+        .validator = validated_person_validator
     }
 };
 
 /* Reasoning Rules */
-const reasoning_rule_t g_reasoning_rules[0] = {
+const reasoning_rule_t g_reasoning_rules[1] = {
+    {
+        .id = "rule_0",
+        .type = "inference",
+        .confidence = 1.0,
+        .stage = EIGHTFOLD_STAGE_COUNT,
+        .apply_rule = NULL  /* TODO: Implement rule application */
+    }
 };
 
 /* Class Implementations */
 
-/* Person Implementation */
-Person_t* person_create(void) {
-    Person_t* obj = calloc(1, sizeof(Person_t));
+/* Validated Person Implementation */
+Validated_Person_t* validated_person_create(void) {
+    Validated_Person_t* obj = calloc(1, sizeof(Validated_Person_t));
     if (!obj) return NULL;
     
     /* Initialize base object */
-    obj->base.uri = "http://example.org/ontology#Person";
-    obj->base.label = "Person";
-    obj->base.comment = "Represents a person entity";
+    obj->base.uri = "http://example.org/shacl#ValidatedPerson";
+    obj->base.label = "Validated Person";
+    obj->base.comment = NULL;
     obj->base.eightfold_stage = EIGHTFOLD_STAGE_COUNT;
     obj->base.type_id = 0;
     obj->base.instance_data = obj;
     
     /* Initialize constraints as valid by default */
+    obj->constraint_0_valid = true;
     
     /* Initialize optimization hints */
     
     return obj;
 }
 
-void person_destroy(Person_t* obj) {
+void validated_person_destroy(Validated_Person_t* obj) {
     if (!obj) return;
     
     /* Clean up parent references */
@@ -174,152 +126,35 @@ void person_destroy(Person_t* obj) {
     free(obj);
 }
 
-bool person_validate(const Person_t* obj) {
+bool validated_person_validate(const Validated_Person_t* obj) {
     if (!obj) return false;
     
     /* Validate constraints */
-    
-    /* Validate parent objects */
-    
-    return true;
-}
-
-owl_object_t* person_constructor(void) {
-    return (owl_object_t*)person_create();
-}
-
-void person_destructor(owl_object_t* obj) {
-    person_destroy((Person_t*)obj);
-}
-
-bool person_validator(const owl_object_t* obj) {
-    return person_validate((const Person_t*)obj);
-}
-
-
-/* Organization Implementation */
-Organization_t* organization_create(void) {
-    Organization_t* obj = calloc(1, sizeof(Organization_t));
-    if (!obj) return NULL;
-    
-    /* Initialize base object */
-    obj->base.uri = "http://example.org/ontology#Organization";
-    obj->base.label = "Organization";
-    obj->base.comment = "Represents an organization";
-    obj->base.eightfold_stage = EIGHTFOLD_STAGE_COUNT;
-    obj->base.type_id = 1;
-    obj->base.instance_data = obj;
-    
-    /* Initialize constraints as valid by default */
-    
-    /* Initialize optimization hints */
-    
-    return obj;
-}
-
-void organization_destroy(Organization_t* obj) {
-    if (!obj) return;
-    
-    /* Clean up parent references */
-    
-    /* Clean up property objects */
-    if (obj->employs) {
-        employee_destroy(obj->employs);
-    }
-    
-    free(obj);
-}
-
-bool organization_validate(const Organization_t* obj) {
-    if (!obj) return false;
-    
-    /* Validate constraints */
-    
-    /* Validate parent objects */
-    
-    return true;
-}
-
-owl_object_t* organization_constructor(void) {
-    return (owl_object_t*)organization_create();
-}
-
-void organization_destructor(owl_object_t* obj) {
-    organization_destroy((Organization_t*)obj);
-}
-
-bool organization_validator(const owl_object_t* obj) {
-    return organization_validate((const Organization_t*)obj);
-}
-
-
-/* Employee Implementation */
-Employee_t* employee_create(void) {
-    Employee_t* obj = calloc(1, sizeof(Employee_t));
-    if (!obj) return NULL;
-    
-    /* Initialize base object */
-    obj->base.uri = "http://example.org/ontology#Employee";
-    obj->base.label = "Employee";
-    obj->base.comment = "A person who works for an organization";
-    obj->base.eightfold_stage = EIGHTFOLD_STAGE_COUNT;
-    obj->base.type_id = 2;
-    obj->base.instance_data = obj;
-    
-    /* Initialize constraints as valid by default */
-    
-    /* Initialize optimization hints */
-    obj->optimization.memory_layout_enabled = true;
-    
-    return obj;
-}
-
-void employee_destroy(Employee_t* obj) {
-    if (!obj) return;
-    
-    /* Clean up parent references */
-    if (obj->person_parent) {
-        person_destroy(obj->person_parent);
-    }
-    
-    /* Clean up property objects */
-    if (obj->works_for) {
-        organization_destroy(obj->works_for);
-    }
-    
-    free(obj);
-}
-
-bool employee_validate(const Employee_t* obj) {
-    if (!obj) return false;
-    
-    /* Validate constraints */
-    
-    /* Validate parent objects */
-    if (obj->person_parent && 
-        !person_validate(obj->person_parent)) {
+    if (!obj->constraint_0_valid) {
         return false;
     }
     
+    /* Validate parent objects */
+    
     return true;
 }
 
-owl_object_t* employee_constructor(void) {
-    return (owl_object_t*)employee_create();
+owl_object_t* validated_person_constructor(void) {
+    return (owl_object_t*)validated_person_create();
 }
 
-void employee_destructor(owl_object_t* obj) {
-    employee_destroy((Employee_t*)obj);
+void validated_person_destructor(owl_object_t* obj) {
+    validated_person_destroy((Validated_Person_t*)obj);
 }
 
-bool employee_validator(const owl_object_t* obj) {
-    return employee_validate((const Employee_t*)obj);
+bool validated_person_validator(const owl_object_t* obj) {
+    return validated_person_validate((const Validated_Person_t*)obj);
 }
 
 
 /* API Implementation */
 owl_object_t* owl_create_instance(const char* class_uri) {
-    for (size_t i = 0; i < 3; i++) {
+    for (size_t i = 0; i < 1; i++) {
         if (strcmp(g_class_descriptors[i].uri, class_uri) == 0) {
             return g_class_descriptors[i].constructor();
         }
@@ -330,7 +165,7 @@ owl_object_t* owl_create_instance(const char* class_uri) {
 void owl_destroy_instance(owl_object_t* obj) {
     if (!obj) return;
     
-    for (size_t i = 0; i < 3; i++) {
+    for (size_t i = 0; i < 1; i++) {
         if (g_class_descriptors[i].instance_size == obj->type_id) {
             g_class_descriptors[i].destructor(obj);
             return;
@@ -341,7 +176,7 @@ void owl_destroy_instance(owl_object_t* obj) {
 bool owl_validate_instance(const owl_object_t* obj) {
     if (!obj) return false;
     
-    for (size_t i = 0; i < 3; i++) {
+    for (size_t i = 0; i < 1; i++) {
         if (g_class_descriptors[i].instance_size == obj->type_id) {
             return g_class_descriptors[i].validator(obj);
         }
@@ -350,7 +185,7 @@ bool owl_validate_instance(const owl_object_t* obj) {
 }
 
 const property_descriptor_t* owl_get_property(const char* property_uri) {
-    for (size_t i = 0; i < 4; i++) {
+    for (size_t i = 0; i < 3; i++) {
         if (strcmp(g_property_descriptors[i].uri, property_uri) == 0) {
             return &g_property_descriptors[i];
         }
@@ -359,7 +194,7 @@ const property_descriptor_t* owl_get_property(const char* property_uri) {
 }
 
 const class_descriptor_t* owl_get_class(const char* class_uri) {
-    for (size_t i = 0; i < 3; i++) {
+    for (size_t i = 0; i < 1; i++) {
         if (strcmp(g_class_descriptors[i].uri, class_uri) == 0) {
             return &g_class_descriptors[i];
         }
@@ -371,7 +206,7 @@ bool owl_apply_reasoning(owl_object_t* obj) {
     if (!obj) return false;
     
     bool applied = false;
-    for (size_t i = 0; i < 0; i++) {
+    for (size_t i = 0; i < 1; i++) {
         if (g_reasoning_rules[i].apply_rule && g_reasoning_rules[i].apply_rule(obj)) {
             applied = true;
         }
@@ -502,7 +337,7 @@ int owl_self_test() {
     tests_total++;
     printf("Test 2: Class descriptors... ");
     bool descriptors_valid = true;
-    for (size_t i = 0; i < 3; i++) {
+    for (size_t i = 0; i < 1; i++) {
         if (!g_class_descriptors[i].uri || !g_class_descriptors[i].label) {
             descriptors_valid = false;
             break;
@@ -519,7 +354,7 @@ int owl_self_test() {
     tests_total++;
     printf("Test 3: Property descriptors... ");
     bool properties_valid = true;
-    for (size_t i = 0; i < 4; i++) {
+    for (size_t i = 0; i < 3; i++) {
         if (!g_property_descriptors[i].uri || !g_property_descriptors[i].label) {
             properties_valid = false;
             break;
@@ -559,8 +394,8 @@ int owl_self_test() {
 
 int main(int argc, char* argv[]) {
     printf("CNS Ontology Runtime v1.0.0\n");
-    printf("Generated: 2025-07-23T10:39:24.516627\n");
-    printf("Classes: 3, Properties: 4, Rules: 0\n\n");
+    printf("Generated: 2025-07-23T10:39:24.206880\n");
+    printf("Classes: 1, Properties: 3, Rules: 1\n\n");
     
     /* Check for command line arguments */
     bool self_test = false;
@@ -588,7 +423,7 @@ int main(int argc, char* argv[]) {
     if (deploy_production) {
         printf("🚀 Production Deployment\n"); 
         printf("=======================\n");
-        printf("✓ Ontology validated: 3 classes loaded\n");
+        printf("✓ Ontology validated: 1 classes loaded\n");
         printf("✓ Performance contracts: <8 CPU cycles guaranteed\n");
         printf("✓ Memory alignment: 8-byte quantum compliance\n");
         printf("✓ UHFT optimization: nanosecond determinism enabled\n");
@@ -599,7 +434,7 @@ int main(int argc, char* argv[]) {
     /* Default behavior - show system info */
     printf("🔍 System Information:\n");
     printf("- Ontology URI: Unknown\n");
-    printf("- Compilation timestamp: 2025-07-23T10:39:24.516627\n");
+    printf("- Compilation timestamp: 2025-07-23T10:39:24.206880\n");
     printf("- Eightfold stages: %d\n", EIGHTFOLD_STAGE_COUNT);
     printf("- Performance guarantee: <8 CPU cycles\n");
     printf("- Memory model: 8-byte quantum aligned\n");

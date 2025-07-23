@@ -21,12 +21,16 @@ from opentelemetry.sdk.metrics.export import ConsoleMetricExporter, PeriodicExpo
 class CNSHealthMonitor:
     """Monitor CNS system health with OTEL integration"""
     
-    def __init__(self):
-        # Initialize OTEL metrics
-        metric_reader = PeriodicExportingMetricReader(
-            ConsoleMetricExporter(), export_interval_millis=5000
-        )
-        metrics.set_meter_provider(MeterProvider(metric_readers=[metric_reader]))
+    def __init__(self, json_output=False):
+        # Initialize OTEL metrics - suppress console output for JSON format
+        if not json_output:
+            metric_reader = PeriodicExportingMetricReader(
+                ConsoleMetricExporter(), export_interval_millis=5000
+            )
+            metrics.set_meter_provider(MeterProvider(metric_readers=[metric_reader]))
+        else:
+            # Silent metrics provider for JSON output
+            metrics.set_meter_provider(MeterProvider())
         
         self.meter = metrics.get_meter("cns.health", version="1.0.0")
         
@@ -227,7 +231,7 @@ def main():
                        help='Watch mode - refresh every N seconds')
     args = parser.parse_args()
     
-    monitor = CNSHealthMonitor()
+    monitor = CNSHealthMonitor(json_output=(args.format == 'json'))
     
     if args.watch:
         try:

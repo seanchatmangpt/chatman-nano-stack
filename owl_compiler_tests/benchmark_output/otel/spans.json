@@ -1,0 +1,98 @@
+[
+  {
+    "traceId": "trace-1753292336128187",
+    "spanId": "span-1753292336128188",
+    "operationName": "compile",
+    "serviceName": "owl_compiler",
+    "startTime": 1753292336128188.8,
+    "attributes": {
+      "file": "test_data/basic_ontology.ttl",
+      "compiler": "owl_compiler.py"
+    },
+    "events": [
+      {
+        "name": "error",
+        "timestamp": 1753292336160392.0,
+        "attributes": {
+          "error": "argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'dict'"
+        }
+      }
+    ],
+    "status": "ERROR",
+    "endTime": 1753292336160393.0,
+    "duration": 32204.25
+  },
+  {
+    "traceId": "trace-1753292336160404",
+    "spanId": "span-1753292336160405",
+    "operationName": "compile",
+    "serviceName": "owl_compiler",
+    "startTime": 1753292336160405.0,
+    "attributes": {
+      "file": "test_data/eightfold_ontology.ttl",
+      "compiler": "owl_compiler.py"
+    },
+    "events": [
+      {
+        "name": "error",
+        "timestamp": 1753292336185718.0,
+        "attributes": {
+          "error": "argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'dict'"
+        }
+      }
+    ],
+    "status": "ERROR",
+    "endTime": 1753292336185719.0,
+    "duration": 25314.0
+  },
+  {
+    "traceId": "trace-1753292336185731",
+    "spanId": "span-1753292336185731",
+    "operationName": "compile",
+    "serviceName": "owl_compiler",
+    "startTime": 1753292336185732.2,
+    "attributes": {
+      "file": "test_data/shacl_ontology.ttl",
+      "compiler": "owl_compiler.py"
+    },
+    "events": [
+      {
+        "name": "error",
+        "timestamp": 1753292336209591.2,
+        "attributes": {
+          "error": "argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'dict'"
+        }
+      }
+    ],
+    "status": "ERROR",
+    "endTime": 1753292336209591.2,
+    "duration": 23859.0
+  },
+  {
+    "traceId": "trace-1753292336209601",
+    "spanId": "span-1753292336209601",
+    "operationName": "pipeline",
+    "serviceName": "owl_lifecycle",
+    "startTime": 1753292336209602.0,
+    "attributes": {
+      "files": [
+        "test_data/basic_ontology.ttl",
+        "test_data/eightfold_ontology.ttl",
+        "test_data/shacl_ontology.ttl"
+      ],
+      "compiler": "owl_compiler_lifecycle.py"
+    },
+    "events": [
+      {
+        "name": "error",
+        "timestamp": 1753292336209616.0,
+        "attributes": {
+          "error": "'dict' object has no attribute 'log_level'"
+        }
+      }
+    ],
+    "status": "ERROR",
+    "endTime": 1753292336209617.0,
+    "duration": 15.0
+  }
+]
