@@ -1,0 +1,141 @@
+name: CNS Continuous Integration
+on:
+  push:
+    branches: [master, main, develop]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      
+      - name: Install dependencies
+        run: uv sync --dev
+      
+      - name: Run ruff
+        run: uv run ruff check .
+      
+      - name: Check formatting
+        run: uv run ruff format --check .
+
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc make
+      
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      
+      - name: Install dependencies
+        run: uv sync
+      
+      - name: Run neural integration tests
+        run: uv run python neural_integration_test.py
+      
+      - name: Run TTL2DSPy tests
+        run: |
+          # Test transpiler
+          uv run python ttl2dspy.py ontologies/generated/uhft/uhft_core.ttl test_output.py
+          
+          # Verify output
+          if [ ! -f test_output.py ]; then
+            echo "TTL2DSPy failed to generate output"
+            exit 1
+          fi
+      
+      - name: Test C compilation
+        run: |
+          # Compile a test ontology
+          uv run python owl_compiler.py ontologies/generated/uhft/uhft_core.ttl --output test_build
+          
+          # Build the C code
+          cd test_build
+          make
+          
+          # Run self-test
+          ./uhft_core --self-test
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  performance:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          uv sync
+      
+      - name: Run performance benchmarks
+        run: |
+          uv run python run_benchmark.py
+          
+          # Extract metrics for PR comment
+          SCORE=$(grep "Performance Score:" benchmark-*.txt | cut -d':' -f2 | cut -d'/' -f1 | tr -d ' ')
+          echo "PERF_SCORE=$SCORE" >> $GITHUB_ENV
+      
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Performance Results\n\n- Performance Score: **${{ env.PERF_SCORE }}/100**\n- Full report available in artifacts`
+            })

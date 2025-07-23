@@ -13,7 +13,7 @@ The Chatman Nano Stack isn't just another semantic compiler—it's a **paradigm 
 
 ### What We've Solved
 
-**The Impossible Trinity of Trading Systems:**
+**The Impossible Trinity of Real-Time Systems:**
 1. **Speed** (nanosecond determinism) 
 2. **Correctness** (mathematical proof of behavior)
 3. **Adaptability** (self-healing under any condition)
@@ -25,18 +25,18 @@ Previous systems forced you to choose two. CNS delivers all three through revolu
 ### 1. Semantic-First Compilation
 ```turtle
 # Human writes this (business intent)
-:TradingRule a uhft:CriticalPath ;
+:RealTimeRule a cns:CriticalPath ;
     :maxLatency "8 CPU cycles" ;
-    :validates :OrderFlow ;
-    :healsOn :NetworkPartition .
+    :validates :DataFlow ;
+    :healsOn :SystemPartition .
 ```
 
 ```c
 // CNS generates this (bulletproof execution)
 __attribute__((hot, flatten))
-static inline bool validate_order_8tick(const order_t* o) {
+static inline bool validate_data_8tick(const data_t* d) {
     return __builtin_expect(
-        (o->price_set & o->quantity_valid & o->risk_approved), 1
+        (d->valid & d->processed & d->approved), 1
     );
 }
 ```
@@ -79,10 +79,10 @@ This isn't just philosophy—it's **architectural law** that makes CNS systems m
 
 ### Real Production Numbers
 ```
-Order Validation:     2.1ns avg, 4.3ns worst-case
+Data Validation:      2.1ns avg, 4.3ns worst-case
 Rule Compilation:     1,247 rules/second (sustained)
 System Recovery:      43ms cold start (including kernel)  
-Context Switching:    0.8ns (UHFT-optimized BitActor)
+Context Switching:    0.8ns (RealTime-optimized BitActor)
 Memory Efficiency:    8-byte quantum alignment (100%)
 ```
 
@@ -97,7 +97,7 @@ The system **rewrites its own compilation rules** based on production performanc
 # CNS discovers this optimization automatically
 @semantic_learning(confidence=0.94)
 def discovered_pattern_7843():
-    """Auto-discovered: Order batching reduces latency 23%"""
+    """Auto-discovered: Data batching reduces latency 23%"""
     return vectorize_validation_path(batch_size=optimal_discovered_size)
 ```
 
@@ -115,9 +115,9 @@ Business rules exist in quantum superposition until measurement (execution) coll
 ```python
 # Automatically bridges semantic knowledge with neural reasoning
 @reality_adaptive
-class UltraHighFrequencyAgent(dspy.Module):
-    def forward(self, market_state):
-        semantic_constraints = self.ttl_reasoning(market_state)
+class RealTimeAgent(dspy.Module):
+    def forward(self, system_state):
+        semantic_constraints = self.ttl_reasoning(system_state)
         neural_predictions = self.dspy_inference(semantic_constraints)
         return quantum_collapse(semantic_constraints, neural_predictions)
 ```
@@ -152,7 +152,7 @@ class UltraHighFrequencyAgent(dspy.Module):
 ┌──────────────────▼───────────────────────────────────────────┐
 │                       REALITY INTERFACE                      │
 │     ┌─────────────┐         ┌──────────────────┐             │
-│     │   Trading   │◄───────►│   Self-Healing   │             │
+│     │   Real-Time │◄───────►│   Self-Healing   │             │
 │     │   Systems   │         │    Runtime       │             │
 │     └─────────────┘         └──────────────────┘             │
 └──────────────────────────────────────────────────────────────┘
@@ -171,10 +171,10 @@ cd cns
 ./setup.py
 
 # Compile your first hyper-intelligent system
-make owl-compile ARGS="ontologies/generated/uhft/uhft_master.ttl --output live_system/"
+make owl-compile ARGS="ontologies/generated/realtime/realtime_master.ttl --output live_system/"
 
 # Deploy to production (yes, it's that reliable)
-make full-benchmark && ./live_system/uhft_master --deploy-production
+make full-benchmark && ./live_system/realtime_master --deploy-production
 ```
 
 ### Verification in 3 Commands
@@ -214,7 +214,7 @@ from cns import ChainOfNanoStacks
 # Deploy a swarm of hyper-intelligent agents
 swarm = ChainOfNanoStacks()
 swarm.initialize(topology="mesh", agents=8, cognitive_framework="eightfold")
-swarm.orchestrate("Optimize entire UHFT pipeline for maximum alpha generation")
+swarm.orchestrate("Optimize entire real-time pipeline for maximum performance")
 
 # Result: Autonomous optimization across all systems
 ```
@@ -226,7 +226,7 @@ from cns.reality_adaptive import TTL2DSPy
 # Bridge logical reasoning with neural intuition
 bridge = TTL2DSPy()
 hybrid_intelligence = bridge.fuse(
-    semantic_ontology="trading_rules.ttl",
+    semantic_ontology="realtime_rules.ttl",
     neural_model="gpt-4-turbo", 
     quantum_entanglement=True
 )
@@ -244,13 +244,13 @@ cns-status
 ## The Competitive Advantage
 
 ### What Others Build
-- **Traditional HFT:** Hand-optimized C++ that breaks when markets change
-- **ML Trading:** Black-box neural networks that fail catastrophically  
+- **Traditional Real-Time:** Hand-optimized C++ that breaks when requirements change
+- **ML Systems:** Black-box neural networks that fail catastrophically  
 - **Rule Engines:** Slow, brittle systems that can't adapt
 
 ### What CNS Delivers
 - **Semantic Certainty:** Rules written in human language, executed as optimized machine code
-- **Autonomous Evolution:** System improves itself based on market conditions
+- **Autonomous Evolution:** System improves itself based on operational conditions
 - **Mathematical Guarantees:** Provable correctness under all conditions
 - **Sub-Nanosecond Execution:** Performance that approaches physical limits
 
@@ -265,7 +265,7 @@ cns-status
 ### What We Provide
 - **24/7 Monitoring:** We know about problems before you do
 - **Performance Guarantees:** SLA violations trigger automatic compensation
-- **Semantic Updates:** New market regulations become code automatically
+- **Semantic Updates:** New requirements become code automatically
 - **Evolution Reports:** Monthly intelligence improvements documented
 
 ## The Chatman Legacy

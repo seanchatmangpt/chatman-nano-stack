@@ -1,7 +1,7 @@
 [project]
 name = "cns"
 version = "8.0.0"
-description = "Computational Narrative System - Semantic AOT Compiler for UHFT Trading Systems"
+description = "Computational Narrative System - Semantic AOT Compiler for Real-Time Systems"
 authors = [
     { name = "James I. Chatman", email = "james@chatman.ai" },
     { name = "Sean A. Chatman", email = "sean@chatman.ai" },
@@ -9,14 +9,23 @@ authors = [
 readme = "README.md"
 license = { text = "Proprietary" }
 requires-python = ">=3.8"
-keywords = ["semantic-web", "ontology", "trading", "uhft", "aot-compiler", "owl", "ttl", "c-codegen"]
+keywords = [
+    "semantic-web",
+    "ontology",
+    "realtime",
+    "aot-compiler",
+    "owl",
+    "ttl",
+    "c-codegen",
+    "ultra-low-latency",
+]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Financial and Insurance Industry",
     "Intended Audience :: Developers",
-    "Topic :: Office/Business :: Financial :: Investment",
+    "Intended Audience :: Information Technology",
     "Topic :: Software Development :: Code Generators",
     "Topic :: Software Development :: Compilers",
+    "Topic :: System :: Real Time",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -29,33 +38,33 @@ dependencies = [
     # Core semantic processing
     "rdflib>=7.0.0",
     "rdflib-jsonld>=0.6.2",
-    
+
     # Template engine for C code generation
     "jinja2>=3.1.0",
-    
+
     # DSPy integration for neural reasoning
     "dspy-ai>=2.4.0",
-    
+
     # Performance and monitoring  
     "opentelemetry-api>=1.12.0",
     "opentelemetry-sdk>=1.12.0",
-    
+
     # Development and testing
     "pytest>=7.0.0",
     "pytest-benchmark>=4.0.0",
     "pytest-cov>=4.0.0",
-    
+
     # Type checking and linting
     "mypy>=1.5.0",
     "black>=23.0.0",
     "ruff>=0.1.0",
-    
+
     # Configuration and CLI
     "pydantic>=2.0.0",
     "typer>=0.9.0",
     "rich>=13.0.0",
     "psutil>=5.9.0",
-    
+
     # Data processing
     "pyyaml>=6.0.0",
     "toml>=0.10.2",
@@ -69,17 +78,9 @@ dev = [
     "sphinx-rtd-theme>=1.3.0",
 ]
 
-benchmark = [
-    "psutil>=5.9.0",
-    "memory-profiler>=0.61.0",
-    "py-spy>=0.3.14",
-]
+benchmark = ["psutil>=5.9.0", "memory-profiler>=0.61.0", "py-spy>=0.3.14"]
 
-trading = [
-    "numpy>=1.24.0",
-    "pandas>=2.0.0",
-    "scipy>=1.10.0",
-]
+trading = ["numpy>=1.24.0", "pandas>=2.0.0", "scipy>=1.10.0"]
 
 [project.urls]
 Homepage = "https://github.com/chatmangpt/cns"
@@ -99,11 +100,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = [
-    "src/cns",
-    "ontologies",
-    "generated_c",
-]
+packages = ["src/cns", "ontologies", "generated_c"]
 
 [tool.uv]
 dev-dependencies = [
@@ -116,9 +113,7 @@ dev-dependencies = [
 ]
 
 [tool.uv.workspace]
-members = [
-    "hyperintel-ttl2dspy",
-]
+members = ["hyperintel-ttl2dspy"]
 
 [tool.black]
 line-length = 100
@@ -156,9 +151,9 @@ select = [
     "UP", # pyupgrade
 ]
 ignore = [
-    "E501",  # line too long, handled by black
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
+    "E501", # line too long, handled by black
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
 ]
 exclude = [
     ".bzr",
@@ -207,20 +202,13 @@ strict_equality = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
-module = [
-    "rdflib.*",
-    "dspy.*",
-    "opentelemetry.*",
-]
+module = ["rdflib.*", "dspy.*", "opentelemetry.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = "-ra -q --strict-markers --strict-config"
-testpaths = [
-    "tests",
-    "owl_compiler_tests",
-]
+testpaths = ["tests", "owl_compiler_tests"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
@@ -229,18 +217,8 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = [
-    "owl_compiler",
-    "ttl2dspy", 
-    "aot_lifecycle",
-    "run_benchmark",
-]
-omit = [
-    "*/tests/*",
-    "*/test_*",
-    "generated_c/*",
-    "v8/*",
-]
+source = ["owl_compiler", "ttl2dspy", "aot_lifecycle", "run_benchmark"]
+omit = ["*/tests/*", "*/test_*", "generated_c/*", "v8/*"]
 
 [tool.coverage.report]
 exclude_lines = [

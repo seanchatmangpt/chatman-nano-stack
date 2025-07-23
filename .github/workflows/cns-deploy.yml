@@ -1,0 +1,186 @@
+name: CNS Production Deployment
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+          - local
+
+jobs:
+  validate:
+    name: Validate CNS System
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      
+      - name: Install dependencies
+        run: uv sync
+      
+      - name: Run OTEL validation
+        run: uv run python validate_otel.py
+      
+      - name: Upload validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-report
+          path: |
+            otel-validation-*.json
+            cns-health-*.json
+
+  benchmark:
+    name: Performance Benchmarks
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      
+      - name: Install dependencies
+        run: uv sync
+      
+      - name: Run benchmarks
+        run: uv run python run_benchmark.py
+      
+      - name: Check performance thresholds
+        run: |
+          # Extract performance score
+          SCORE=$(grep "Performance Score:" benchmark-report.txt | cut -d':' -f2 | cut -d'/' -f1 | tr -d ' ')
+          echo "Performance Score: $SCORE"
+          
+          # Fail if score < 80
+          if (( $(echo "$SCORE < 80" | bc -l) )); then
+            echo "Performance score too low: $SCORE/100"
+            exit 1
+          fi
+
+  build:
+    name: Build CNS Artifacts
+    needs: [validate, benchmark]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc make clang
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      
+      - name: Install dependencies
+        run: uv sync
+      
+      - name: Compile all ontologies
+        run: |
+          # Find and compile all TTL files
+          for ttl in $(find ontologies -name "*.ttl"); do
+            echo "Compiling $ttl..."
+            uv run python owl_compiler.py "$ttl" --output "build/$(basename $ttl .ttl)"
+          done
+      
+      - name: Build optimized binaries
+        run: |
+          # Build with production optimizations
+          cd build
+          for dir in */; do
+            if [ -f "$dir/Makefile" ]; then
+              echo "Building $dir..."
+              make -C "$dir" CFLAGS="-O3 -march=native -flto"
+            fi
+          done
+      
+      - name: Create deployment package
+        run: |
+          # Package all artifacts
+          tar -czf cns-deployment-${{ github.sha }}.tar.gz \
+            build/ \
+            generated_signatures.py \
+            cns_status.py \
+            cns_monitor.py \
+            neural_integration_test.py \
+            validate_otel.py
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cns-deployment
+          path: cns-deployment-*.tar.gz
+
+  deploy:
+    name: Deploy to Production
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.inputs.environment == 'production'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cns-deployment
+      
+      - name: Deploy to production
+        run: |
+          echo "🚀 Deploying CNS to production..."
+          # In a real deployment, this would:
+          # - Upload to production servers
+          # - Run database migrations
+          # - Update load balancers
+          # - Perform health checks
+          
+          # For local deployment simulation:
+          mkdir -p /tmp/cns-production
+          tar -xzf cns-deployment-*.tar.gz -C /tmp/cns-production
+          
+          echo "✅ Deployment complete"
+      
+      - name: Verify deployment
+        run: |
+          # Run post-deployment validation
+          cd /tmp/cns-production
+          ./build/uhft_core/uhft_core --self-test
+          
+      - name: Create deployment record
+        run: |
+          cat > deployment-record.json <<EOF
+          {
+            "version": "${{ github.ref_name }}",
+            "commit": "${{ github.sha }}",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "environment": "${{ github.event.inputs.environment || 'production' }}",
+            "status": "success"
+          }
+          EOF
