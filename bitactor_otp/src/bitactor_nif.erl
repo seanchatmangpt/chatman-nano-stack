@@ -6,8 +6,9 @@
 -module(bitactor_nif).
 
 %% NIF exports
--export([create_actor/2, destroy_actor/1, process_message/2, 
-         send_message/2, tick_all/0, get_actor_state/1]).
+-export([create_actor/2, destroy_actor/1, 
+         send_message/2, tick_all/0]).
+-export([measure_latency/0, get_stats/0]).
 
 %% Fallback exports (when NIF not loaded)
 -export([init/0]).
@@ -26,20 +27,20 @@ create_actor(_Type, _InitData) ->
 destroy_actor(_ActorHandle) ->
     erlang:nif_error({not_loaded, [{module, ?MODULE}, {line, ?LINE}]}).
 
--spec process_message(reference(), term()) -> {ok, term()} | {error, term()}.
-process_message(_ActorHandle, _Message) ->
-    erlang:nif_error({not_loaded, [{module, ?MODULE}, {line, ?LINE}]}).
-
--spec send_message(reference(), term()) -> ok | {error, term()}.
+-spec send_message(reference(), term()) -> {ok, integer()} | {error, term()}.
 send_message(_ActorHandle, _Message) ->
     erlang:nif_error({not_loaded, [{module, ?MODULE}, {line, ?LINE}]}).
 
--spec tick_all() -> ok | {error, term()}.
+-spec tick_all() -> {ok, integer()} | {error, term()}.
 tick_all() ->
     erlang:nif_error({not_loaded, [{module, ?MODULE}, {line, ?LINE}]}).
 
--spec get_actor_state(reference()) -> {ok, term()} | {error, term()}.
-get_actor_state(_ActorHandle) ->
+-spec measure_latency() -> {ok, integer(), integer(), integer()} | {error, term()}.
+measure_latency() ->
+    erlang:nif_error({not_loaded, [{module, ?MODULE}, {line, ?LINE}]}).
+
+-spec get_stats() -> {ok, integer(), integer(), integer(), float()} | {error, term()}.
+get_stats() ->
     erlang:nif_error({not_loaded, [{module, ?MODULE}, {line, ?LINE}]}).
 
 %%%===================================================================

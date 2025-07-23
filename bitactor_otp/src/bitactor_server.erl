@@ -199,7 +199,7 @@ spawn_actor_internal(Type, InitData, State) ->
                 ActorRef = make_ref(),
                 %% Call C NIF to create actor
                 case bitactor_nif:create_actor(Type, InitData) of
-                    {ok, ActorHandle} ->
+                    {ok, ActorHandle, LatencyNs} ->
                         Actors = maps:put(ActorRef, ActorHandle, State#state.actors),
                         Stats = increment_stat(actors_spawned, State#state.stats),
                         NewState = State#state{actors = Actors, stats = Stats},
@@ -250,7 +250,7 @@ send_message_internal(ActorRef, Message, State) ->
             if State#state.nif_loaded ->
                 try
                     case bitactor_nif:send_message(ActorHandle, Message) of
-                        ok ->
+                        {ok, _LatencyNs} ->
                             Stats = increment_stat(messages_sent, State#state.stats),
                             {ok, State#state{stats = Stats}};
                         {error, Reason} ->
@@ -272,7 +272,11 @@ send_message_internal(ActorRef, Message, State) ->
 process_tick(State) ->
     %% Process all actors
     if State#state.nif_loaded ->
-        try bitactor_nif:tick_all()
+        try 
+            case bitactor_nif:tick_all() of
+                {ok, _LatencyNs} -> ok;
+                _ -> ok
+            end
         catch _:_ -> ok end;
     true -> ok
     end,
