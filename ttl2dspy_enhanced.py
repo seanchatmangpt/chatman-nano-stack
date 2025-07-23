@@ -390,8 +390,8 @@ def get_quality_report() -> dict:
     return {{
         "signatures_count": {len(signatures)},
         "processing_time": {self.metrics.processing_time:.4f},
-        "error_rate": {self.metrics.error_rate:.2%},
-        "cache_hit_rate": {self.metrics.cache_hit_rate:.2%},
+        "error_rate": {self.metrics.error_rate:.4f},
+        "cache_hit_rate": {self.metrics.cache_hit_rate:.4f},
         "quality_issues": {len(self.quality_issues)}
     }}
 

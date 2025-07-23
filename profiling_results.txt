@@ -1,0 +1,62 @@
+ORIGINAL TRANSPILER PROFILE:
+========================================
+         1270326 function calls (1237889 primitive calls) in 0.382 seconds
+
+   Ordered by: cumulative time
+   List reduced from 414 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.382    0.382 /Users/sac/cns/ttl2dspy_profiler.py:23(run_original)
+       50    0.000    0.000    0.332    0.007 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/graph.py:1423(parse)
+       50    0.000    0.000    0.320    0.006 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:2000(parse)
+       50    0.000    0.000    0.293    0.006 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:478(loadStream)
+       50    0.000    0.000    0.293    0.006 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:481(loadBuf)
+       50    0.001    0.000    0.292    0.006 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:488(feed)
+     1100    0.001    0.000    0.289    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:516(directiveOrStatement)
+      750    0.000    0.000    0.271    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:772(statement)
+ 1250/750    0.008    0.000    0.264    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:1108(property_list)
+12550/6750    0.003    0.000    0.201    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:876(item)
+12550/6750    0.003    0.000    0.200    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:882(path)
+12550/6750    0.007    0.000    0.198    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:1514(nodeOrLiteral)
+12550/6750    0.013    0.000    0.188    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:912(node)
+6600/3750    0.002    0.000    0.178    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:1481(object)
+6600/3750    0.001    0.000    0.177    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:784(subject)
+5850/3000    0.003    0.000    0.173    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:1189(objectList)
+     6050    0.006    0.000    0.112    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:1885(makeStatement)
+     5850    0.002    0.000    0.111    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:767(makeStatement)
+     6050    0.004    0.000    0.070    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/graph.py:576(add)
+     5850    0.008    0.000    0.066    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:787(verb)
+
+
+
+
+ENHANCED TRANSPILER PROFILE:
+========================================
+         1265524 function calls (1233274 primitive calls) in 0.386 seconds
+
+   Ordered by: cumulative time
+   List reduced from 239 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.386    0.386 /Users/sac/cns/ttl2dspy_profiler.py:52(run_enhanced)
+       50    0.000    0.000    0.333    0.007 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/graph.py:1423(parse)
+       50    0.000    0.000    0.322    0.006 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:2000(parse)
+       50    0.000    0.000    0.295    0.006 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:478(loadStream)
+       50    0.000    0.000    0.294    0.006 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:481(loadBuf)
+       50    0.001    0.000    0.294    0.006 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:488(feed)
+     1100    0.001    0.000    0.290    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:516(directiveOrStatement)
+      750    0.000    0.000    0.273    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:772(statement)
+ 1250/750    0.008    0.000    0.266    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:1108(property_list)
+12550/6750    0.003    0.000    0.204    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:876(item)
+12550/6750    0.003    0.000    0.203    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:882(path)
+12550/6750    0.007    0.000    0.201    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:1514(nodeOrLiteral)
+12550/6750    0.013    0.000    0.191    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:912(node)
+6600/3750    0.002    0.000    0.181    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:1481(object)
+6600/3750    0.001    0.000    0.180    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:784(subject)
+5850/3000    0.003    0.000    0.176    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:1189(objectList)
+     6050    0.006    0.000    0.112    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:1885(makeStatement)
+     5850    0.002    0.000    0.110    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:767(makeStatement)
+     6050    0.004    0.000    0.070    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/graph.py:576(add)
+     5850    0.008    0.000    0.066    0.000 /Users/sac/dev/uvmgr/.venv/lib/python3.13/site-packages/rdflib/plugins/parsers/notation3.py:787(verb)
+
+
