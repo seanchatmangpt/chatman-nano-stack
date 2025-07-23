@@ -1,0 +1,51 @@
+@prefix : <http://cns.io/uhft#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# UHFT Risk Management
+# Real-time risk controls and circuit breakers
+# Generated: 2025-07-22T23:58:22.680743
+# For Ultra-High-Frequency Trading Systems
+
+
+# Risk Management Classes
+:RiskLimit a owl:Class ;
+    rdfs:label "Risk Limit" ;
+    rdfs:comment "Real-time risk limit enforcement" .
+
+:CircuitBreaker a owl:Class ;
+    rdfs:label "Circuit Breaker" ;
+    rdfs:comment "Automated trading halt mechanism" ;
+    rdfs:subClassOf cns:BitActor .
+
+:PositionTracker a owl:Class ;
+    rdfs:label "Position Tracker" ;
+    rdfs:comment "Real-time position tracking with 1-tick updates" ;
+    rdfs:subClassOf cns:Fiber .
+
+:MarginCalculator a owl:Class ;
+    rdfs:label "Margin Calculator" ;
+    rdfs:comment "Real-time margin calculation engine" .
+
+# Risk Properties
+:maxPosition a owl:DatatypeProperty ;
+    rdfs:domain :RiskLimit ;
+    rdfs:range xsd:long .
+
+:maxOrderValue a owl:DatatypeProperty ;
+    rdfs:domain :RiskLimit ;
+    rdfs:range xsd:decimal .
+
+:breachCount a owl:DatatypeProperty ;
+    rdfs:domain :CircuitBreaker ;
+    rdfs:range xsd:integer .
+
+:marginRequirement a owl:DatatypeProperty ;
+    rdfs:domain :MarginCalculator ;
+    rdfs:range xsd:decimal .

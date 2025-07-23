@@ -1,0 +1,47 @@
+@prefix : <http://cns.io/uhft#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# UHFT Infrastructure
+# Hardware and system infrastructure for UHFT
+# Generated: 2025-07-22T23:58:22.680748
+# For Ultra-High-Frequency Trading Systems
+
+
+# Infrastructure Classes
+:FPGAAccelerator a owl:Class ;
+    rdfs:label "FPGA Accelerator" ;
+    rdfs:comment "Hardware acceleration for order matching" .
+
+:KernelBypass a owl:Class ;
+    rdfs:label "Kernel Bypass" ;
+    rdfs:comment "Zero-copy kernel bypass networking" ;
+    rdfs:subClassOf cns:Arena .
+
+:CPUCore a owl:Class ;
+    rdfs:label "CPU Core" ;
+    rdfs:comment "Dedicated CPU core with isolated interrupts" .
+
+:MemoryPool a owl:Class ;
+    rdfs:label "Memory Pool" ;
+    rdfs:comment "Pre-allocated memory pool for zero allocation" ;
+    rdfs:subClassOf cns:Arena .
+
+# Infrastructure Properties
+:coreAffinity a owl:DatatypeProperty ;
+    rdfs:domain :CPUCore ;
+    rdfs:range xsd:integer .
+
+:numaNode a owl:DatatypeProperty ;
+    rdfs:domain :MemoryPool ;
+    rdfs:range xsd:integer .
+
+:pcieLanes a owl:DatatypeProperty ;
+    rdfs:domain :FPGAAccelerator ;
+    rdfs:range xsd:integer .

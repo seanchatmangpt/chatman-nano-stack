@@ -1,0 +1,49 @@
+@prefix : <http://cns.io/uhft#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# UHFT Performance Benchmarks
+# Performance metrics and benchmarking ontology
+# Generated: 2025-07-22T23:58:22.680753
+# For Ultra-High-Frequency Trading Systems
+
+
+# Performance Classes
+:LatencyBenchmark a owl:Class ;
+    rdfs:label "Latency Benchmark" ;
+    rdfs:comment "Measures end-to-end latency" .
+
+:ThroughputBenchmark a owl:Class ;
+    rdfs:label "Throughput Benchmark" ;
+    rdfs:comment "Measures orders per second" .
+
+:TickCompliance a owl:Class ;
+    rdfs:label "8-Tick Compliance" ;
+    rdfs:comment "Validates 8-tick execution guarantee" .
+
+# Benchmark Properties
+:p50Latency a owl:DatatypeProperty ;
+    rdfs:domain :LatencyBenchmark ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "50th percentile latency in nanoseconds" .
+
+:p99Latency a owl:DatatypeProperty ;
+    rdfs:domain :LatencyBenchmark ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "99th percentile latency in nanoseconds" .
+
+:ordersPerSecond a owl:DatatypeProperty ;
+    rdfs:domain :ThroughputBenchmark ;
+    rdfs:range xsd:long ;
+    rdfs:comment "Maximum sustained orders per second" .
+
+:tickViolations a owl:DatatypeProperty ;
+    rdfs:domain :TickCompliance ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of 8-tick violations (must be 0)" .

@@ -1,0 +1,48 @@
+@prefix : <http://cns.io/uhft#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# UHFT Network Protocols
+# Ultra-low-latency network protocol definitions
+# Generated: 2025-07-22T23:58:22.680745
+# For Ultra-High-Frequency Trading Systems
+
+
+# Network Protocol Classes
+:FIXMessage a owl:Class ;
+    rdfs:label "FIX Protocol Message" ;
+    rdfs:comment "Financial Information eXchange protocol message" .
+
+:BinaryProtocol a owl:Class ;
+    rdfs:label "Binary Protocol" ;
+    rdfs:comment "Custom binary protocol for minimum latency" ;
+    rdfs:subClassOf cns:BitActor .
+
+:MulticastFeed a owl:Class ;
+    rdfs:label "Multicast Feed" ;
+    rdfs:comment "UDP multicast market data feed" ;
+    rdfs:subClassOf cns:RingBus .
+
+:TCPSession a owl:Class ;
+    rdfs:label "TCP Session" ;
+    rdfs:comment "Reliable order entry session" .
+
+# Protocol Properties
+:messageType a owl:DatatypeProperty ;
+    rdfs:domain :FIXMessage ;
+    rdfs:range xsd:string .
+
+:sequenceNumber a owl:DatatypeProperty ;
+    rdfs:domain :BinaryProtocol ;
+    rdfs:range xsd:long .
+
+:packetLatency a owl:DatatypeProperty ;
+    rdfs:domain :MulticastFeed ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Packet processing latency in nanoseconds" .

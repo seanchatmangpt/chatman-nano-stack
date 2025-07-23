@@ -1,0 +1,46 @@
+@prefix : <http://cns.io/uhft#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# UHFT Trading Strategies
+# High-frequency trading strategy definitions
+# Generated: 2025-07-22T23:58:22.680747
+# For Ultra-High-Frequency Trading Systems
+
+
+# Trading Strategy Classes
+:MarketMaking a owl:Class ;
+    rdfs:label "Market Making Strategy" ;
+    rdfs:comment "Continuous bid-ask quoting strategy" ;
+    rdfs:subClassOf cns:Fiber .
+
+:Arbitrage a owl:Class ;
+    rdfs:label "Arbitrage Strategy" ;
+    rdfs:comment "Cross-market arbitrage with sub-microsecond execution" .
+
+:MomentumTrading a owl:Class ;
+    rdfs:label "Momentum Trading" ;
+    rdfs:comment "Microsecond momentum detection and execution" .
+
+:StatisticalArbitrage a owl:Class ;
+    rdfs:label "Statistical Arbitrage" ;
+    rdfs:comment "Pairs trading and mean reversion strategies" .
+
+# Strategy Properties
+:profitTarget a owl:DatatypeProperty ;
+    rdfs:domain :MarketMaking ;
+    rdfs:range xsd:decimal .
+
+:stopLoss a owl:DatatypeProperty ;
+    rdfs:domain :MarketMaking ;
+    rdfs:range xsd:decimal .
+
+:correlationThreshold a owl:DatatypeProperty ;
+    rdfs:domain :StatisticalArbitrage ;
+    rdfs:range xsd:float .

@@ -4,13 +4,12 @@
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
+#include "sparql_constants.h"
 
 // SPARQL to 8-tick Compiler
 // This transforms SPARQL queries into 64-bit constants at compile time
 
-// Pre-computed SPARQL query constants (generated at build time)
-#define SPARQL_MARKET_ACCESS   0x1234567890ABCDEF
-#define SPARQL_COMPLIANCE      0xFEDCBA0987654321
+// Additional query constants not in the .rq files
 #define SPARQL_RISK_CHECK      0xABCDEF0123456789
 #define SPARQL_QUOTE_VALID     0x0123456789ABCDEF
 
@@ -32,7 +31,7 @@ static inline bool validate_market_access(uint64_t caps) {
 }
 
 static inline bool validate_compliance(uint64_t caps) {
-    return sparql_validate_8tick(caps, SPARQL_COMPLIANCE);
+    return sparql_validate_8tick(caps, SPARQL_COMPLIANCE_CHECK);
 }
 
 static inline bool validate_risk_check(uint64_t caps) {
@@ -137,16 +136,16 @@ int main() {
     // Demonstrate compile-time SPARQL compilation
     printf("Compile-Time SPARQL Constants:\n");
     printf("------------------------------\n");
-    printf("MARKET_ACCESS:  0x%016lX\n", SPARQL_MARKET_ACCESS);
-    printf("COMPLIANCE:     0x%016lX\n", SPARQL_COMPLIANCE);
-    printf("RISK_CHECK:     0x%016lX\n", SPARQL_RISK_CHECK);
-    printf("QUOTE_VALID:    0x%016lX\n\n", SPARQL_QUOTE_VALID);
+    printf("MARKET_ACCESS:  0x%016llX\n", (unsigned long long)SPARQL_MARKET_ACCESS);
+    printf("COMPLIANCE:     0x%016llX\n", (unsigned long long)SPARQL_COMPLIANCE_CHECK);
+    printf("RISK_CHECK:     0x%016llX\n", (unsigned long long)SPARQL_RISK_CHECK);
+    printf("QUOTE_VALID:    0x%016llX\n\n", (unsigned long long)SPARQL_QUOTE_VALID);
     
     // Test 8-tick validation
     uint64_t user_caps = 0x1234567890ABCDEF;
     printf("8-Tick Validation Results:\n");
     printf("-------------------------\n");
-    printf("User capabilities: 0x%016lX\n", user_caps);
+    printf("User capabilities: 0x%016llX\n", (unsigned long long)user_caps);
     printf("Market access: %s\n", validate_market_access(user_caps) ? "GRANTED" : "DENIED");
     printf("Compliance: %s\n", validate_compliance(user_caps) ? "PASSED" : "FAILED");
     printf("Risk check: %s\n\n", validate_risk_check(user_caps) ? "APPROVED" : "REJECTED");

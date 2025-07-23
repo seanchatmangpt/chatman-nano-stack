@@ -1,0 +1,61 @@
+@prefix : <http://cns.io/uhft#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# UHFT SHACL Constraints
+# Validation shapes for UHFT compliance
+# Generated: 2025-07-22T23:58:22.680751
+# For Ultra-High-Frequency Trading Systems
+
+
+# Order Validation Shape
+:OrderShape a shacl:NodeShape ;
+    shacl:targetClass :Order ;
+    shacl:property [
+        shacl:path :orderPrice ;
+        shacl:minInclusive 0.0 ;
+        shacl:datatype xsd:decimal ;
+        shacl:message "Order price must be non-negative decimal" ;
+    ] ;
+    shacl:property [
+        shacl:path :orderQuantity ;
+        shacl:minInclusive 1 ;
+        shacl:maxInclusive 1000000 ;
+        shacl:datatype xsd:integer ;
+        shacl:message "Order quantity must be between 1 and 1000000" ;
+    ] ;
+    shacl:property [
+        shacl:path :executionLatency ;
+        shacl:maxInclusive 8 ;
+        shacl:message "Execution latency must not exceed 8 ticks" ;
+    ] .
+
+# Risk Limit Shape
+:RiskLimitShape a shacl:NodeShape ;
+    shacl:targetClass :RiskLimit ;
+    shacl:property [
+        shacl:path :maxPosition ;
+        shacl:minInclusive 0 ;
+        shacl:message "Maximum position must be non-negative" ;
+    ] ;
+    shacl:property [
+        shacl:path :maxOrderValue ;
+        shacl:minInclusive 0.0 ;
+        shacl:message "Maximum order value must be non-negative" ;
+    ] .
+
+# Latency Constraint Shape
+:LatencyShape a shacl:NodeShape ;
+    shacl:targetClass :MatchingEngine ;
+    shacl:property [
+        shacl:path :executionLatency ;
+        shacl:maxInclusive 8 ;
+        shacl:severity shacl:Violation ;
+        shacl:message "CRITICAL: Matching engine must guarantee ≤8 tick execution" ;
+    ] .

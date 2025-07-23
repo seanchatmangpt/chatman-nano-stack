@@ -1,0 +1,57 @@
+@prefix : <http://cns.io/uhft#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# UHFT Core Ontology
+# Foundational classes for Ultra-High-Frequency Trading
+# Generated: 2025-07-22T23:58:22.680732
+# For Ultra-High-Frequency Trading Systems
+
+
+# Core Trading Classes
+:Order a owl:Class ;
+    rdfs:label "Trading Order" ;
+    rdfs:comment "Represents a trading order with 8-tick execution guarantee" ;
+    rdfs:subClassOf cns:BitActor .
+
+:OrderBook a owl:Class ;
+    rdfs:label "Order Book" ;
+    rdfs:comment "Lock-free order book implementation" ;
+    rdfs:subClassOf cns:Arena .
+
+:MatchingEngine a owl:Class ;
+    rdfs:label "Matching Engine" ;
+    rdfs:comment "Ultra-low-latency order matching engine" ;
+    rdfs:subClassOf cns:RingBus .
+
+:MarketData a owl:Class ;
+    rdfs:label "Market Data" ;
+    rdfs:comment "Real-time market data feed" ;
+    rdfs:subClassOf cns:Fiber .
+
+# Properties
+:orderPrice a owl:DatatypeProperty ;
+    rdfs:domain :Order ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Order price in fixed-point representation" .
+
+:orderQuantity a owl:DatatypeProperty ;
+    rdfs:domain :Order ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Order quantity" .
+
+:orderTimestamp a owl:DatatypeProperty ;
+    rdfs:domain :Order ;
+    rdfs:range xsd:long ;
+    rdfs:comment "Order timestamp in nanoseconds" .
+
+:executionLatency a owl:DatatypeProperty ;
+    rdfs:domain :MatchingEngine ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Execution latency in CPU ticks (must be ≤8)" .

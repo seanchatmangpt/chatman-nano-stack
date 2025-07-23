@@ -1,0 +1,30 @@
+@prefix : <http://cns.io/uhft#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# UHFT Master Ontology
+# Imports all UHFT ontology modules
+# Generated: 2025-07-22T23:58:22.681761
+# For Ultra-High-Frequency Trading Systems
+
+
+# Import all UHFT modules
+<http://cns.io/uhft/core> a owl:Ontology ;
+    owl:imports <uhft_core.ttl> ,
+                <market_microstructure.ttl> ,
+                <risk_management.ttl> ,
+                <network_protocol.ttl> ,
+                <strategy.ttl> ,
+                <infrastructure.ttl> ,
+                <performance_benchmark.ttl> ;
+    dcterms:title "CNS Ultra-High-Frequency Trading Ontology" ;
+    dcterms:description "Complete semantic model for UHFT systems with 8-tick compliance" ;
+    dcterms:creator "CNS Ontology Forge" ;
+    dcterms:date "2024-01-23"^^xsd:date ;
+    owl:versionInfo "1.0.0" .

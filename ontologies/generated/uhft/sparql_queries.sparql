@@ -1,0 +1,56 @@
+# SPARQL Queries for UHFT Analysis
+
+# Query 1: Find all orders exceeding latency threshold
+PREFIX : <http://cns.io/uhft#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?order ?latency
+WHERE {
+    ?order a :Order ;
+           :executionLatency ?latency .
+    FILTER (?latency > 8)
+}
+ORDER BY DESC(?latency)
+
+---
+
+# Query 2: Calculate average spread by time window
+PREFIX : <http://cns.io/uhft#>
+
+SELECT ?timeWindow (AVG(?spread) as ?avgSpread)
+WHERE {
+    ?book a :OrderBook ;
+          :timestamp ?time ;
+          :currentSpread ?spread .
+    BIND(FLOOR(?time / 1000000) as ?timeWindow)
+}
+GROUP BY ?timeWindow
+ORDER BY ?timeWindow
+
+---
+
+# Query 3: Identify risk limit breaches
+PREFIX : <http://cns.io/uhft#>
+
+SELECT ?entity ?limit ?actual ?breach
+WHERE {
+    ?entity :hasRiskLimit ?limit .
+    ?limit :maxPosition ?maxPos .
+    ?entity :currentPosition ?actual .
+    BIND((?actual > ?maxPos) as ?breach)
+    FILTER(?breach = true)
+}
+
+---
+
+# Query 4: Market making profitability
+PREFIX : <http://cns.io/uhft#>
+
+SELECT ?strategy (SUM(?profit) as ?totalProfit) (COUNT(?trade) as ?tradeCount)
+WHERE {
+    ?strategy a :MarketMaking ;
+              :executedTrade ?trade .
+    ?trade :profit ?profit .
+}
+GROUP BY ?strategy
+ORDER BY DESC(?totalProfit)

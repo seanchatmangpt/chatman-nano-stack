@@ -1,0 +1,50 @@
+@prefix : <http://cns.io/uhft#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# UHFT Market Microstructure
+# Detailed market microstructure semantics
+# Generated: 2025-07-22T23:58:22.680741
+# For Ultra-High-Frequency Trading Systems
+
+
+# Market Microstructure Classes
+:Spread a owl:Class ;
+    rdfs:label "Bid-Ask Spread" ;
+    rdfs:comment "Represents bid-ask spread with tick precision" .
+
+:TickSize a owl:Class ;
+    rdfs:label "Tick Size" ;
+    rdfs:comment "Minimum price movement" .
+
+:LiquidityPool a owl:Class ;
+    rdfs:label "Liquidity Pool" ;
+    rdfs:comment "Aggregated liquidity at price level" ;
+    rdfs:subClassOf cns:Arena .
+
+:PriceLevel a owl:Class ;
+    rdfs:label "Price Level" ;
+    rdfs:comment "Single price level in order book" .
+
+# Microstructure Properties
+:bestBid a owl:ObjectProperty ;
+    rdfs:domain :OrderBook ;
+    rdfs:range :PriceLevel .
+
+:bestAsk a owl:ObjectProperty ;
+    rdfs:domain :OrderBook ;
+    rdfs:range :PriceLevel .
+
+:depth a owl:DatatypeProperty ;
+    rdfs:domain :PriceLevel ;
+    rdfs:range xsd:integer .
+
+:tickValue a owl:DatatypeProperty ;
+    rdfs:domain :TickSize ;
+    rdfs:range xsd:decimal .
