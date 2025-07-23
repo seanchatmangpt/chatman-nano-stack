@@ -314,8 +314,8 @@ class AdvancedForgeDemo:
 
 @app.command()
 def demo_validation(
-    ontology_dir: Path = typer.Argument("ontologies/generated/uhft", help="Ontology directory"),
-    domain: str = typer.Option("trading", "--domain", "-d", help="Domain type")
+    ontology_dir: Path = typer.Argument("ontologies/generated/realtime", help="Ontology directory"),
+    domain: str = typer.Option("realtime", "--domain", "-d", help="Domain type")
 ):
     """🔍 Demo advanced validation with ultra-sophisticated quality controls"""
 
@@ -361,8 +361,8 @@ def demo_validation(
 
 @app.command()
 def demo_ai_agents(
-    ontology_dir: Path = typer.Argument("ontologies/generated/uhft", help="Ontology directory"),
-    domain: str = typer.Option("trading", "--domain", "-d", help="Domain type")
+    ontology_dir: Path = typer.Argument("ontologies/generated/realtime", help="Ontology directory"),
+    domain: str = typer.Option("realtime", "--domain", "-d", help="Domain type")
 ):
     """🤖 Demo multi-agent AI analysis system"""
 
@@ -416,8 +416,8 @@ def demo_ai_agents(
 
 @app.command()
 def demo_optimization(
-    ontology_dir: Path = typer.Argument("ontologies/generated/uhft", help="Ontology directory"),
-    domain: str = typer.Option("trading", "--domain", "-d", help="Domain type"),
+    ontology_dir: Path = typer.Argument("ontologies/generated/realtime", help="Ontology directory"),
+    domain: str = typer.Option("realtime", "--domain", "-d", help="Domain type"),
     max_rounds: int = typer.Option(3, "--rounds", "-r", help="Maximum optimization rounds")
 ):
     """⚡ Demo iterative AI-powered optimization"""
@@ -470,8 +470,8 @@ def demo_optimization(
 
 @app.command()
 def demo_complete_pipeline(
-    ontology_dir: Path = typer.Argument("ontologies/generated/uhft", help="Ontology directory"),
-    domain: str = typer.Option("trading", "--domain", "-d", help="Domain type")
+    ontology_dir: Path = typer.Argument("ontologies/generated/realtime", help="Ontology directory"),
+    domain: str = typer.Option("realtime", "--domain", "-d", help="Domain type")
 ):
     """🚀 Demo complete advanced pipeline: Validation → AI Analysis → Optimization"""
 

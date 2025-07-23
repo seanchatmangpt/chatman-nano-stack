@@ -1,0 +1,30 @@
+@prefix : <http://cns.io/realtime#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Real-Time Master Ontology
+# Imports all real-time ontology modules
+# Generated: 2025-07-23T10:20:07.228809
+# For General-Purpose Real-Time Systems
+
+
+# Import all real-time modules
+<http://cns.io/realtime/core> a owl:Ontology ;
+    owl:imports <realtime_core.ttl> ,
+                <system_architecture.ttl> ,
+                <performance_management.ttl> ,
+                <fault_tolerance.ttl> ,
+                <data_processing.ttl> ,
+                <communication_protocol.ttl> ,
+                <shacl_constraints.ttl> ,
+                <performance_benchmarks.ttl> ;
+    dcterms:title "Real-Time Master Ontology" ;
+    dcterms:description "Complete semantic model for general-purpose real-time systems with 8-tick compliance" ;
+    dcterms:created "2025-07-23T10:20:07.228813" ;
+    dcterms:creator "Chatman Nano Stack" .

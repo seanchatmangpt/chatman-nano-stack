@@ -22,16 +22,16 @@ def test_quality_control():
         border_style="blue"
     ))
 
-    # Test with existing UHFT ontologies
-    uhft_dir = Path("ontologies/generated/uhft")
-    if not uhft_dir.exists():
-        console.print("[red]UHFT ontologies not found - run UHFT generation first[/red]")
+    # Test with existing real-time ontologies
+    realtime_dir = Path("ontologies/generated/realtime")
+    if not realtime_dir.exists():
+        console.print("[red]Real-time ontologies not found - run real-time generation first[/red]")
         return
 
     qc = OntologyQualityController()
 
     console.print("🔍 Running comprehensive validation...")
-    report = qc.validate_ontology_suite(uhft_dir, "trading")
+    report = qc.validate_ontology_suite(realtime_dir, "realtime")
 
     console.print(f"📊 Quality Score: {report.metrics['quality_score']:.1f}/100")
     console.print(f"🔴 Critical Issues: {report.critical_count}")
@@ -42,7 +42,7 @@ def test_quality_control():
     if report.issues:
         console.print("\n⚡ Testing ontology optimization...")
 
-        core_files = list(uhft_dir.glob("*core*.ttl"))
+        core_files = list(realtime_dir.glob("*core*.ttl"))
         if core_files:
             try:
                 optimized_content, optimizations = qc.optimize_ontology(

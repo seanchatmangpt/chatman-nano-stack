@@ -1,0 +1,67 @@
+@prefix : <http://cns.io/realtime#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Real-Time Core Ontology
+# Foundational classes for general-purpose real-time systems
+# Generated: 2025-07-23T10:20:07.227782
+# For General-Purpose Real-Time Systems
+
+
+# Core Real-Time Classes
+:DataEvent a owl:Class ;
+    rdfs:label "Data Event" ;
+    rdfs:comment "Represents a data event with 8-tick execution guarantee" ;
+    rdfs:subClassOf cns:BitActor .
+
+:EventQueue a owl:Class ;
+    rdfs:label "Event Queue" ;
+    rdfs:comment "Lock-free event queue implementation" ;
+    rdfs:subClassOf cns:Arena .
+
+:ProcessingEngine a owl:Class ;
+    rdfs:label "Processing Engine" ;
+    rdfs:comment "Ultra-low-latency event processing engine" ;
+    rdfs:subClassOf cns:RingBus .
+
+:DataStream a owl:Class ;
+    rdfs:label "Data Stream" ;
+    rdfs:comment "Real-time data stream feed" ;
+    rdfs:subClassOf cns:Fiber .
+
+# Properties
+:eventValue a owl:DatatypeProperty ;
+    rdfs:domain :DataEvent ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Event value in fixed-point representation" .
+
+:eventPriority a owl:DatatypeProperty ;
+    rdfs:domain :DataEvent ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Event priority level" .
+
+:eventTimestamp a owl:DatatypeProperty ;
+    rdfs:domain :DataEvent ;
+    rdfs:range xsd:long ;
+    rdfs:comment "Event timestamp in nanoseconds" .
+
+:processingLatency a owl:DatatypeProperty ;
+    rdfs:domain :ProcessingEngine ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Processing latency in CPU ticks (must be ≤8)" .
+
+:eventType a owl:DatatypeProperty ;
+    rdfs:domain :DataEvent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of data event" .
+
+:eventSource a owl:DatatypeProperty ;
+    rdfs:domain :DataEvent ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Source of the data event" .

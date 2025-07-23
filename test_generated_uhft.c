@@ -3,8 +3,8 @@
 #include <time.h>
 #include <stdint.h>
 
-// Include our generated UHFT core module
-#include "generated_c/uhft_core/uhft_core.h"
+// Include our generated real-time core module
+#include "generated_c/realtime_core/realtime_core.h"
 
 // Simple timing for 8-tick validation
 static inline uint64_t rdtsc() {
@@ -79,7 +79,7 @@ bool bit_actor_is_healthy(BitActor_t* actor) {
 }
 
 int main() {
-    printf("CNS v8.0 Generated UHFT Code Test\n");
+    printf("CNS v8.0 Generated Real-Time Code Test\n");
     printf("==================================\n\n");
     
     // Test basic type creation

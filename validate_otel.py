@@ -216,7 +216,7 @@ class OTELValidator:
             start_time = time.time()
             result = await asyncio.create_subprocess_exec(
                 'uv', 'run', 'python', 'owl_compiler.py', 
-                'ontologies/generated/uhft/uhft_core.ttl', '--output', 'validation_test',
+                'ontologies/generated/realtime/realtime_core.ttl', '--output', 'validation_test',
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
                 cwd='/Users/sac/cns'
@@ -235,7 +235,7 @@ class OTELValidator:
             
             # Validate output files
             validation_dir = Path("/Users/sac/cns/validation_test")
-            expected_files = ["uhft_core.c", "uhft_core.h", "uhft_core.json", "Makefile"]
+            expected_files = ["realtime_core.c", "realtime_core.h", "realtime_core.json", "Makefile"]
             
             for expected_file in expected_files:
                 file_path = validation_dir / expected_file
@@ -245,9 +245,9 @@ class OTELValidator:
                     metrics[f"{expected_file}_size"] = file_path.stat().st_size
             
             # Validate generated C code compiles
-            if (validation_dir / "uhft_core.c").exists():
+            if (validation_dir / "realtime_core.c").exists():
                 compile_result = await asyncio.create_subprocess_exec(
-                    'gcc', '-c', 'uhft_core.c', '-o', 'uhft_core.o',
+                    'gcc', '-c', 'realtime_core.c', '-o', 'realtime_core.o',
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.PIPE,
                     cwd=str(validation_dir)

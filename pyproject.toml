@@ -80,7 +80,7 @@ dev = [
 
 benchmark = ["psutil>=5.9.0", "memory-profiler>=0.61.0", "py-spy>=0.3.14"]
 
-trading = ["numpy>=1.24.0", "pandas>=2.0.0", "scipy>=1.10.0"]
+realtime = ["numpy>=1.24.0", "pandas>=2.0.0", "scipy>=1.10.0"]
 
 [project.urls]
 Homepage = "https://github.com/chatmangpt/cns"
@@ -213,7 +213,7 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
     "benchmark: marks tests as benchmark tests",
-    "uhft: marks tests as ultra-high-frequency trading specific",
+    "realtime: marks tests as real-time system specific",
 ]
 
 [tool.coverage.run]

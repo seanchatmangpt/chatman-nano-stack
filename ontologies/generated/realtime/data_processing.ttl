@@ -1,0 +1,53 @@
+@prefix : <http://cns.io/realtime#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Real-Time Data Processing
+# Data processing and transformation semantics
+# Generated: 2025-07-23T10:20:07.227800
+# For General-Purpose Real-Time Systems
+
+
+# Data Processing Classes
+:DataProcessor a owl:Class ;
+    rdfs:label "Data Processor" ;
+    rdfs:comment "Processes and transforms data events" .
+
+:DataFilter a owl:Class ;
+    rdfs:label "Data Filter" ;
+    rdfs:comment "Filters data based on criteria" .
+
+:DataTransformer a owl:Class ;
+    rdfs:label "Data Transformer" ;
+    rdfs:comment "Transforms data format or structure" .
+
+:DataAggregator a owl:Class ;
+    rdfs:label "Data Aggregator" ;
+    rdfs:comment "Aggregates multiple data events" .
+
+# Properties
+:processingRule a owl:DatatypeProperty ;
+    rdfs:domain :DataProcessor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Processing rule definition" .
+
+:filterCriteria a owl:DatatypeProperty ;
+    rdfs:domain :DataFilter ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Filter criteria expression" .
+
+:transformationType a owl:DatatypeProperty ;
+    rdfs:domain :DataTransformer ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of transformation" .
+
+:aggregationWindow a owl:DatatypeProperty ;
+    rdfs:domain :DataAggregator ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Aggregation time window in nanoseconds" .

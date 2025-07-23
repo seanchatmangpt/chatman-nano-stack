@@ -1,0 +1,43 @@
+name: Local Runner Setup
+# This workflow helps set up GitHub Actions to run locally
+on:
+  workflow_dispatch:
+
+jobs:
+  setup-instructions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Instructions for Local Setup
+        run: |
+          echo "🚀 CNS Local GitHub Actions Setup"
+          echo "================================="
+          echo ""
+          echo "To run GitHub Actions locally on your Mac:"
+          echo ""
+          echo "1. Install act (GitHub Actions local runner):"
+          echo "   brew install act"
+          echo ""
+          echo "2. Configure Docker Desktop:"
+          echo "   - Ensure Docker Desktop is running"
+          echo "   - Allocate at least 4GB RAM to Docker"
+          echo ""
+          echo "3. Run workflows locally:"
+          echo "   # Run CI workflow"
+          echo "   act -j test"
+          echo ""
+          echo "   # Run deployment workflow"
+          echo "   act workflow_dispatch -j deploy"
+          echo ""
+          echo "   # Run with specific event"
+          echo "   act push -j validate"
+          echo ""
+          echo "4. Use the deploy_local.sh script:"
+          echo "   ./deploy_local.sh local deploy"
+          echo "   ./deploy_local.sh staging deploy"
+          echo "   ./deploy_local.sh production deploy"
+          echo ""
+          echo "5. Or use Makefile targets:"
+          echo "   make -f Makefile.deploy deploy"
+          echo "   make -f Makefile.deploy deploy-production"
+          echo ""
+          echo "For more options, see: https://github.com/nektos/act"

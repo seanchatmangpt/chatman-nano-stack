@@ -1,0 +1,53 @@
+@prefix : <http://cns.io/realtime#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Real-Time Performance Management
+# Performance monitoring and optimization semantics
+# Generated: 2025-07-23T10:20:07.227797
+# For General-Purpose Real-Time Systems
+
+
+# Performance Classes
+:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "Represents a performance measurement" .
+
+:LatencyConstraint a owl:Class ;
+    rdfs:label "Latency Constraint" ;
+    rdfs:comment "Defines latency requirements" .
+
+:ThroughputTarget a owl:Class ;
+    rdfs:label "Throughput Target" ;
+    rdfs:comment "Defines throughput requirements" .
+
+:ResourceMonitor a owl:Class ;
+    rdfs:label "Resource Monitor" ;
+    rdfs:comment "Monitors system resource usage" .
+
+# Properties
+:metricValue a owl:DatatypeProperty ;
+    rdfs:domain :PerformanceMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Current metric value" .
+
+:metricThreshold a owl:DatatypeProperty ;
+    rdfs:domain :PerformanceMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Performance threshold" .
+
+:constraintMaxLatency a owl:DatatypeProperty ;
+    rdfs:domain :LatencyConstraint ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum allowed latency in nanoseconds" .
+
+:targetThroughput a owl:DatatypeProperty ;
+    rdfs:domain :ThroughputTarget ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Target throughput in events per second" .

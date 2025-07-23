@@ -1,0 +1,41 @@
+# SPARQL Queries for Real-Time System Analysis
+# Generated: 2025-07-23T10:20:07.227805
+# For General-Purpose Real-Time Systems
+
+PREFIX : <http://cns.io/realtime#>
+PREFIX cns: <http://cns.io/ontology#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+# Query 1: Find all data events with latency > 8 ticks
+SELECT ?event ?latency WHERE {
+    ?event a :DataEvent .
+    ?event :processingLatency ?latency .
+    FILTER(?latency > 8)
+}
+
+# Query 2: Find components with highest priority events
+SELECT ?component ?priority WHERE {
+    ?event a :DataEvent .
+    ?event :eventPriority ?priority .
+    ?component :processes ?event .
+    ORDER BY DESC(?priority)
+    LIMIT 10
+}
+
+# Query 3: Find performance bottlenecks
+SELECT ?metric ?value ?threshold WHERE {
+    ?metric a :PerformanceMetric .
+    ?metric :metricValue ?value .
+    ?metric :metricThreshold ?threshold .
+    FILTER(?value > ?threshold)
+}
+
+# Query 4: Find fault detection patterns
+SELECT ?detector ?faultType WHERE {
+    ?detector a :FaultDetector .
+    ?detector :faultType ?faultType .
+    ?detector :detectionTime ?time .
+    FILTER(?time > 1000000)  # > 1ms detection time
+}

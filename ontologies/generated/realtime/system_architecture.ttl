@@ -1,0 +1,53 @@
+@prefix : <http://cns.io/realtime#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Real-Time System Architecture
+# System architecture and component semantics
+# Generated: 2025-07-23T10:20:07.227795
+# For General-Purpose Real-Time Systems
+
+
+# Architecture Classes
+:Component a owl:Class ;
+    rdfs:label "System Component" ;
+    rdfs:comment "Represents a system component with defined interfaces" .
+
+:Interface a owl:Class ;
+    rdfs:label "Component Interface" ;
+    rdfs:comment "Defines component communication interface" .
+
+:Connection a owl:Class ;
+    rdfs:label "Component Connection" ;
+    rdfs:comment "Connection between system components" .
+
+:Resource a owl:Class ;
+    rdfs:label "System Resource" ;
+    rdfs:comment "Computational or memory resource" .
+
+# Properties
+:componentType a owl:DatatypeProperty ;
+    rdfs:domain :Component ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of system component" .
+
+:interfaceProtocol a owl:DatatypeProperty ;
+    rdfs:domain :Interface ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Communication protocol" .
+
+:connectionLatency a owl:DatatypeProperty ;
+    rdfs:domain :Connection ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Connection latency in nanoseconds" .
+
+:resourceCapacity a owl:DatatypeProperty ;
+    rdfs:domain :Resource ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Resource capacity" .

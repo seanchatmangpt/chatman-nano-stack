@@ -28,7 +28,7 @@ setup: .venv/pyvenv.cfg
 
 # Install development dependencies
 dev-setup: setup
-	$(UV) sync --extra dev --extra benchmark --extra trading
+	$(UV) sync --extra dev --extra benchmark --extra realtime
 
 # Python tools (run in uv environment)
 owl-compile: setup

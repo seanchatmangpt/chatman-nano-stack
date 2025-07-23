@@ -1,0 +1,141 @@
+# CNS Production Deployment Makefile
+# Separate deployment automation from existing build system
+# Built for reliability. Designed to last.
+
+.PHONY: all validate test benchmark build deploy clean help
+
+# Configuration
+PYTHON := uv run python
+DEPLOYMENT_DIR := $(HOME)/cns-deployment
+ENVIRONMENT ?= local
+
+# Colors
+RED := \033[0;31m
+GREEN := \033[0;32m
+YELLOW := \033[0;33m
+BLUE := \033[0;34m
+NC := \033[0m
+
+# Default target
+all: validate test build
+
+help:
+	@echo "$(BLUE)CNS Production Deployment$(NC)"
+	@echo "=========================="
+	@echo ""
+	@echo "Targets:"
+	@echo "  $(GREEN)validate$(NC)    - Run OTEL validation suite"
+	@echo "  $(GREEN)test$(NC)        - Run all test suites"
+	@echo "  $(GREEN)benchmark$(NC)   - Run performance benchmarks"
+	@echo "  $(GREEN)build$(NC)       - Build all artifacts"
+	@echo "  $(GREEN)deploy$(NC)      - Deploy to environment (ENVIRONMENT=local|staging|production)"
+	@echo "  $(GREEN)monitor$(NC)     - Start deployment monitoring"
+	@echo "  $(GREEN)rollback$(NC)    - Rollback to previous deployment"
+	@echo "  $(GREEN)status$(NC)      - Show deployment status"
+	@echo "  $(GREEN)ci$(NC)          - Run CI pipeline locally"
+	@echo "  $(GREEN)clean$(NC)       - Clean build artifacts"
+	@echo ""
+	@echo "Environment: $(ENVIRONMENT)"
+
+# Validation targets
+validate:
+	@echo "$(BLUE)[VALIDATE]$(NC) Running OTEL validation..."
+	@$(PYTHON) validate_otel.py
+	@echo "$(GREEN)✓ Validation passed$(NC)"
+
+test: validate
+	@echo "$(BLUE)[TEST]$(NC) Running test suites..."
+	@$(PYTHON) neural_integration_test.py
+	@$(PYTHON) ttl2dspy.py ontologies/generated/uhft/uhft_core.ttl test_output.py
+	@rm -f test_output.py
+	@echo "$(GREEN)✓ All tests passed$(NC)"
+
+benchmark:
+	@echo "$(BLUE)[BENCHMARK]$(NC) Running performance benchmarks..."
+	@$(PYTHON) run_benchmark.py
+	@echo "$(GREEN)✓ Benchmarks complete$(NC)"
+
+# Build targets
+build: test
+	@echo "$(BLUE)[BUILD]$(NC) Building CNS artifacts..."
+	@mkdir -p build
+	@for ttl in $$(find ontologies -name "*.ttl"); do \
+		echo "  Compiling $$ttl..."; \
+		$(PYTHON) owl_compiler.py "$$ttl" --output "build/$$(basename $$ttl .ttl)"; \
+	done
+	@echo "$(GREEN)✓ Build complete$(NC)"
+
+# Deployment targets
+deploy: build benchmark
+	@echo "$(BLUE)[DEPLOY]$(NC) Deploying to $(ENVIRONMENT)..."
+	@./deploy_local.sh $(ENVIRONMENT) deploy
+	@echo "$(GREEN)✓ Deployment complete$(NC)"
+
+monitor:
+	@echo "$(BLUE)[MONITOR]$(NC) Starting monitoring for $(ENVIRONMENT)..."
+	@./deploy_local.sh $(ENVIRONMENT) monitor
+
+rollback:
+	@echo "$(YELLOW)[ROLLBACK]$(NC) Rolling back $(ENVIRONMENT)..."
+	@./deploy_local.sh $(ENVIRONMENT) rollback
+
+status:
+	@./deploy_local.sh $(ENVIRONMENT) status
+
+# CI/CD targets
+ci:
+	@echo "$(BLUE)[CI]$(NC) Running CI pipeline locally..."
+	@./deploy_local.sh local ci
+
+# Utility targets
+clean:
+	@echo "$(BLUE)[CLEAN]$(NC) Cleaning build artifacts..."
+	@rm -rf build/
+	@rm -rf __pycache__/
+	@rm -f *.pyc
+	@rm -f test_output.py
+	@rm -f cns-deployment-*.tar.gz
+	@echo "$(GREEN)✓ Clean complete$(NC)"
+
+# Production deployment shortcuts
+deploy-local: ENVIRONMENT=local
+deploy-local: deploy
+
+deploy-staging: ENVIRONMENT=staging
+deploy-staging: deploy
+
+deploy-production: ENVIRONMENT=production
+deploy-production: validate test benchmark
+	@echo "$(RED)[WARNING]$(NC) Production deployment requires confirmation"
+	@echo -n "Deploy to production? [y/N] " && read ans && [ $${ans:-N} = y ]
+	@./deploy_local.sh production deploy
+
+# Development helpers
+dev-setup:
+	@echo "$(BLUE)[DEV]$(NC) Setting up development environment..."
+	@uv sync --dev
+	@echo "$(GREEN)✓ Development environment ready$(NC)"
+
+format:
+	@echo "$(BLUE)[FORMAT]$(NC) Formatting code..."
+	@$(PYTHON) -m ruff format .
+	@echo "$(GREEN)✓ Code formatted$(NC)"
+
+lint:
+	@echo "$(BLUE)[LINT]$(NC) Linting code..."
+	@$(PYTHON) -m ruff check .
+	@echo "$(GREEN)✓ Linting complete$(NC)"
+
+# Performance analysis
+perf-report:
+	@echo "$(BLUE)[PERF]$(NC) Generating performance report..."
+	@$(PYTHON) cns_monitor.py --duration 5 --interval 60
+	@echo "$(GREEN)✓ Performance report generated$(NC)"
+
+# Docker support (future)
+docker-build:
+	@echo "$(BLUE)[DOCKER]$(NC) Building Docker image..."
+	@docker build -t cns:latest .
+
+docker-run:
+	@docker run -it --rm -p 8080:8080 cns:latest

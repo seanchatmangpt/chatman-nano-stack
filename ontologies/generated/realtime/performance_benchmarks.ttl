@@ -1,0 +1,67 @@
+@prefix : <http://cns.io/realtime#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Real-Time Performance Benchmarks
+# Performance benchmarks and metrics for real-time systems
+# Generated: 2025-07-23T10:20:07.227806
+# For General-Purpose Real-Time Systems
+
+
+# Benchmark Classes
+:Benchmark a owl:Class ;
+    rdfs:label "Performance Benchmark" ;
+    rdfs:comment "Defines a performance benchmark test" .
+
+:BenchmarkResult a owl:Class ;
+    rdfs:label "Benchmark Result" ;
+    rdfs:comment "Result of a benchmark test" .
+
+:PerformanceProfile a owl:Class ;
+    rdfs:label "Performance Profile" ;
+    rdfs:comment "Performance characteristics of a system" .
+
+# Properties
+:benchmarkName a owl:DatatypeProperty ;
+    rdfs:domain :Benchmark ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the benchmark" .
+
+:benchmarkLatency a owl:DatatypeProperty ;
+    rdfs:domain :BenchmarkResult ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Measured latency in nanoseconds" .
+
+:benchmarkThroughput a owl:DatatypeProperty ;
+    rdfs:domain :BenchmarkResult ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Measured throughput in events per second" .
+
+:profileCPU a owl:DatatypeProperty ;
+    rdfs:domain :PerformanceProfile ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "CPU utilization percentage" .
+
+:profileMemory a owl:DatatypeProperty ;
+    rdfs:domain :PerformanceProfile ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Memory usage in bytes" .
+
+# Benchmark Instances
+:LatencyBenchmark a :Benchmark ;
+    rdfs:label "8-Tick Latency Benchmark" ;
+    rdfs:comment "Benchmark for 8 CPU cycle latency guarantee" .
+
+:ThroughputBenchmark a :Benchmark ;
+    rdfs:label "High Throughput Benchmark" ;
+    rdfs:comment "Benchmark for maximum event processing rate" .
+
+:FaultToleranceBenchmark a :Benchmark ;
+    rdfs:label "Fault Tolerance Benchmark" ;
+    rdfs:comment "Benchmark for system recovery time" .

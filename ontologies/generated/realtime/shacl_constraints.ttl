@@ -1,0 +1,89 @@
+@prefix : <http://cns.io/realtime#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Real-Time SHACL Constraints
+# Validation shapes for real-time system compliance
+# Generated: 2025-07-23T10:20:07.227803
+# For General-Purpose Real-Time Systems
+
+
+# Data Event Processing Shape
+:DataEventProcessingShape a shacl:NodeShape ;
+    shacl:targetClass :DataEvent ;
+    rdfs:label "Data Event Processing Neural Signature" ;
+    rdfs:comment "DSPy signature for processing data events with neural reasoning" ;
+    shacl:property [
+        shacl:path :eventValue ;
+        shacl:name "event_value" ;
+        shacl:description "Event value for processing" ;
+        shacl:datatype xsd:decimal ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+    ] ;
+    shacl:property [
+        shacl:path :eventPriority ;
+        shacl:name "event_priority" ;
+        shacl:description "Priority level of the event" ;
+        shacl:datatype xsd:integer ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minInclusive 1 ;
+        shacl:maxInclusive 10 ;
+    ] ;
+    shacl:property [
+        shacl:path :eventTimestamp ;
+        shacl:name "event_timestamp" ;
+        shacl:description "Event timestamp in nanoseconds" ;
+        shacl:datatype xsd:long ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+    ] ;
+    shacl:property [
+        shacl:path :processingDecision ;
+        shacl:name "processing_decision" ;
+        shacl:description "Neural network decision on event processing" ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        cns:outputField true ;
+        rdfs:comment "OUTPUT: Processing decision (PROCESS/DROP/THROTTLE)" ;
+    ] .
+
+# Performance Monitoring Shape
+:PerformanceMonitoringShape a shacl:NodeShape ;
+    shacl:targetClass :PerformanceMetric ;
+    rdfs:label "Performance Monitoring Neural Signature" ;
+    rdfs:comment "DSPy signature for performance monitoring and optimization" ;
+    shacl:property [
+        shacl:path :metricValue ;
+        shacl:name "metric_value" ;
+        shacl:description "Current performance metric value" ;
+        shacl:datatype xsd:decimal ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+    ] ;
+    shacl:property [
+        shacl:path :metricThreshold ;
+        shacl:name "metric_threshold" ;
+        shacl:description "Performance threshold" ;
+        shacl:datatype xsd:decimal ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+    ] ;
+    shacl:property [
+        shacl:path :optimizationAction ;
+        shacl:name "optimization_action" ;
+        shacl:description "Neural network optimization recommendation" ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        cns:outputField true ;
+        rdfs:comment "OUTPUT: Optimization action (SCALE_UP/SCALE_DOWN/TUNE/RESTART)" ;
+    ] .

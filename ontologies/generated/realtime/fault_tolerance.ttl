@@ -1,0 +1,53 @@
+@prefix : <http://cns.io/realtime#> .
+@prefix cns: <http://cns.io/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Real-Time Fault Tolerance
+# Fault detection and recovery semantics
+# Generated: 2025-07-23T10:20:07.227799
+# For General-Purpose Real-Time Systems
+
+
+# Fault Tolerance Classes
+:FaultDetector a owl:Class ;
+    rdfs:label "Fault Detector" ;
+    rdfs:comment "Detects system faults and anomalies" .
+
+:RecoveryMechanism a owl:Class ;
+    rdfs:label "Recovery Mechanism" ;
+    rdfs:comment "Implements fault recovery strategies" .
+
+:HealthMonitor a owl:Class ;
+    rdfs:label "Health Monitor" ;
+    rdfs:comment "Monitors system health status" .
+
+:BackupSystem a owl:Class ;
+    rdfs:label "Backup System" ;
+    rdfs:comment "Provides system redundancy" .
+
+# Properties
+:faultType a owl:DatatypeProperty ;
+    rdfs:domain :FaultDetector ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of detected fault" .
+
+:recoveryTime a owl:DatatypeProperty ;
+    rdfs:domain :RecoveryMechanism ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Recovery time in milliseconds" .
+
+:healthStatus a owl:DatatypeProperty ;
+    rdfs:domain :HealthMonitor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Current health status" .
+
+:backupLatency a owl:DatatypeProperty ;
+    rdfs:domain :BackupSystem ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Backup system latency" .

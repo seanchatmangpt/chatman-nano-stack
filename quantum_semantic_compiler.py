@@ -360,7 +360,7 @@ async def main():
     compiler = HyperIntelligenceSemanticCompiler()
 
     # Example: Process existing ontology with breakthrough intelligence
-    ontology_path = Path("/Users/sac/cns/ontologies/generated/uhft/uhft_core.ttl")
+            ontology_path = Path("/Users/sac/cns/ontologies/generated/realtime/realtime_core.ttl")
 
     if ontology_path.exists():
         print("🚀 Initiating Hyper-Intelligence Semantic Compilation")
