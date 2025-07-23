@@ -2,6 +2,17 @@
 
 CNS Ontology Forge is designed for **ultra-high-frequency systems** requiring sub-microsecond latency. Our **8-tick compliance guarantee** ensures that generated C code executes critical operations within 8 CPU cycles.
 
+## 🚀 Error Handling Impact
+
+The CNS codebase follows a "let it crash" philosophy to minimize latency:
+
+- **No try-except overhead**: Exception handling adds CPU cycles
+- **Predictable performance**: No unwinding or cleanup paths  
+- **Direct failures**: Immediate crashes provide clear debugging
+- **8-tick compliance**: Error checks would violate latency requirements
+
+See [Error Handling Philosophy](./error-handling-philosophy.md) for implementation details.
+
 ## 🎯 Performance Targets
 
 ### 8-Tick Compliance Requirements

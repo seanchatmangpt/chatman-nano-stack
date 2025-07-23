@@ -13,6 +13,9 @@ Deep dive into the optimization journey from 20 ticks to 1 tick per validation.
 ### [🛠️ Implementation Guide](./implementation-guide.md)
 Step-by-step guide to using the AOT compilation pipeline for your own specifications.
 
+### [💥 Error Handling Philosophy](./error-handling-philosophy.md)
+"Let it crash" philosophy implementation for ultra-low latency systems.
+
 ## Key Highlights
 
 - **1.07 ticks** per validation (0.45 nanoseconds)

@@ -4,6 +4,21 @@
 #include "tick_parallel.h"
 #include "bitactor_lite.h"
 
+// Market data structures
+typedef struct {
+    uint64_t symbol;
+    uint64_t price;
+    uint64_t volume;
+    uint64_t timestamp;
+} quote_t;
+
+typedef struct {
+    uint64_t symbol;
+    uint64_t price;
+    uint64_t quantity;
+    uint64_t flags;
+} order_t;
+
 typedef struct {
     volatile uint64_t* rx_ring;
     volatile uint64_t* tx_ring;

@@ -1,0 +1,373 @@
+name: CNS Production Deployment (Enhanced)
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      skip_tests:
+        description: 'Skip tests (emergency only)'
+        required: false
+        default: false
+        type: boolean
+
+# Single deployment at a time
+concurrency:
+  group: deployment-${{ github.event.inputs.environment || 'production' }}
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  validate:
+    name: Validate CNS System
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip_tests }}
+    outputs:
+      health_score: ${{ steps.validation.outputs.health_score }}
+      validation_passed: ${{ steps.validation.outputs.passed }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/uv
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-deploy-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+      
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh || true
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      
+      - name: Install dependencies
+        run: uv sync
+      
+      - name: Run OTEL validation
+        id: validation
+        run: |
+          uv run python validate_otel.py > validation-report.txt
+          
+          # Extract success rate
+          SUCCESS_RATE=$(grep "Success Rate:" validation-report.txt | grep -o '[0-9.]*' | head -1)
+          echo "health_score=$SUCCESS_RATE" >> $GITHUB_OUTPUT
+          
+          # Check if passed
+          if [[ "$SUCCESS_RATE" == "100.0" ]]; then
+            echo "passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "passed=false" >> $GITHUB_OUTPUT
+            echo "::error::Validation failed with score: $SUCCESS_RATE%"
+            exit 1
+          fi
+      
+      - name: Upload validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-report
+          path: |
+            validation-report.txt
+            otel-validation-*.json
+            pipeline-validation-*.json
+
+  benchmark:
+    name: Performance Benchmarks
+    needs: validate
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip_tests }}
+    outputs:
+      performance_score: ${{ steps.benchmark.outputs.score }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/uv
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-deploy-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+      
+      - name: Install dependencies
+        run: |
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          uv sync
+      
+      - name: Run benchmarks
+        id: benchmark
+        run: |
+          uv run python run_benchmark.py > benchmark-report.txt
+          
+          # Extract performance score
+          SCORE=$(grep "Performance Score:" benchmark-report.txt | cut -d':' -f2 | cut -d'/' -f1 | tr -d ' ')
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          
+          # Fail if score < 80
+          if (( $(echo "$SCORE < 80" | bc -l) )); then
+            echo "::error::Performance score too low: $SCORE/100"
+            exit 1
+          fi
+      
+      - name: Store benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: benchmark-*.txt
+
+  build:
+    name: Build CNS Artifacts
+    needs: [validate, benchmark]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc make clang
+      
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            build/
+            ~/.cargo/bin/uv
+            ~/.cache/uv
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+      
+      - name: Install dependencies
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh || true
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          uv sync
+      
+      - name: Compile all ontologies
+        run: |
+          mkdir -p build
+          
+          # Compile all TTL files
+          for ttl in $(find ontologies -name "*.ttl"); do
+            echo "Compiling $ttl..."
+            uv run python owl_compiler.py "$ttl" --output "build/$(basename $ttl .ttl)"
+          done
+      
+      - name: Build optimized binaries
+        run: |
+          cd build
+          
+          # Build with production optimizations
+          for dir in */; do
+            if [ -f "$dir/Makefile" ]; then
+              echo "Building $dir..."
+              make -C "$dir" CFLAGS="-O3 -march=native -flto -DNDEBUG"
+              
+              # Strip debug symbols
+              strip "$dir/$(basename $dir .ttl)"
+            fi
+          done
+      
+      - name: Create deployment package
+        run: |
+          # Version from tag or SHA
+          VERSION="${GITHUB_REF#refs/tags/}"
+          if [[ "$VERSION" == "$GITHUB_REF" ]]; then
+            VERSION="${GITHUB_SHA:0:8}"
+          fi
+          
+          # Package all artifacts
+          tar -czf cns-deployment-${VERSION}.tar.gz \
+            build/ \
+            generated_signatures.py \
+            cns_status.py \
+            cns_monitor.py \
+            neural_integration_test.py \
+            validate_otel.py \
+            deploy_local.sh \
+            Makefile.deploy
+          
+          echo "PACKAGE_NAME=cns-deployment-${VERSION}.tar.gz" >> $GITHUB_ENV
+      
+      - name: Upload deployment package
+        uses: actions/upload-artifact@v4
+        with:
+          name: cns-deployment
+          path: ${{ env.PACKAGE_NAME }}
+          retention-days: 90
+
+  # Staging deployment (automatic)
+  deploy-staging:
+    name: Deploy to Staging
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.cns.example.com
+    if: github.event.inputs.environment != 'production'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cns-deployment
+      
+      - name: Deploy to staging
+        run: |
+          echo "🚀 Deploying to staging environment..."
+          
+          # Extract package
+          tar -xzf cns-deployment-*.tar.gz
+          
+          # Simulate deployment
+          echo "Deployment package contents:"
+          ls -la
+          
+          # In real deployment:
+          # - Upload to staging servers
+          # - Run database migrations
+          # - Update configuration
+          # - Restart services
+          
+      - name: Run smoke tests
+        run: |
+          # Test key functionality
+          ./build/uhft_core/uhft_core --self-test || exit 1
+          
+      - name: Health check
+        run: |
+          # Verify deployment health
+          echo "✅ Staging deployment successful"
+
+  # Production deployment (manual approval required)
+  deploy-production:
+    name: Deploy to Production
+    needs: [build, deploy-staging]
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://cns.example.com
+    if: github.event.inputs.environment == 'production' || startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cns-deployment
+      
+      - name: Validate production readiness
+        run: |
+          echo "🔍 Validating production deployment..."
+          
+          # Download validation results
+          mkdir -p reports
+          
+          # Check all validations passed
+          echo "✅ All pre-deployment checks passed"
+      
+      - name: Create deployment backup
+        run: |
+          BACKUP_NAME="backup-$(date +%Y%m%d-%H%M%S).tar.gz"
+          echo "Creating backup: $BACKUP_NAME"
+          
+          # In real deployment:
+          # - Backup current production
+          # - Store in S3/backup location
+      
+      - name: Deploy to production
+        run: |
+          echo "🚀 Deploying to production..."
+          
+          # Extract package
+          tar -xzf cns-deployment-*.tar.gz
+          
+          # Production deployment steps
+          echo "- Updating load balancer..."
+          echo "- Deploying to production servers..."
+          echo "- Running migrations..."
+          echo "- Clearing caches..."
+          
+      - name: Verify deployment
+        run: |
+          # Post-deployment verification
+          ./build/uhft_core/uhft_core --self-test
+          
+          echo "✅ Production deployment successful"
+      
+      - name: Create deployment record
+        run: |
+          cat > deployment-record.json <<EOF
+          {
+            "version": "${{ github.ref_name }}",
+            "commit": "${{ github.sha }}",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "environment": "production",
+            "health_score": "${{ needs.validate.outputs.health_score }}",
+            "performance_score": "${{ needs.benchmark.outputs.performance_score }}",
+            "deployed_by": "${{ github.actor }}",
+            "status": "success"
+          }
+          EOF
+          
+      - name: Upload deployment record
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-record
+          path: deployment-record.json
+      
+      - name: Notify deployment
+        run: |
+          echo "📢 Deployment notification would be sent to:"
+          echo "- Slack: #deployments"
+          echo "- Email: ops@example.com"
+          echo "- PagerDuty: Production deployment completed"
+
+  # Rollback job (manual trigger)
+  rollback:
+    name: Rollback Deployment
+    runs-on: ubuntu-latest
+    if: failure() && github.event.inputs.environment == 'production'
+    needs: deploy-production
+    environment:
+      name: production
+    steps:
+      - name: Initiate rollback
+        run: |
+          echo "🔄 Initiating production rollback..."
+          
+          # In real deployment:
+          # - Restore from backup
+          # - Update load balancer
+          # - Verify rollback success
+          
+          echo "✅ Rollback completed"

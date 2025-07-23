@@ -21,6 +21,14 @@ void op_validate_quote(void* data) {
 
 void op_arena_alloc(void* data) {
     g_order_buffer = (order_t*)tick_arena_alloc(&g_arena_ptr, sizeof(order_t));
+    if (g_order_buffer && data) {
+        // Initialize order from quote data
+        quote_t* quote = (quote_t*)data;
+        g_order_buffer->symbol = quote->symbol;
+        g_order_buffer->price = quote->price;
+        g_order_buffer->quantity = quote->volume;
+        // timestamp field might be in a different structure
+    }
 }
 
 void op_bitactor_verify(void* data) {
@@ -32,15 +40,21 @@ void op_bitactor_verify(void* data) {
 
 void op_apply_rule(void* data) {
     rule_t* rule = (rule_t*)data;
-    quote_t* quote = (quote_t*)g_order_buffer;
-    uint64_t match = ((quote->price & rule->mask) > rule->threshold);
+    if (!g_order_buffer) {
+        g_risk_result = 0;
+        return;
+    }
+    uint64_t match = ((g_order_buffer->price & rule->mask) > rule->threshold);
     g_risk_result = rule->action & -match;
 }
 
 void op_calculate_price(void* data) {
     uint64_t* buffer = (uint64_t*)data;
-    quote_t* quote = (quote_t*)g_order_buffer;
-    *buffer = quote->price + (quote->volume / 1000);
+    if (!g_order_buffer) {
+        *buffer = 0;
+        return;
+    }
+    *buffer = g_order_buffer->price + (g_order_buffer->quantity / 1000);
 }
 
 void op_risk_check(void* data) {
@@ -69,7 +83,7 @@ void op_send_order(void* data) {
     }
 }
 
-void process_quote_8tick(quote_t* quote) {
+__attribute__((hot)) void process_quote_8tick(quote_t* quote) {
     tick_unit_t unit = {
         .ops = {
             op_validate_quote,
@@ -81,7 +95,7 @@ void process_quote_8tick(quote_t* quote) {
             op_format_order,
             op_send_order
         },
-        .data = {quote, &g_arena_ptr, &g_proof, &g_rule, 
+        .data = {quote, quote, &g_proof, &g_rule, 
                  &g_price_buffer, &g_risk_result, g_fix_buffer, &g_nic},
         .tick_mask = 0xFF
     };

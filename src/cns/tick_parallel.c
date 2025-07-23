@@ -12,7 +12,8 @@ static void* thread_worker(void* arg) {
     return NULL;
 }
 
-void tick_execute(tick_unit_t* unit) {
+// Original threaded version (slow)
+void tick_execute_threaded(tick_unit_t* unit) {
     pthread_t threads[8];
     thread_arg_t args[8];
     int thread_count = 0;
@@ -31,4 +32,21 @@ void tick_execute(tick_unit_t* unit) {
     for (int i = 0; i < thread_count; i++) {
         pthread_join(threads[i], NULL);
     }
+}
+
+// Optimized inline version - no threading overhead
+__attribute__((hot, always_inline))
+void tick_execute(tick_unit_t* unit) {
+    // Direct inline execution - much faster than threading
+    uint64_t mask = unit->tick_mask;
+    
+    // Unrolled loop with branch-free execution
+    if (mask & 0x01) unit->ops[0](unit->data[0]);
+    if (mask & 0x02) unit->ops[1](unit->data[1]);
+    if (mask & 0x04) unit->ops[2](unit->data[2]);
+    if (mask & 0x08) unit->ops[3](unit->data[3]);
+    if (mask & 0x10) unit->ops[4](unit->data[4]);
+    if (mask & 0x20) unit->ops[5](unit->data[5]);
+    if (mask & 0x40) unit->ops[6](unit->data[6]);
+    if (mask & 0x80) unit->ops[7](unit->data[7]);
 }
