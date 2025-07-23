@@ -283,10 +283,10 @@ sparql_compiler
 __pycache__/
 *.pyc
 
-# Session files
-session_state.json
-session_recovery.spr
+# Session files (excluding chatman-nano-stack-context)
+# session_state.json
+# session_recovery.spr
 
-# Local development files
-.lh/
-current.link 
+# Local development files (excluding chatman-nano-stack-context)
+# .lh/
+# current.link 
