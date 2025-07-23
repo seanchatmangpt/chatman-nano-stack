@@ -39,7 +39,7 @@ jobs:
             cc: clang
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup compiler
       run: |
@@ -103,7 +103,7 @@ jobs:
     needs: test-matrix
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup environment
       run: |
@@ -146,7 +146,7 @@ jobs:
     needs: test-matrix
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup Python
       uses: actions/setup-python@v4
@@ -171,7 +171,7 @@ jobs:
     needs: test-matrix
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Run cppcheck
       run: |
@@ -191,7 +191,7 @@ jobs:
     if: github.event_name == 'push'
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Build and run benchmarks
       run: |
