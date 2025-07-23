@@ -43,7 +43,10 @@
     "substrate": "Core C Runtime Libraries",
     "pragmatic": "Reified Engineering Principles",
     "gatekeeper": "Systemic Governance Engine",
-    "artifacts": "Generated 8THM Applications"
+    "artifacts": "Generated 8THM Applications",
+    "owl_compiler_tests": "OWL Compiler Test Suite - CLEANED & VERIFIED",
+    "docs": "Consolidated Documentation Structure - ORGANIZED",
+    "src_benchmark": "Centralized Benchmark Infrastructure"
   },
   "autonomous_capabilities": [
     "context_validation",

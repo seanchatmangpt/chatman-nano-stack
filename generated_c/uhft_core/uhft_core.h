@@ -11,6 +11,12 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+/* CNS v8.0 Core Types */
+#include "../../v8/include/cns/v8/core.h"
+
+/* Arena is a specific type of CNS Arena */
+typedef BitActor_t Arena_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
