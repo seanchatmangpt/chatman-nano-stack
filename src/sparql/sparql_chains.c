@@ -13,14 +13,14 @@ extern bool filter_lt(uint64_t* data);
 // Generated from compliance_check.rq
 static const proof_chain_t compliance_check_chain = {
     .hops = {
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 0},
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 8},
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 16},
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 24},
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 32},
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 40},
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 48},
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 56}
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 0},
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 8},
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 16},
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 24},
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 32},
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 40},
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 48},
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 56}
     }
 };
 
@@ -31,14 +31,14 @@ bool execute_compliance_check(void* data) {
 // Generated from market_access.rq
 static const proof_chain_t market_access_chain = {
     .hops = {
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 0},
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 8},
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 16},
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 24},
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 32},
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 40},
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 48},
-        {.capability_id = 0x0000000000000000, .validation_fn = 0x0000000102486BC0, .data_offset = 56}
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 0},
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 8},
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 16},
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 24},
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 32},
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 40},
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 48},
+        {.capability_id = 0x0000000000000000, .validation_fn = (uint64_t)&always_true, .data_offset = 56}
     }
 };
 

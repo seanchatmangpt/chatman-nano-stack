@@ -272,6 +272,7 @@ void shacl_add_violation(shacl_report_t* report, const char* focus_node,
  */
 
 #include "shacl_validation.h"
+#include "runtime_support.h"
 #include <stdio.h>
 #include <assert.h>
 

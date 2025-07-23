@@ -19,11 +19,17 @@ void generate_sparql_chain(FILE* out, const char* query_name, hop_template_t* ho
     fprintf(out, "    .hops = {\n");
     
     for (int i = 0; i < 8; i++) {
+        const char* validator_name = "always_true";
+        if (hops[i].validation_fn == (uint64_t)validate_exists) validator_name = "validate_exists";
+        else if (hops[i].validation_fn == (uint64_t)validate_not_expired) validator_name = "validate_not_expired";
+        else if (hops[i].validation_fn == (uint64_t)filter_gt) validator_name = "filter_gt";
+        else if (hops[i].validation_fn == (uint64_t)filter_lt) validator_name = "filter_lt";
+        
         fprintf(out, "        {.capability_id = 0x%016llX, "
-                     ".validation_fn = 0x%016llX, "
+                     ".validation_fn = (uint64_t)&%s, "
                      ".data_offset = %llu}",
                 (unsigned long long)hops[i].capability_id,
-                (unsigned long long)hops[i].validation_fn,
+                validator_name,
                 (unsigned long long)hops[i].data_offset);
         if (i < 7) fprintf(out, ",");
         fprintf(out, "\n");

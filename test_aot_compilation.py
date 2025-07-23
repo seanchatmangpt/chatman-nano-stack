@@ -65,7 +65,8 @@ async def test_aot_compilation():
         'benchmark_generation': True,
         'eightfold_integration': True,
         'optimization_level': 'O2',
-        'cleanup_on_failure': False  # Keep files for inspection
+        'cleanup_on_failure': False,  # Keep files for inspection
+        'debug_artifacts': True  # Keep artifacts even on success
     }
     
     # Create lifecycle manager

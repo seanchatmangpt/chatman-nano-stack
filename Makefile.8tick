@@ -1,0 +1,47 @@
+# CNS v9 True 8-Tick Implementation Makefile
+
+CC = clang
+CFLAGS = -O3 -march=native -ffast-math -funroll-loops -Wall
+LDFLAGS = -lpthread
+
+# Query files
+QUERIES = queries/market_access.rq queries/compliance_check.rq
+
+# Targets
+TARGETS = sparql_compile_time sparql_8tick_compiler benchmark_true_8tick
+
+all: sparql_constants.h $(TARGETS)
+
+# Generate SPARQL constants at compile time
+sparql_constants.h: sparql_compile_time $(QUERIES)
+	./sparql_compile_time $@ $(QUERIES)
+
+# Build the compile-time tool
+sparql_compile_time: sparql_compile_time.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+# Build the 8-tick compiler demo
+sparql_8tick_compiler: sparql_8tick_compiler.c sparql_constants.h
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
+# Build the benchmark
+benchmark_true_8tick: benchmark_true_8tick.c sparql_constants.h
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
+# Run benchmarks
+benchmark: benchmark_true_8tick
+	@echo "Running True 8-Tick Benchmarks..."
+	@echo "================================"
+	./benchmark_true_8tick
+
+# Run demo
+demo: sparql_8tick_compiler
+	@echo "Running 8-Tick Compiler Demo..."
+	@echo "=============================="
+	./sparql_8tick_compiler
+
+# Clean
+clean:
+	rm -f $(TARGETS) sparql_constants.h *.o
+
+.PHONY: all benchmark demo clean

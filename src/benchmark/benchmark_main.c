@@ -114,12 +114,27 @@ int main() {
     
     printf("Running OpenTelemetry benchmarks...\n\n");
     
+    printf("Starting arena allocator benchmark...\n");
     benchmark_arena_allocator(&ctx);
-    benchmark_bitactor_lite(&ctx);
-    benchmark_tick_unit(&ctx);
-    benchmark_8tick_pipeline(&ctx);
-    benchmark_sparql_8hop(&ctx);
+    printf("Arena allocator benchmark completed.\n");
     
+    printf("Starting BitActor lite benchmark...\n");
+    benchmark_bitactor_lite(&ctx);
+    printf("BitActor lite benchmark completed.\n");
+    
+    printf("Starting tick unit benchmark...\n");
+    benchmark_tick_unit(&ctx);
+    printf("Tick unit benchmark completed.\n");
+    
+    printf("Starting 8-tick pipeline benchmark...\n");
+    benchmark_8tick_pipeline(&ctx);
+    printf("8-tick pipeline benchmark completed.\n");
+    
+    printf("Starting SPARQL 8-hop benchmark...\n");
+    benchmark_sparql_8hop(&ctx);
+    printf("SPARQL 8-hop benchmark completed.\n");
+    
+    printf("Generating report...\n");
     otel_report_mermaid(&ctx);
     
     return 0;

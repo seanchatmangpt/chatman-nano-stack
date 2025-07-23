@@ -46,10 +46,10 @@ Chatman Inc. builds the world’s fastest, most deterministic software stack—C
 
 Frequently Asked Questions
 Q 1: What do I need installed?
-Python 3.10+, pip install dspy-ai typer rich rdflib.
+Python 3.10+, Ollama with qwen3:latest model, pip install dspy-ai typer rich rdflib.
 
 Q 2: Do I pay per-token?
-Ontology Forge defaults to whichever model you configure; use your own key or point to a local LLM to avoid usage fees.
+Ontology Forge uses Ollama with qwen3:latest by default for completely free, local LLM inference. No API fees.
 
 Q 3: Can I bring my own archetypes?
 Yes. Drop any .ttl, .shacl.ttl, or .sparql skeleton in archetypes/ and pass --myModule 50.
@@ -66,6 +66,17 @@ All generation happens client-side; if you use a remote LLM, only the textual ar
 Press Contact
 Marisa Trent – Director of Communications
 press@chatman.ai | +1 206 555 0199
+
+## Implementation Details
+
+The CNS Ontology Forge combines multiple technologies:
+
+- **Frontend**: Typer CLI for intuitive command-line interface
+- **AI Layer**: DSPy framework for LLM orchestration  
+- **Compilers**: OWL, SHACL, and SPARQL to C transpilers
+- **Verification**: OpenTelemetry-based benchmarking ensuring 8-tick compliance
+
+For technical architecture and benchmarks, see ontology_forge_workflow.md
 
 © 2025 Chatman Inc. All rights reserved.
 
