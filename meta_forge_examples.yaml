@@ -1,0 +1,37 @@
+# Meta Forge Batch Examples
+# Example configurations for generating multiple domain ontologies
+
+domains:
+  - type: trading
+    requirements: "Ultra-high-frequency trading system with 8-tick execution guarantee for equity markets"
+    patterns:
+      - temporal
+      - transactional
+      
+  - type: healthcare
+    requirements: "HIPAA-compliant electronic health records with real-time patient monitoring"
+    patterns:
+      - temporal
+      - hierarchical
+      - transactional
+      
+  - type: iot
+    requirements: "Industrial IoT platform for predictive maintenance with million sensors per second throughput"
+    patterns:
+      - temporal
+      - spatial
+      - hierarchical
+      
+  - type: automotive
+    requirements: "ISO 26262 compliant autonomous vehicle perception and control system with 1-tick sensor fusion"
+    patterns:
+      - temporal
+      - spatial
+      - transactional
+      
+  - type: aerospace
+    requirements: "DO-178C certified flight control system with triple redundancy and nanosecond precision"
+    patterns:
+      - temporal
+      - hierarchical
+      - transactional

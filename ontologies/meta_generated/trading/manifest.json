@@ -1,0 +1,30 @@
+{
+  "domain": "trading",
+  "name": "Trading Ontology System",
+  "description": "Cryptocurrency exchange with microsecond matching engine and DeFi integration",
+  "generated": "2025-07-23T00:05:35.932060",
+  "modules": [
+    "core",
+    "performance",
+    "constraints",
+    "queries",
+    "market_structure",
+    "risk",
+    "network",
+    "strategy"
+  ],
+  "files": {
+    "core": "ontologies/meta_generated/trading/trading_core.ttl",
+    "performance": "ontologies/meta_generated/trading/performance.ttl",
+    "constraints": "ontologies/meta_generated/trading/constraints.shacl.ttl",
+    "queries": "ontologies/meta_generated/trading/queries.ttl",
+    "market_structure": "ontologies/meta_generated/trading/market_structure.ttl",
+    "risk": "ontologies/meta_generated/trading/risk.ttl",
+    "network": "ontologies/meta_generated/trading/network.ttl",
+    "strategy": "ontologies/meta_generated/trading/strategy.ttl"
+  },
+  "performance_requirements": {
+    "latency_unit": "microseconds"
+  },
+  "compliance_standards": []
+}

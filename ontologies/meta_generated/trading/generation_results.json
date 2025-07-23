@@ -1,0 +1,16 @@
+{
+  "domain": "trading",
+  "modules": [
+    "core",
+    "performance",
+    "constraints",
+    "queries",
+    "market_structure",
+    "risk",
+    "network",
+    "strategy"
+  ],
+  "c_files": [],
+  "benchmark": "benchmarks/trading_benchmark.c",
+  "timestamp": "2025-07-23T00:05:35.934550"
+}

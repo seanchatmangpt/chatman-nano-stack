@@ -1,0 +1,128 @@
+# Meta Forge Configuration
+# Defines patterns and rules for automatic ontology generation
+
+version: "1.0"
+
+# Domain patterns that can be composed
+patterns:
+  temporal:
+    description: "Time-series and temporal data patterns"
+    classes:
+      - TimeSeries
+      - TemporalEvent
+      - TimeWindow
+      - TemporalAggregate
+    properties:
+      - timestamp
+      - duration
+      - frequency
+      - interval
+      
+  spatial:
+    description: "Geospatial and location patterns"
+    classes:
+      - Location
+      - Region
+      - Trajectory
+      - GeoBoundary
+    properties:
+      - latitude
+      - longitude
+      - altitude
+      - coordinate_system
+      
+  transactional:
+    description: "Transaction and state change patterns"
+    classes:
+      - Transaction
+      - StateChange
+      - AuditTrail
+      - Rollback
+    properties:
+      - transaction_id
+      - previous_state
+      - new_state
+      - timestamp
+      
+  hierarchical:
+    description: "Hierarchical and tree structures"
+    classes:
+      - Node
+      - Parent
+      - Child
+      - Tree
+    properties:
+      - parent_id
+      - child_ids
+      - depth
+      - path
+
+# Performance profiles
+performance_profiles:
+  ultra_low_latency:
+    description: "Sub-microsecond operations"
+    targets:
+      read: 1
+      write: 8
+      compute: 8
+    optimizations:
+      - cache_alignment
+      - lock_free
+      - kernel_bypass
+      
+  low_latency:
+    description: "Microsecond operations"
+    targets:
+      read: 100
+      write: 500
+      compute: 1000
+    optimizations:
+      - memory_pool
+      - batch_processing
+      
+  high_throughput:
+    description: "Maximize operations per second"
+    targets:
+      batch_size: 1000
+      pipeline_depth: 10
+    optimizations:
+      - vectorization
+      - parallel_execution
+
+# Composition rules
+composition_rules:
+  - name: "trading_system"
+    requires:
+      - temporal
+      - transactional
+    performance: ultra_low_latency
+    
+  - name: "iot_platform"
+    requires:
+      - temporal
+      - spatial
+      - hierarchical
+    performance: high_throughput
+    
+  - name: "healthcare_system"
+    requires:
+      - temporal
+      - transactional
+      - hierarchical
+    performance: low_latency
+
+# Code generation templates
+code_generation:
+  c_optimization_levels:
+    ultra_low_latency:
+      - "-O3"
+      - "-march=native"
+      - "-fno-exceptions"
+      - "-fno-rtti"
+    low_latency:
+      - "-O2"
+      - "-march=native"
+    high_throughput:
+      - "-O3"
+      - "-ftree-vectorize"
+      - "-funroll-loops"
