@@ -55,3 +55,160 @@
     rdfs:domain :MatchingEngine ;
     rdfs:range xsd:integer ;
     rdfs:comment "Execution latency in CPU ticks (must be ≤8)" .
+
+# SHACL Shapes for DSPy Integration
+# Order Processing Shape
+:OrderProcessingShape a shacl:NodeShape ;
+    shacl:targetClass :Order ;
+    rdfs:label "Order Processing Neural Signature" ;
+    rdfs:comment "DSPy signature for processing trading orders with neural reasoning" ;
+    shacl:property [
+        shacl:path :orderPrice ;
+        shacl:name "order_price" ;
+        shacl:description "Order price for execution" ;
+        shacl:datatype xsd:decimal ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+    ] ;
+    shacl:property [
+        shacl:path :orderQuantity ;
+        shacl:name "order_quantity" ;
+        shacl:description "Number of shares/units to trade" ;
+        shacl:datatype xsd:integer ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minInclusive 1 ;
+    ] ;
+    shacl:property [
+        shacl:path :orderTimestamp ;
+        shacl:name "order_timestamp" ;
+        shacl:description "Order timestamp in nanoseconds" ;
+        shacl:datatype xsd:long ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+    ] ;
+    shacl:property [
+        shacl:path :executionDecision ;
+        shacl:name "execution_decision" ;
+        shacl:description "Neural network decision on order execution" ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        cns:outputField true ;
+        rdfs:comment "OUTPUT: Execution decision (BUY/SELL/HOLD)" ;
+    ] .
+
+# Market Analysis Shape  
+:MarketAnalysisShape a shacl:NodeShape ;
+    shacl:targetClass :MarketData ;
+    rdfs:label "Market Analysis Neural Signature" ;
+    rdfs:comment "DSPy signature for analyzing market data with neural reasoning" ;
+    shacl:property [
+        shacl:path :marketPrice ;
+        shacl:name "market_price" ;
+        shacl:description "Current market price" ;
+        shacl:datatype xsd:decimal ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+    ] ;
+    shacl:property [
+        shacl:path :marketVolume ;
+        shacl:name "market_volume" ;
+        shacl:description "Trading volume" ;
+        shacl:datatype xsd:integer ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+    ] ;
+    shacl:property [
+        shacl:path :marketTrend ;
+        shacl:name "market_trend" ;
+        shacl:description "Market trend analysis" ;
+        shacl:datatype xsd:string ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        cns:outputField true ;
+        rdfs:comment "OUTPUT: Market trend prediction (BULLISH/BEARISH/NEUTRAL)" ;
+    ] .
+
+# Risk Assessment Shape
+:RiskAssessmentShape a shacl:NodeShape ;
+    shacl:targetClass :MatchingEngine ;
+    rdfs:label "Risk Assessment Neural Signature" ;
+    rdfs:comment "DSPy signature for risk assessment in trading decisions" ;
+    shacl:property [
+        shacl:path :positionSize ;
+        shacl:name "position_size" ;
+        shacl:description "Current position size" ;
+        shacl:datatype xsd:decimal ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+    ] ;
+    shacl:property [
+        shacl:path :portfolioValue ;
+        shacl:name "portfolio_value" ;
+        shacl:description "Total portfolio value" ;
+        shacl:datatype xsd:decimal ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+    ] ;
+    shacl:property [
+        shacl:path :volatilityMeasure ;
+        shacl:name "volatility_measure" ;
+        shacl:description "Market volatility measure" ;
+        shacl:datatype xsd:float ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+    ] ;
+    shacl:property [
+        shacl:path :riskScore ;
+        shacl:name "risk_score" ;
+        shacl:description "Calculated risk score (0-100)" ;
+        shacl:datatype xsd:integer ;
+        shacl:minCount 1 ;
+        shacl:maxCount 1 ;
+        shacl:minInclusive 0 ;
+        shacl:maxInclusive 100 ;
+        cns:outputField true ;
+        rdfs:comment "OUTPUT: Risk assessment score" ;
+    ] .
+
+# Add missing properties for SHACL shapes
+:executionDecision a owl:DatatypeProperty ;
+    rdfs:domain :Order ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Neural execution decision output" .
+
+:marketPrice a owl:DatatypeProperty ;
+    rdfs:domain :MarketData ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Current market price" .
+
+:marketVolume a owl:DatatypeProperty ;
+    rdfs:domain :MarketData ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Trading volume" .
+
+:marketTrend a owl:DatatypeProperty ;
+    rdfs:domain :MarketData ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Market trend prediction output" .
+
+:positionSize a owl:DatatypeProperty ;
+    rdfs:domain :MatchingEngine ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Current position size" .
+
+:portfolioValue a owl:DatatypeProperty ;
+    rdfs:domain :MatchingEngine ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Total portfolio value" .
+
+:volatilityMeasure a owl:DatatypeProperty ;
+    rdfs:domain :MatchingEngine ;
+    rdfs:range xsd:float ;
+    rdfs:comment "Market volatility measure" .
+
+:riskScore a owl:DatatypeProperty ;
+    rdfs:domain :MatchingEngine ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Risk assessment score output" .
