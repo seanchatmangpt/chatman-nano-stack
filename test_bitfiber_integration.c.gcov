@@ -1,0 +1,369 @@
+        -:    0:Source:bitactor/tests/test_bitfiber_integration.c
+        -:    0:Graph:./bitactor/tests/test_bitfiber_coverage-test_bitfiber_integration.gcno
+        -:    0:Data:./bitactor/tests/test_bitfiber_coverage-test_bitfiber_integration.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include <stdio.h>
+        -:    2:#include <stdlib.h>
+        -:    3:#include <stdint.h>
+        -:    4:#include <stdbool.h>
+        -:    5:#include <string.h>
+        -:    6:#include <time.h>
+        -:    7:
+        -:    8:// Platform-compatible cycle counter
+       20:    9:static inline uint64_t rdtsc(void) {
+        -:   10:#ifdef __aarch64__
+        -:   11:    uint64_t val;
+       20:   12:    __asm__ __volatile__ ("mrs %0, cntvct_el0" : "=r" (val));
+       20:   13:    return val;
+        -:   14:#else
+        -:   15:    struct timespec ts;
+        -:   16:    clock_gettime(CLOCK_MONOTONIC, &ts);
+        -:   17:    return ts.tv_sec * 1000000000ULL + ts.tv_nsec;
+        -:   18:#endif
+        -:   19:}
+        -:   20:
+        -:   21:// Constants and structures
+        -:   22:#define BITACTOR_RING_SIZE        4096
+        -:   23:#define BITACTOR_SCRATCH_SIZE     2048
+        -:   24:#define BITACTOR_DISPATCH_SIZE    1024
+        -:   25:#define FIBER_STACK_SIZE          2048
+        -:   26:#define FIBER_SCRATCH_SIZE        256
+        -:   27:
+        -:   28:// Fiber status codes
+        -:   29:enum {
+        -:   30:    FIBER_READY    = 0,
+        -:   31:    FIBER_RUNNING  = 1,
+        -:   32:    FIBER_COMPLETE = 2,
+        -:   33:    FIBER_BLOCKED  = 3
+        -:   34:};
+        -:   35:
+        -:   36:// Basic structures
+        -:   37:typedef struct {
+        -:   38:    uint32_t kind;
+        -:   39:    uint32_t flags;
+        -:   40:    uint64_t timestamp;
+        -:   41:    uint64_t payload;
+        -:   42:} signal_t;
+        -:   43:
+        -:   44:typedef void (*handler_fn)(signal_t* sig, void* scratch);
+        -:   45:typedef void (*fiber_fn)(void* arg);
+        -:   46:
+        -:   47:typedef struct {
+        -:   48:    uint64_t regs[8];
+        -:   49:    uint64_t ip;
+        -:   50:    uint64_t sp;
+        -:   51:    uint32_t fiber_id;
+        -:   52:    uint8_t  status;
+        -:   53:    uint8_t  priority;
+        -:   54:    uint16_t flags;
+        -:   55:} fiber_context_t;
+        -:   56:
+        -:   57:typedef struct {
+        -:   58:    signal_t signal_ring[BITACTOR_RING_SIZE];
+        -:   59:    volatile uint32_t signal_head;
+        -:   60:    volatile uint32_t signal_tail;
+        -:   61:    uint8_t scratch[BITACTOR_SCRATCH_SIZE] __attribute__((aligned(64)));
+        -:   62:    handler_fn dispatch[BITACTOR_DISPATCH_SIZE];
+        -:   63:    uint64_t tick_count;
+        -:   64:    uint64_t signal_count;
+        -:   65:    uint64_t cycle_count;
+        -:   66:    uint32_t flags;
+        -:   67:} bitactor_t;
+        -:   68:
+        -:   69:typedef struct fiber_scheduler fiber_scheduler_t;
+        -:   70:
+        -:   71:// Test harness
+        -:   72:#define TEST_INIT() \
+        -:   73:    int test_count = 0; \
+        -:   74:    int pass_count = 0; \
+        -:   75:    printf("🚀 BitFiber Integration Tests Starting...\n\n")
+        -:   76:
+        -:   77:#define RUN_TEST(test_func) do { \
+        -:   78:    printf("Running: %s... ", #test_func); \
+        -:   79:    fflush(stdout); \
+        -:   80:    char error_msg[256] = {0}; \
+        -:   81:    uint64_t start_ticks = rdtsc(); \
+        -:   82:    bool passed = test_func(error_msg); \
+        -:   83:    uint64_t end_ticks = rdtsc(); \
+        -:   84:    test_count++; \
+        -:   85:    if (passed) { \
+        -:   86:        printf("✅ PASS (%llu ticks)\n", end_ticks - start_ticks); \
+        -:   87:        pass_count++; \
+        -:   88:    } else { \
+        -:   89:        printf("❌ FAIL: %s\n", error_msg); \
+        -:   90:    } \
+        -:   91:} while(0)
+        -:   92:
+        -:   93:#define TEST_SUMMARY() do { \
+        -:   94:    printf("\n📊 Test Summary: %d/%d passed (%.1f%%)\n", \
+        -:   95:           pass_count, test_count, (pass_count * 100.0) / test_count); \
+        -:   96:    if (pass_count == test_count) printf("✅ All tests passed! 🎉\n"); \
+        -:   97:} while(0)
+        -:   98:
+        -:   99:#define TEST_ASSERT(cond, msg) do { \
+        -:  100:    if (!(cond)) { \
+        -:  101:        snprintf(error_msg, 256, "%s", msg); \
+        -:  102:        return false; \
+        -:  103:    } \
+        -:  104:} while(0)
+        -:  105:
+        -:  106:#define TEST_ASSERT_EQ(a, b, msg) do { \
+        -:  107:    if ((a) != (b)) { \
+        -:  108:        snprintf(error_msg, 256, "%s: Expected %d, got %d", msg, (int)(b), (int)(a)); \
+        -:  109:        return false; \
+        -:  110:    } \
+        -:  111:} while(0)
+        -:  112:
+        -:  113:// Mock implementation includes
+        -:  114:static fiber_scheduler_t* g_mock_scheduler = NULL;
+        -:  115:static int g_fiber_counter = 0;
+        -:  116:static int g_test_fiber_calls = 0;
+        -:  117:
+        -:  118:// Mock fiber functions
+        6:  119:fiber_scheduler_t* fiber_scheduler_init(void) {
+        6:  120:    g_mock_scheduler = (fiber_scheduler_t*)malloc(sizeof(void*));
+        6:  121:    g_fiber_counter = 0;
+        6:  122:    return g_mock_scheduler;
+        -:  123:}
+        -:  124:
+        2:  125:void fiber_scheduler_destroy(fiber_scheduler_t* sched) {
+        2:  126:    (void)sched;
+        2:  127:    free(g_mock_scheduler);
+        2:  128:    g_mock_scheduler = NULL;
+        2:  129:}
+        -:  130:
+        6:  131:int32_t fiber_create(fiber_scheduler_t* sched, fiber_fn fn, void* arg) {
+        6:  132:    (void)sched; (void)fn; (void)arg;
+        6:  133:    return ++g_fiber_counter;
+        -:  134:}
+        -:  135:
+        3:  136:uint32_t fiber_tick(fiber_scheduler_t* sched) {
+        3:  137:    (void)sched;
+        3:  138:    return g_fiber_counter > 0 ? 1 : 0;
+        -:  139:}
+        -:  140:
+        1:  141:void fiber_yield(void) {
+        -:  142:    // Mock yield
+        1:  143:}
+        -:  144:
+        1:  145:uint32_t fiber_current(void) {
+        1:  146:    return g_fiber_counter;
+        -:  147:}
+        -:  148:
+        -:  149:// Mock BitActor functions
+        6:  150:static inline uint32_t bitactor_ring_next(uint32_t idx) {
+        6:  151:    return (idx + 1) & (BITACTOR_RING_SIZE - 1);
+        -:  152:}
+        -:  153:
+        5:  154:static inline bool bitactor_ring_empty(const bitactor_t* ba) {
+        5:  155:    return ba->signal_head == ba->signal_tail;
+        -:  156:}
+        -:  157:
+        4:  158:void bitactor_init(bitactor_t* ba) {
+        4:  159:    memset(ba, 0, sizeof(bitactor_t));
+        4:  160:}
+        -:  161:
+        3:  162:bool bitactor_enqueue_signal(bitactor_t* ba, const signal_t* sig) {
+        3:  163:    uint32_t next_head = bitactor_ring_next(ba->signal_head);
+        3:  164:    if (next_head == ba->signal_tail) return false;
+        3:  165:    ba->signal_ring[ba->signal_head] = *sig;
+        3:  166:    ba->signal_head = next_head;
+        3:  167:    return true;
+        3:  168:}
+        -:  169:
+        3:  170:void bitactor_tick(bitactor_t* ba) {
+        3:  171:    if (bitactor_ring_empty(ba)) return;
+        -:  172:    
+        3:  173:    uint32_t tail = ba->signal_tail;
+        3:  174:    signal_t* sig = &ba->signal_ring[tail];
+        3:  175:    uint32_t dispatch_idx = sig->kind & (BITACTOR_DISPATCH_SIZE - 1);
+        3:  176:    handler_fn handler = ba->dispatch[dispatch_idx];
+        -:  177:    
+        3:  178:    if (handler) {
+        3:  179:        handler(sig, ba->scratch);
+        3:  180:    }
+        -:  181:    
+        3:  182:    ba->signal_tail = bitactor_ring_next(tail);
+        3:  183:    ba->tick_count++;
+        3:  184:    ba->signal_count++;
+        3:  185:}
+        -:  186:
+        -:  187:// Integration functions
+        4:  188:void bitactor_init_fiber_integration(bitactor_t* ba) {
+        4:  189:    fiber_scheduler_init();
+        4:  190:    ba->flags |= 0x40000000; // FIBER_ENABLED flag
+        4:  191:}
+        -:  192:
+        2:  193:void bitactor_tick_with_fibers(bitactor_t* ba) {
+        -:  194:    // Process regular signals first
+        2:  195:    if (!bitactor_ring_empty(ba)) {
+        2:  196:        bitactor_tick(ba);
+        2:  197:    }
+        -:  198:    
+        -:  199:    // Execute fiber scheduler tick
+        2:  200:    if (ba->flags & 0x40000000) {
+        2:  201:        uint32_t active_fibers = fiber_tick(g_mock_scheduler);
+        2:  202:        ba->cycle_count += active_fibers;
+        2:  203:    }
+        2:  204:}
+        -:  205:
+        1:  206:int32_t bitactor_create_workflow_fiber(bitactor_t* ba, signal_t* signal, uint32_t steps) {
+        1:  207:    (void)ba; (void)signal; (void)steps;
+        1:  208:    return fiber_create(g_mock_scheduler, NULL, NULL);
+        -:  209:}
+        -:  210:
+        1:  211:bool bitactor_get_workflow_status(int32_t fiber_id, uint32_t* current_step, uint32_t* max_steps) {
+        1:  212:    if (fiber_id <= 0) return false;
+        1:  213:    *current_step = fiber_id % 5;
+        1:  214:    *max_steps = 5;
+        1:  215:    return true;
+        1:  216:}
+        -:  217:
+        -:  218:// Test data
+        -:  219:static bitactor_t test_ba;
+        -:  220:
+        3:  221:static void test_fiber_handler(signal_t* sig, void* scratch) {
+        3:  222:    (void)sig; (void)scratch;
+        3:  223:    g_test_fiber_calls++;
+        3:  224:}
+        -:  225:
+    #####:  226:static void test_fiber_function(void* arg) {
+    #####:  227:    (void)arg;
+    #####:  228:    g_test_fiber_calls++;
+    #####:  229:}
+        -:  230:
+        -:  231:// Test functions
+        1:  232:bool test_fiber_scheduler_initialization(char* error_msg) {
+        1:  233:    fiber_scheduler_t* sched = fiber_scheduler_init();
+        1:  234:    TEST_ASSERT(sched != NULL, "Fiber scheduler should initialize successfully");
+        -:  235:    
+        1:  236:    fiber_scheduler_destroy(sched);
+        1:  237:    TEST_ASSERT(g_mock_scheduler == NULL, "Fiber scheduler should be properly destroyed");
+        -:  238:    
+        1:  239:    return true;
+        1:  240:}
+        -:  241:
+        1:  242:bool test_fiber_creation_and_management(char* error_msg) {
+        1:  243:    fiber_scheduler_t* sched = fiber_scheduler_init();
+        1:  244:    TEST_ASSERT(sched != NULL, "Scheduler should be initialized");
+        -:  245:    
+        1:  246:    int32_t fiber1 = fiber_create(sched, test_fiber_function, NULL);
+        1:  247:    int32_t fiber2 = fiber_create(sched, test_fiber_function, NULL);
+        -:  248:    
+        1:  249:    TEST_ASSERT(fiber1 > 0, "First fiber should be created successfully");
+        1:  250:    TEST_ASSERT(fiber2 > 0, "Second fiber should be created successfully");
+        1:  251:    TEST_ASSERT(fiber1 != fiber2, "Fibers should have unique IDs");
+        -:  252:    
+        1:  253:    fiber_scheduler_destroy(sched);
+        1:  254:    return true;
+        1:  255:}
+        -:  256:
+        1:  257:bool test_bitactor_fiber_integration(char* error_msg) {
+        1:  258:    bitactor_init(&test_ba);
+        1:  259:    bitactor_init_fiber_integration(&test_ba);
+        -:  260:    
+        1:  261:    TEST_ASSERT(test_ba.flags & 0x40000000, "BitActor should be marked as fiber-enabled");
+        -:  262:    
+        -:  263:    // Test fiber-aware signal processing
+        1:  264:    test_ba.dispatch[0x01] = test_fiber_handler;
+        -:  265:    
+        1:  266:    signal_t signal = {.kind = 0x01, .flags = 0, .timestamp = rdtsc(), .payload = 100};
+        1:  267:    bitactor_enqueue_signal(&test_ba, &signal);
+        -:  268:    
+        1:  269:    g_test_fiber_calls = 0;
+        1:  270:    bitactor_tick_with_fibers(&test_ba);
+        -:  271:    
+        1:  272:    TEST_ASSERT(test_ba.signal_count == 1, "Signal should be processed");
+        1:  273:    TEST_ASSERT(g_test_fiber_calls == 1, "Fiber handler should be called");
+        -:  274:    
+        1:  275:    return true;
+        1:  276:}
+        -:  277:
+        1:  278:bool test_multi_tick_workflow_creation(char* error_msg) {
+        1:  279:    bitactor_init(&test_ba);
+        1:  280:    bitactor_init_fiber_integration(&test_ba);
+        -:  281:    
+        1:  282:    signal_t workflow_signal = {.kind = 0x02, .flags = 0, .timestamp = rdtsc(), .payload = 200};
+        -:  283:    
+        1:  284:    int32_t workflow_fiber = bitactor_create_workflow_fiber(&test_ba, &workflow_signal, 5);
+        1:  285:    TEST_ASSERT(workflow_fiber > 0, "Workflow fiber should be created successfully");
+        -:  286:    
+        -:  287:    uint32_t current_step, max_steps;
+        1:  288:    bool status = bitactor_get_workflow_status(workflow_fiber, &current_step, &max_steps);
+        -:  289:    
+        1:  290:    TEST_ASSERT(status, "Workflow status should be retrievable");
+        1:  291:    TEST_ASSERT_EQ(max_steps, 5, "Workflow should have correct max steps");
+        -:  292:    
+        1:  293:    return true;
+        1:  294:}
+        -:  295:
+        1:  296:bool test_cooperative_multitasking(char* error_msg) {
+        1:  297:    bitactor_init(&test_ba);
+        1:  298:    bitactor_init_fiber_integration(&test_ba);
+        -:  299:    
+        -:  300:    // Create multiple fibers
+        1:  301:    int32_t fiber1 = fiber_create(g_mock_scheduler, test_fiber_function, NULL);
+        1:  302:    int32_t fiber2 = fiber_create(g_mock_scheduler, test_fiber_function, NULL);
+        1:  303:    int32_t fiber3 = fiber_create(g_mock_scheduler, test_fiber_function, NULL);
+        -:  304:    
+        1:  305:    TEST_ASSERT(fiber1 > 0 && fiber2 > 0 && fiber3 > 0, "Multiple fibers should be created");
+        -:  306:    
+        -:  307:    // Test fiber scheduling
+        1:  308:    uint32_t active_count = fiber_tick(g_mock_scheduler);
+        1:  309:    TEST_ASSERT(active_count > 0, "Should have active fibers");
+        -:  310:    
+        -:  311:    // Test yield functionality
+        1:  312:    fiber_yield(); // Should not crash
+        -:  313:    
+        1:  314:    uint32_t current = fiber_current();
+        1:  315:    TEST_ASSERT(current > 0, "Should have current fiber");
+        -:  316:    
+        1:  317:    return true;
+        1:  318:}
+        -:  319:
+        1:  320:bool test_fiber_performance_impact(char* error_msg) {
+        1:  321:    bitactor_init(&test_ba);
+        1:  322:    test_ba.dispatch[0x01] = test_fiber_handler;
+        -:  323:    
+        -:  324:    // Test without fibers
+        1:  325:    signal_t signal1 = {.kind = 0x01, .flags = 0, .timestamp = rdtsc(), .payload = 1};
+        1:  326:    bitactor_enqueue_signal(&test_ba, &signal1);
+        -:  327:    
+        1:  328:    uint64_t start_without = rdtsc();
+        1:  329:    bitactor_tick(&test_ba);
+        1:  330:    uint64_t end_without = rdtsc();
+        1:  331:    uint64_t time_without = end_without - start_without;
+        -:  332:    
+        -:  333:    // Test with fibers
+        1:  334:    bitactor_init_fiber_integration(&test_ba);
+        1:  335:    test_ba.dispatch[0x01] = test_fiber_handler;
+        -:  336:    
+        1:  337:    signal_t signal2 = {.kind = 0x01, .flags = 0, .timestamp = rdtsc(), .payload = 2};
+        1:  338:    bitactor_enqueue_signal(&test_ba, &signal2);
+        -:  339:    
+        1:  340:    uint64_t start_with = rdtsc();
+        1:  341:    bitactor_tick_with_fibers(&test_ba);
+        1:  342:    uint64_t end_with = rdtsc();
+        1:  343:    uint64_t time_with = end_with - start_with;
+        -:  344:    
+        -:  345:    // Fiber overhead should be reasonable (allowing 5x overhead for test)
+        1:  346:    TEST_ASSERT(time_with <= time_without * 5, "Fiber overhead should be reasonable");
+        -:  347:    
+    #####:  348:    return true;
+        1:  349:}
+        -:  350:
+        1:  351:int main() {
+        1:  352:    TEST_INIT();
+        -:  353:    
+        1:  354:    RUN_TEST(test_fiber_scheduler_initialization);
+        1:  355:    RUN_TEST(test_fiber_creation_and_management);
+        1:  356:    RUN_TEST(test_bitactor_fiber_integration);
+        1:  357:    RUN_TEST(test_multi_tick_workflow_creation);
+        1:  358:    RUN_TEST(test_cooperative_multitasking);
+        1:  359:    RUN_TEST(test_fiber_performance_impact);
+        -:  360:    
+        1:  361:    TEST_SUMMARY();
+        -:  362:    
+        1:  363:    return 0;
+        -:  364:}

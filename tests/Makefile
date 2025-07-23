@@ -4,7 +4,7 @@ CFLAGS += -I../src -I../bitactor/tests -I../bitactor/include
 CFLAGS += -march=native -mtune=native
 
 # Test targets
-BDD_TESTS = test_cns_pipeline_bdd test_tick_parallel_bdd test_news_validator_bdd
+BDD_TESTS = test_cns_pipeline_bdd test_tick_parallel_bdd test_news_validator_bdd test_sparql_parser_bdd test_generated_uhft_bdd test_bitactor_core_extended_bdd test_sparql_complete_bdd test_uhft_comprehensive_bdd test_bitactor_advanced_bdd test_algorithms_8tick_bdd test_benchmarks_validation_bdd
 
 # Source files to test
 CNS_SRCS = ../src/cns/cns_pipeline.c ../src/cns/tick_parallel.c
@@ -23,6 +23,32 @@ test_tick_parallel_bdd: test_tick_parallel_bdd.c ../src/cns/tick_parallel.c
 
 test_news_validator_bdd: test_news_validator_bdd.c
 	$(CC) $(CFLAGS) -o $@ $< -DMOCK_NEWS_VALIDATOR
+
+# New comprehensive BDD tests
+test_sparql_parser_bdd: test_sparql_parser_bdd.c
+	$(CC) $(CFLAGS) -o $@ $< -DMOCK_SPARQL_PARSER
+
+test_generated_uhft_bdd: test_generated_uhft_bdd.c
+	$(CC) $(CFLAGS) -o $@ $< -DMOCK_UHFT_SYSTEM
+
+test_bitactor_core_extended_bdd: test_bitactor_core_extended_bdd.c
+	$(CC) $(CFLAGS) -o $@ $< -DMOCK_BITACTOR_EXTENDED
+
+# Additional comprehensive BDD tests
+test_sparql_complete_bdd: test_sparql_complete_bdd.c
+	$(CC) $(CFLAGS) -o $@ $< -DMOCK_SPARQL_COMPLETE
+
+test_uhft_comprehensive_bdd: test_uhft_comprehensive_bdd.c
+	$(CC) $(CFLAGS) -o $@ $< -DMOCK_UHFT_COMPREHENSIVE
+
+test_bitactor_advanced_bdd: test_bitactor_advanced_bdd.c
+	$(CC) $(CFLAGS) -o $@ $< -DMOCK_BITACTOR_ADVANCED
+
+test_algorithms_8tick_bdd: test_algorithms_8tick_bdd.c
+	$(CC) $(CFLAGS) -o $@ $< -DMOCK_ALGORITHMS_8TICK
+
+test_benchmarks_validation_bdd: test_benchmarks_validation_bdd.c
+	$(CC) $(CFLAGS) -o $@ $< -DMOCK_BENCHMARKS_VALIDATION
 
 # Run all BDD tests
 test-bdd: $(BDD_TESTS)

@@ -94,6 +94,7 @@ cns-benchmark = "run_benchmark:main"
 cns-validate = "aot_lifecycle:main"
 cns-status = "cns_status:main"
 ttl2dspy = "ttl2dspy:main"
+cf = "cns.cli:app"
 
 [build-system]
 requires = ["hatchling"]

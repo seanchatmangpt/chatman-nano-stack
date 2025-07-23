@@ -111,6 +111,39 @@ static bdd_context_t g_bdd_ctx = {0};
     } \
 } while(0)
 
+#define EXPECT_NE(actual, expected) do { \
+    g_bdd_ctx.assertions++; \
+    if ((actual) == (expected)) { \
+        g_bdd_ctx.failures++; \
+        g_bdd_ctx.scenario_failed = true; \
+        snprintf(g_bdd_ctx.failure_msg, 256, \
+                "Expected %ld != %ld (line %d)", \
+                (long)(actual), (long)(expected), __LINE__); \
+    } \
+} while(0)
+
+#define EXPECT_LE(actual, limit) do { \
+    g_bdd_ctx.assertions++; \
+    if ((actual) > (limit)) { \
+        g_bdd_ctx.failures++; \
+        g_bdd_ctx.scenario_failed = true; \
+        snprintf(g_bdd_ctx.failure_msg, 256, \
+                "Expected %ld <= %ld (line %d)", \
+                (long)(actual), (long)(limit), __LINE__); \
+    } \
+} while(0)
+
+#define EXPECT_GE(actual, limit) do { \
+    g_bdd_ctx.assertions++; \
+    if ((actual) < (limit)) { \
+        g_bdd_ctx.failures++; \
+        g_bdd_ctx.scenario_failed = true; \
+        snprintf(g_bdd_ctx.failure_msg, 256, \
+                "Expected %ld >= %ld (line %d)", \
+                (long)(actual), (long)(limit), __LINE__); \
+    } \
+} while(0)
+
 /* Performance measurement helpers */
 static inline uint64_t measure_ticks(void (*fn)(void)) {
     uint64_t start = __builtin_readcyclecounter();

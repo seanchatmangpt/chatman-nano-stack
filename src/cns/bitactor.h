@@ -6,6 +6,9 @@
 #include <stddef.h>
 #include <immintrin.h>
 
+// Include BitActor subsystem headers
+#include "../../bitactor/include/bitactor/bitactor_blake3.h"
+
 // Core constants - all power of 2 for bit manipulation efficiency
 #define BITACTOR_MAX_SIGNALS      256
 #define BITACTOR_RING_SIZE        4096
@@ -63,10 +66,14 @@ typedef struct {
     telemetry_frame_t telemetry[BITACTOR_TELEMETRY_SIZE];
     volatile uint32_t telemetry_head;
     
+    // Hash verification state
+    bitactor_hash_state_t hash_state;
+    
     // Performance counters
     uint64_t tick_count;
     uint64_t signal_count;
     uint64_t cycle_count;
+    uint64_t budget_exceeded_count;
 } bitactor_t;
 
 // Core API - minimal surface area
@@ -74,6 +81,19 @@ void bitactor_init(bitactor_t* ba);
 void bitactor_tick(bitactor_t* ba);
 bool bitactor_enqueue_signal(bitactor_t* ba, const signal_t* sig);
 void bitactor_load_bytecode(bitactor_t* ba, const bitinstr_t* code, uint32_t size);
+bool bitactor_verify_hash_integrity(bitactor_t* ba, uint32_t max_diff);
+
+// Extended API for execution engine integration
+typedef struct {
+    uint32_t signal_id;
+    uint64_t result;
+    uint8_t ticks;
+    uint32_t exec_hash;
+    uint8_t status;
+} bitactor_result_t;
+
+bitactor_result_t bitactor_execute_program(bitactor_t* ba, const signal_t* signal, 
+                                          const bitinstr_t* program, uint32_t program_size);
 
 // Inline helpers for performance
 __attribute__((always_inline))

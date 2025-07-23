@@ -1,0 +1,72 @@
+name: CNS Test Coverage
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install LLVM
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang llvm bc
+    
+    - name: Setup Coverage Environment
+      run: |
+        chmod +x scripts/setup_coverage.sh
+        ./scripts/setup_coverage.sh
+    
+    - name: Build with Coverage
+      run: make coverage-build
+    
+    - name: Run Tests with Coverage
+      run: make coverage-test
+    
+    - name: Generate Coverage Report
+      run: make coverage-report
+    
+    - name: Check Coverage Gates
+      run: make coverage-check
+    
+    - name: Generate LCOV Report
+      run: make coverage-lcov
+    
+    - name: Upload Coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage/coverage.lcov
+        flags: cns-core
+        name: CNS Coverage
+        fail_ci_if_error: true
+    
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: coverage/reports/
+        retention-days: 30
+    
+    - name: Comment Coverage Summary
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          try {
+            const coverage = fs.readFileSync('coverage/coverage_summary.txt', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## 📊 Coverage Report\n\n```\n' + coverage + '\n```'
+            });
+          } catch (error) {
+            console.log('Could not read coverage summary');
+          }

@@ -124,9 +124,48 @@ docker-build:
 docker-run: docker-build
 	docker run --rm -it cns:latest
 
+# Claude Flow AI Swarm targets
+cf-ultrathink:
+	npx claude-flow@alpha swarm "ultrathink like a artificial hyper intelligence and implement systems that a human would never dream of after reviewing ./docs, use the 80/20 and Design for Lean Six Sigma" --claude
+
+cf-implement:
+	npx claude-flow@alpha swarm "ultrathink then 80/20 implement $(FILE) at a Artificial Hyper Intelligence level, write the functionality, another swarm is writing the tests" --claude
+
+cf-test:
+	npx claude-flow@alpha swarm "ultrathink then 80/20 implement $(FILE) at a Artificial Hyper Intelligence level, write the tests, another swarm is writing functionality" --claude
+
+cf-finish:
+	npx claude-flow@alpha swarm "ultrathink then finish the reverse 80/20 to finish $(FILE) at a Artificial Hyper Intelligence level, merge the functionality with the tests, there is WIP, don't start from scratch. LOOK AT THE ENTIRE FILE TREE" --claude
+
+cf-benchmark:
+	npx claude-flow@alpha swarm "ultrathink run all the benchmarks that work, and then write a report about all the revolutionary aspects of the Chatman Nano Stack" --claude
+
+cf-validate:
+	npx claude-flow@alpha swarm "ultrathink then 80/20 implement $(FILE), validate business value, benchmarks, telemetry, etc before providing any summaries" --claude
+
+cf-fix:
+	npx claude-flow@alpha swarm "ultrathink to make the claude-flow commands work" --claude
+
+cf-clean:
+	npx claude-flow@alpha swarm "ultrathink to remove all mock dspy implementation and replace with ollama with qwen3:latest" --claude
+
+cf-crash:
+	npx claude-flow@alpha swarm "ultrathink to add unit tests to any code with try catch, verify it works then let it crash. I do not want anything that handles errors" --claude
+
 # Help
 help:
 	@echo "CNS Build System - James I. Chatman & Sean A. Chatman"
+	@echo ""
+	@echo "Claude Flow AI Swarm targets:"
+	@echo "  cf-ultrathink   - Ultra-intelligence system design"
+	@echo "  cf-implement    - 80/20 implementation (FILE=path)"
+	@echo "  cf-test         - 80/20 test generation (FILE=path)"
+	@echo "  cf-finish       - Merge functionality with tests (FILE=path)"
+	@echo "  cf-benchmark    - Run benchmarks and generate report"
+	@echo "  cf-validate     - Validate with telemetry (FILE=path)"
+	@echo "  cf-fix          - Fix claude-flow command issues"
+	@echo "  cf-clean        - Replace mock with ollama qwen3"
+	@echo "  cf-crash        - Add crash-first unit tests"
 	@echo ""
 	@echo "Python targets (managed by uv):"
 	@echo "  setup           - Initialize Python environment"
@@ -152,3 +191,6 @@ help:
 .PHONY: all setup dev-setup owl-compile ttl2dspy python-test python-benchmark lint format
 .PHONY: full-test full-benchmark clean clean-c clean-python docker-build docker-run help
 .PHONY: sparql_compiler benchmark run_benchmark test_sparql
+.PHONY: cf-ultrathink cf-implement cf-test cf-finish cf-benchmark cf-validate cf-fix cf-clean cf-crash
+
+include Makefile.coverage

@@ -1,0 +1,111 @@
+#!/bin/bash
+
+# Claude Flow Helper Script
+# Usage: ./scripts/cf <command> [args]
+
+set -e
+
+CF_CMD="npx claude-flow@alpha swarm"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+case "$1" in
+    "ultrathink"|"ut")
+        echo "🧠 Launching ultrathink AI swarm..."
+        $CF_CMD "ultrathink like a artificial hyper intelligence and implement systems that a human would never dream of after reviewing ./docs, use the 80/20 and Design for Lean Six Sigma" --claude
+        ;;
+    
+    "implement"|"impl")
+        if [ -z "$2" ]; then
+            echo "Usage: cf implement <file_path>"
+            exit 1
+        fi
+        echo "⚡ Implementing $2 with 80/20 methodology..."
+        $CF_CMD "ultrathink then 80/20 implement $2 at a Artificial Hyper Intelligence level, write the functionality, another swarm is writing the tests" --claude
+        ;;
+    
+    "test")
+        if [ -z "$2" ]; then
+            echo "Usage: cf test <file_path>"
+            exit 1
+        fi
+        echo "🧪 Generating tests for $2..."
+        $CF_CMD "ultrathink then 80/20 implement $2 at a Artificial Hyper Intelligence level, write the tests, another swarm is writing functionality" --claude
+        ;;
+    
+    "finish"|"merge")
+        if [ -z "$2" ]; then
+            echo "Usage: cf finish <file_path>"
+            exit 1
+        fi
+        echo "🎯 Finishing implementation of $2..."
+        $CF_CMD "ultrathink then finish the reverse 80/20 to finish $2 at a Artificial Hyper Intelligence level, merge the functionality with the tests, there is WIP, don't start from scratch. LOOK AT THE ENTIRE FILE TREE" --claude
+        ;;
+    
+    "benchmark"|"bench")
+        echo "📊 Running benchmarks and generating report..."
+        $CF_CMD "ultrathink run all the benchmarks that work, and then write a report about all the revolutionary aspects of the Chatman Nano Stack" --claude
+        ;;
+    
+    "validate"|"val")
+        if [ -z "$2" ]; then
+            echo "Usage: cf validate <file_path>"
+            exit 1
+        fi
+        echo "✅ Validating $2 with telemetry..."
+        $CF_CMD "ultrathink then 80/20 implement $2, validate business value, benchmarks, telemetry, etc before providing any summaries" --claude
+        ;;
+    
+    "fix")
+        echo "🔧 Fixing claude-flow command issues..."
+        $CF_CMD "ultrathink to make the claude-flow commands work" --claude
+        ;;
+    
+    "clean")
+        echo "🧹 Replacing mock implementations with ollama..."
+        $CF_CMD "ultrathink to remove all mock dspy implementation and replace with ollama with qwen3:latest" --claude
+        ;;
+    
+    "crash")
+        echo "💥 Adding crash-first unit tests..."
+        $CF_CMD "ultrathink to add unit tests to any code with try catch, verify it works then let it crash. I do not want anything that handles errors" --claude
+        ;;
+    
+    "custom"|"c")
+        if [ -z "$2" ]; then
+            echo "Usage: cf custom \"your custom prompt\""
+            exit 1
+        fi
+        echo "🎨 Running custom ultrathink prompt..."
+        $CF_CMD "ultrathink $2" --claude
+        ;;
+    
+    "help"|"-h"|"--help")
+        echo "Claude Flow Helper Script"
+        echo ""
+        echo "Usage: ./scripts/cf <command> [args]"
+        echo ""
+        echo "Commands:"
+        echo "  ultrathink, ut           - Ultra-intelligence system design"
+        echo "  implement, impl <file>   - 80/20 implementation"
+        echo "  test <file>             - Generate tests"
+        echo "  finish, merge <file>    - Merge functionality with tests"
+        echo "  benchmark, bench        - Run benchmarks and report"
+        echo "  validate, val <file>    - Validate with telemetry"
+        echo "  fix                     - Fix claude-flow issues"
+        echo "  clean                   - Replace mock with ollama"
+        echo "  crash                   - Add crash-first tests"
+        echo "  custom, c \"prompt\"     - Custom ultrathink prompt"
+        echo "  help, -h, --help        - Show this help"
+        echo ""
+        echo "Examples:"
+        echo "  ./scripts/cf ultrathink"
+        echo "  ./scripts/cf implement bitactor-reqs.md"
+        echo "  ./scripts/cf custom \"build a neural network\""
+        ;;
+    
+    *)
+        echo "Unknown command: $1"
+        echo "Use './scripts/cf help' for usage information"
+        exit 1
+        ;;
+esac
