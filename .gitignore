@@ -288,5 +288,5 @@ __pycache__/
 # session_recovery.spr
 
 # Local development files (excluding chatman-nano-stack-context)
-# .lh/
+.lh/
 # current.link 
