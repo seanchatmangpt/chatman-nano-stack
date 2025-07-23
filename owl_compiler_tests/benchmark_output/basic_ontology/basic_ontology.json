@@ -1,0 +1,98 @@
+{
+    "metadata": {
+        "compiler": "OWL AOT Compiler with Jinja",
+        "version": "1.0.0",
+        "timestamp": "2025-07-22T23:42:50.802165",
+        "config": {"eightfold_integration": true, "extract_shacl": true, "inference_enabled": true, "optimization_hints": true, "output_formats": ["c_header", "c_implementation", "json"], "reasoning_depth": 3, "strict_mode": true, "template_customization": true}
+    },
+    "statistics": {
+        "total_triples": 30,
+        "total_classes": 3,
+        "total_properties": 4,
+        "total_rules": 0,
+        "property_types": {"DatatypeProperty": 2, "ObjectProperty": 2},
+        "class_hierarchy_depth": 2,
+        "eightfold_coverage": 0.0
+    },
+    "prefixes": {"": "http://example.org/ontology#", "brick": "https://brickschema.org/schema/Brick#", "cns": "http://cns.io/ontology#", "csvw": "http://www.w3.org/ns/csvw#", "dc": "http://purl.org/dc/elements/1.1/", "dcam": "http://purl.org/dc/dcam/", "dcat": "http://www.w3.org/ns/dcat#", "dcmitype": "http://purl.org/dc/dcmitype/", "dcterms": "http://purl.org/dc/terms/", "doap": "http://usefulinc.com/ns/doap#", "eh": "http://cns.io/eightfold#", "foaf": "http://xmlns.com/foaf/0.1/", "geo": "http://www.opengis.net/ont/geosparql#", "odrl": "http://www.w3.org/ns/odrl/2/", "org": "http://www.w3.org/ns/org#", "owl": "http://www.w3.org/2002/07/owl#", "prof": "http://www.w3.org/ns/dx/prof/", "prov": "http://www.w3.org/ns/prov#", "qb": "http://purl.org/linked-data/cube#", "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdfs": "http://www.w3.org/2000/01/rdf-schema#", "schema": "https://schema.org/", "shacl": "http://www.w3.org/ns/shacl#", "skos": "http://www.w3.org/2004/02/skos/core#", "sosa": "http://www.w3.org/ns/sosa/", "ssn": "http://www.w3.org/ns/ssn/", "time": "http://www.w3.org/2006/time#", "vann": "http://purl.org/vocab/vann/", "void": "http://rdfs.org/ns/void#", "wgs": "https://www.w3.org/2003/01/geo/wgs84_pos#", "xml": "http://www.w3.org/XML/1998/namespace", "xsd": "http://www.w3.org/2001/XMLSchema#"},
+    "classes": [
+        {
+            "uri": "http://example.org/ontology#Person",
+            "label": "Person",
+            "comment": "Represents a person entity",
+            "parent_classes": [],
+            "properties": [{"label": "has name", "range": ["http://www.w3.org/2001/XMLSchema#string"], "type": "DatatypeProperty", "uri": "http://example.org/ontology#hasName"}, {"label": "has age", "range": ["http://www.w3.org/2001/XMLSchema#integer"], "type": "DatatypeProperty", "uri": "http://example.org/ontology#hasAge"}],
+            "constraints": [],
+            "annotations": {},
+            "axioms": [],
+            "eightfold_mapping": null        },
+        {
+            "uri": "http://example.org/ontology#Organization",
+            "label": "Organization",
+            "comment": "Represents an organization",
+            "parent_classes": [],
+            "properties": [{"label": "employs", "range": ["http://example.org/ontology#Employee"], "type": "ObjectProperty", "uri": "http://example.org/ontology#employs"}],
+            "constraints": [],
+            "annotations": {},
+            "axioms": [],
+            "eightfold_mapping": null        },
+        {
+            "uri": "http://example.org/ontology#Employee",
+            "label": "Employee",
+            "comment": "A person who works for an organization",
+            "parent_classes": ["http://example.org/ontology#Person"],
+            "properties": [{"label": "works for", "range": ["http://example.org/ontology#Organization"], "type": "ObjectProperty", "uri": "http://example.org/ontology#worksFor"}],
+            "constraints": [],
+            "annotations": {"optimization_hints": [{"reason": "inheritance_hierarchy", "suggestion": "vtable_optimization", "type": "memory_layout"}]},
+            "axioms": [],
+            "eightfold_mapping": null        }
+    ],
+    "properties": [
+        {
+            "uri": "http://example.org/ontology#worksFor",
+            "label": "works for",
+            "type": "ObjectProperty",
+            "domain": ["http://example.org/ontology#Employee"],
+            "range": ["http://example.org/ontology#Organization"],
+            "characteristics": [],
+            "inverse_of": null,
+            "constraints": [],
+            "annotations": {}
+        },
+        {
+            "uri": "http://example.org/ontology#employs",
+            "label": "employs",
+            "type": "ObjectProperty",
+            "domain": ["http://example.org/ontology#Organization"],
+            "range": ["http://example.org/ontology#Employee"],
+            "characteristics": [],
+            "inverse_of": "http://example.org/ontology#worksFor",
+            "constraints": [],
+            "annotations": {}
+        },
+        {
+            "uri": "http://example.org/ontology#hasName",
+            "label": "has name",
+            "type": "DatatypeProperty",
+            "domain": ["http://example.org/ontology#Person"],
+            "range": ["http://www.w3.org/2001/XMLSchema#string"],
+            "characteristics": [],
+            "inverse_of": null,
+            "constraints": [],
+            "annotations": {}
+        },
+        {
+            "uri": "http://example.org/ontology#hasAge",
+            "label": "has age",
+            "type": "DatatypeProperty",
+            "domain": ["http://example.org/ontology#Person"],
+            "range": ["http://www.w3.org/2001/XMLSchema#integer"],
+            "characteristics": [],
+            "inverse_of": null,
+            "constraints": [],
+            "annotations": {}
+        }
+    ],
+    "rules": [
+    ]
+}

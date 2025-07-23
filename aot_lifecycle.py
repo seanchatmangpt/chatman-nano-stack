@@ -11,6 +11,7 @@ import asyncio
 import subprocess
 import tempfile
 import shutil
+import re
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple, Callable, Set
 from dataclasses import dataclass, field
@@ -475,45 +476,57 @@ class AOTLifecycleManager:
     
     async def _generate_code_for_target(self, target: CompilationTarget, metrics: StageMetrics) -> bool:
         """Generate code for a specific target"""
-        target_dir = self.work_dir / "generated" / target.name
-        target_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Generate validation code
-        validation_code = await self._generate_validation_code(target)
-        
-        # Generate ontology code
-        ontology_code = await self._generate_ontology_code(target)
-        
-        # Generate benchmark code if requested
-        if self.config['benchmark_generation']:
-            benchmark_code = await self._generate_benchmark_code(target)
-        
-        # Write generated code to files
-        code_files = {
-            'validation.h': validation_code.get('header', ''),
-            'validation.c': validation_code.get('implementation', ''),
-            'ontology.h': ontology_code.get('header', ''),
-            'ontology.c': ontology_code.get('implementation', ''),
-        }
-        
-        if self.config['benchmark_generation']:
-            code_files['benchmark.c'] = benchmark_code.get('implementation', '')
-        
-        for filename, content in code_files.items():
-            if content:
-                file_path = target_dir / filename
-                file_path.write_text(content)
-                self.temp_files.add(file_path)
-        
-        # Create compilation result for this target
-        result = CompilationResult(
-            success=True,
-            target=target,
-            artifacts={'generated_code_dir': target_dir}
-        )
-        self.results.append(result)
-        
-        return True
+        try:
+            target_dir = self.work_dir / "generated" / target.name
+            target_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Generate validation code
+            validation_code = await self._generate_validation_code(target)
+            
+            # Generate ontology code
+            ontology_code = await self._generate_ontology_code(target)
+            
+            # Generate benchmark code if requested
+            benchmark_code = {}
+            if self.config['benchmark_generation']:
+                benchmark_code = await self._generate_benchmark_code(target)
+            
+            # Write generated code to files
+            code_files = {
+                'shacl_validation.h': validation_code.get('header', ''),
+                'shacl_validation.c': validation_code.get('implementation', ''),
+                'ontology.h': ontology_code.get('header', ''),
+                'ontology.c': ontology_code.get('implementation', ''),
+            }
+            
+            if self.config['benchmark_generation']:
+                code_files['benchmark.c'] = benchmark_code.get('implementation', '')
+            
+            # Count how many files have content
+            files_written = 0
+            for filename, content in code_files.items():
+                if content:
+                    file_path = target_dir / filename
+                    file_path.write_text(content)
+                    self.temp_files.add(file_path)
+                    files_written += 1
+                    logger.info(f"Generated {filename} ({len(content)} bytes)")
+            
+            # Create compilation result for this target
+            result = CompilationResult(
+                success=files_written > 0,
+                target=target,
+                artifacts={'generated_code_dir': target_dir}
+            )
+            self.results.append(result)
+            
+            return files_written > 0
+            
+        except Exception as e:
+            logger.error(f"Error generating code for target {target.name}: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
     
     async def _stage_compilation(self, metrics: StageMetrics) -> bool:
         """Compile generated C code"""
@@ -949,6 +962,8 @@ class AOTLifecycleManager:
         context = self.owl_compiler._prepare_template_context(first_result, target.name)
         
         # Add target-specific configuration
+        if 'config' not in context:
+            context['config'] = {}
         context['config'].update({
             'optimization_level': target.optimization_level,
             'debug_symbols': target.debug_symbols,
@@ -977,20 +992,25 @@ class AOTLifecycleManager:
 #include <stdlib.h>
 #include <time.h>
 #include <stdint.h>
-#include "{{ header_base }}.h"
+#include "ontology.h"
 #include "shacl_validation.h"
 
-// OpenTelemetry-style timing using TSC
-static inline uint64_t rdtsc() {
+// High-resolution timing function (portable)
+static inline uint64_t get_ticks() {
+    #ifdef __x86_64__
     unsigned int lo, hi;
     __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
     return ((uint64_t)hi << 32) | lo;
+    #else
+    // Fallback to clock() for non-x86 platforms
+    return (uint64_t)clock();
+    #endif
 }
 
 // Test data structures
 static void* create_test_data() {
-    {{ target.name|c_identifier }}_t* test_obj = {{ target.name|snake_case }}_create();
-    // Initialize with test data
+    // Create a simple test object
+    void* test_obj = calloc(1, sizeof(owl_object_t));
     return test_obj;
 }
 
@@ -1005,13 +1025,13 @@ typedef struct {
 static benchmark_result_t run_owl_benchmark(void* test_data) {
     benchmark_result_t result = {"OWL Validation", 0, 1000000, 0};
     
-    uint64_t start = rdtsc();
+    uint64_t start = get_ticks();
     for (int i = 0; i < result.iterations; i++) {
         if (owl_validate_instance((owl_object_t*)test_data)) {
             result.passed++;
         }
     }
-    uint64_t end = rdtsc();
+    uint64_t end = get_ticks();
     
     result.ticks = end - start;
     return result;
@@ -1021,7 +1041,7 @@ static benchmark_result_t run_shacl_benchmark(void* test_data) {
     benchmark_result_t result = {"SHACL Validation", 0, 1000000, 0};
     shacl_context_t ctx = {0};
     
-    uint64_t start = rdtsc();
+    uint64_t start = get_ticks();
     for (int i = 0; i < result.iterations; i++) {
         shacl_report_t* report = validate_graph(&ctx);
         if (report && report->conforms) {
@@ -1029,7 +1049,7 @@ static benchmark_result_t run_shacl_benchmark(void* test_data) {
         }
         shacl_report_free(report);
     }
-    uint64_t end = rdtsc();
+    uint64_t end = get_ticks();
     
     result.ticks = end - start;
     return result;
@@ -1037,25 +1057,25 @@ static benchmark_result_t run_shacl_benchmark(void* test_data) {
 
 // Mermaid diagram generation
 static void generate_mermaid_report(benchmark_result_t* results, int count) {
-    printf("```mermaid\n");
-    printf("gantt\n");
-    printf("    title AOT Benchmark Results\n");
-    printf("    dateFormat X\n");
-    printf("    axisFormat %%d\n");
+    printf("```mermaid\\n");
+    printf("gantt\\n");
+    printf("    title AOT Benchmark Results\\n");
+    printf("    dateFormat X\\n");
+    printf("    axisFormat %%d\\n");
     
     for (int i = 0; i < count; i++) {
         double ticks_per_iter = (double)results[i].ticks / results[i].iterations;
-        printf("    %s : 0, %.0f\n", results[i].name, ticks_per_iter);
+        printf("    %s : 0, %.0f\\n", results[i].name, ticks_per_iter);
     }
-    printf("```\n\n");
+    printf("```\\n\\n");
     
-    printf("```mermaid\n");
-    printf("pie title Validation Pass Rate\n");
+    printf("```mermaid\\n");
+    printf("pie title Validation Pass Rate\\n");
     for (int i = 0; i < count; i++) {
         double pass_rate = (double)results[i].passed / results[i].iterations * 100;
-        printf("    \"%s\" : %.1f\n", results[i].name, pass_rate);
+        printf("    \\\"%s\\\" : %.1f\\n", results[i].name, pass_rate);
     }
-    printf("```\n");
+    printf("```\\n");
 }
 
 int main(void) {
@@ -1074,7 +1094,7 @@ int main(void) {
     generate_mermaid_report(results, 2);
     
     // Cleanup
-    owl_destroy_instance((owl_object_t*)test_data);
+    free(test_data);
     
     return 0;
 }
