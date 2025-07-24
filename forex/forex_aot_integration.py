@@ -9,6 +9,7 @@ import sys
 import time
 import numpy as np
 import subprocess
+import importlib.util
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Callable
 from dataclasses import dataclass
@@ -23,7 +24,7 @@ from aot_lifecycle import LifecycleStage, AOTLifecycleManager
 from numba_optimizations import (
     fast_constraint_validation, 
     fast_hash_computation,
-    parallel_matrix_multiply
+    parallel_signal_processing
 )
 from jinja_aot_compiler import JinjaAOTCompiler, CompiledTemplate
 
@@ -126,29 +127,35 @@ class ForexAOTIntegrator:
         try:
             start_time = time.time()
             
-            # Create Numba-optimized version of strategy
-            exec(f"""
+            # Create Numba-optimized version of strategy with proper parameter handling
+            numba_code = f"""
 import numba
 from numba import njit, prange
 import numpy as np
 
-@njit(cache=True, parallel=True)
-def compiled_{strategy.name}(prices, volumes, parameters):
+@njit(parallel=True)
+def compiled_{strategy.name}(prices, volumes, fast_window, slow_window):
     '''AOT-compiled forex strategy using Numba'''
     n = len(prices)
     signals = np.zeros(n, dtype=np.float64)
-    
-    # Strategy logic (example: moving average crossover)
-    fast_window = parameters.get('fast_window', 5)
-    slow_window = parameters.get('slow_window', 20)
     
     if n < slow_window:
         return signals
     
     # Calculate moving averages using parallel processing
     for i in prange(slow_window, n):
-        fast_ma = np.mean(prices[i-fast_window:i])
-        slow_ma = np.mean(prices[i-slow_window:i])
+        fast_sum = 0.0
+        slow_sum = 0.0
+        
+        # Fast MA calculation
+        for j in range(i - fast_window, i):
+            fast_sum += prices[j]
+        fast_ma = fast_sum / fast_window
+        
+        # Slow MA calculation
+        for j in range(i - slow_window, i):
+            slow_sum += prices[j]
+        slow_ma = slow_sum / slow_window
         
         # Generate signal
         if fast_ma > slow_ma * 1.001:  # 0.1% threshold
@@ -159,9 +166,16 @@ def compiled_{strategy.name}(prices, volumes, parameters):
             signals[i] = 0.0  # HOLD
     
     return signals
-""", globals())
+
+def {strategy.name}_wrapper(prices, volumes, parameters):
+    '''Wrapper for parameter handling'''
+    fast_window = parameters.get('fast_window', 5)
+    slow_window = parameters.get('slow_window', 20)
+    return compiled_{strategy.name}(prices, volumes, fast_window, slow_window)
+"""
+            exec(numba_code, globals())
             
-            compiled_function = globals()[f'compiled_{strategy.name}']
+            compiled_function = globals()[f'{strategy.name}_wrapper']
             compilation_time = time.time() - start_time
             
             compiled_strategy = CompiledForexStrategy(
@@ -351,9 +365,12 @@ def {{ name }}_template(prices, volumes, params):
                 template_code
             )
             
-            # Render strategy code
-            rendered_code = self.jinja_compiler.render_template(
-                compiled_template,
+            # Render strategy code using Jinja template
+            template_obj = self.jinja_compiler.get_template(
+                f"{strategy.name}_template",
+                template_code
+            )
+            rendered_code = template_obj.render(
                 name=strategy.name,
                 parameters=strategy.parameters
             )
