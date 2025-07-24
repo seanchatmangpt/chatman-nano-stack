@@ -1,0 +1,463 @@
+# SPARQL Queries for Real-time Cybersecurity Operations
+# Ultra-fast threat detection and automated incident response
+# Sub-millisecond response times for zero-day detection and mitigation
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX cyber: <http://cns.ai/ontology/cybersecurity#>
+
+#####################################################################
+# CRITICAL THREAT DETECTION QUERIES - Ultra-fast execution required
+#####################################################################
+
+# Q1: EMERGENCY - Active zero-day exploits in progress
+# Execution target: <25 microseconds
+# Usage: Zero-day detection and immediate response
+
+SELECT ?asset ?vulnerability ?attack ?severity ?timestamp
+WHERE {
+    ?vulnerability a cyber:ZeroDayVulnerability .
+    ?asset cyber:hasVulnerability ?vulnerability .
+    ?attack cyber:affects ?asset .
+    ?attack cyber:exploits ?vulnerability .
+    ?attack cyber:attackTimestamp ?timestamp .
+    ?vulnerability cyber:cvssScore ?severity .
+    
+    # Active attacks in last hour
+    FILTER (?timestamp > (NOW() - "PT1H"^^xsd:duration))
+    FILTER (?severity >= 7.0)
+}
+ORDER BY DESC(?severity) DESC(?timestamp)
+LIMIT 5
+
+#####################################################################
+
+# Q2: EMERGENCY - Critical malware detections requiring immediate response
+# Execution target: <50 microseconds
+# Usage: Malware containment system
+
+SELECT ?asset ?malware ?threatFamily ?confidence ?detectionTime ?hash
+WHERE {
+    ?malware a cyber:Malware .
+    ?malware cyber:targets ?asset .
+    ?malware cyber:threatFamily ?threatFamily .
+    ?malware cyber:severity ?severity .
+    ?malware cyber:confidence ?confidence .
+    ?malware cyber:firstSeen ?detectionTime .
+    ?malware cyber:sha256Hash ?hash .
+    ?asset cyber:criticality ?assetCriticality .
+    
+    # High-confidence detections on critical assets
+    FILTER (?severity >= 8)
+    FILTER (?confidence >= 0.8)
+    FILTER (?assetCriticality >= 7)
+    FILTER (?detectionTime > (NOW() - "PT10M"^^xsd:duration))
+}
+ORDER BY DESC(?severity) DESC(?confidence) DESC(?assetCriticality)
+LIMIT 10
+
+#####################################################################
+
+# Q3: EMERGENCY - Network intrusion attempts with high success probability
+# Execution target: <75 microseconds
+# Usage: Network intrusion prevention
+
+SELECT ?attack ?sourceIP ?targetAsset ?attackType ?successProbability ?duration
+WHERE {
+    ?attack a cyber:NetworkAttack .
+    ?attack cyber:sourceIP ?sourceIP .
+    ?attack cyber:affects ?targetAsset .
+    ?attack cyber:attackVector ?attackType .
+    ?attack cyber:attackTimestamp ?timestamp .
+    ?attack cyber:duration ?duration .
+    ?targetAsset cyber:criticality ?criticality .
+    
+    # Calculate success probability based on asset criticality and attack characteristics
+    BIND(
+        IF(?attackType = "privilege_escalation", 0.8,
+        IF(?attackType = "lateral_movement", 0.7,
+        IF(?attackType = "data_exfiltration", 0.9,
+        IF(?duration > 300.0, 0.6, 0.4)))) AS ?successProbability
+    
+    # Active attacks on critical systems
+    FILTER (?timestamp > (NOW() - "PT5M"^^xsd:duration))
+    FILTER (?criticality >= 8)
+    FILTER (?successProbability >= 0.6)
+}
+ORDER BY DESC(?successProbability) DESC(?criticality) DESC(?timestamp)
+LIMIT 15
+
+#####################################################################
+
+# Q4: EMERGENCY - DDoS attacks exceeding threshold capacity
+# Execution target: <100 microseconds
+# Usage: DDoS mitigation and traffic filtering
+
+SELECT ?attack ?targetAsset ?packetRate ?byteRate ?sourceCount ?mitigationUrgency
+WHERE {
+    ?attack a cyber:DDoSAttack .
+    ?attack cyber:affects ?targetAsset .
+    ?attack cyber:packetCount ?packets .
+    ?attack cyber:byteCount ?bytes .
+    ?attack cyber:duration ?duration .
+    ?attack cyber:attackTimestamp ?timestamp .
+    ?targetAsset cyber:assetType ?assetType .
+    
+    # Calculate attack rates
+    BIND(?packets / ?duration AS ?packetRate)
+    BIND(?bytes / ?duration AS ?byteRate)
+    
+    # Estimate source count (simplified)
+    BIND(MIN(1000, ?packetRate / 100) AS ?sourceCount)
+    
+    # Determine mitigation urgency
+    BIND(
+        IF(?packetRate > 1000000, "critical",
+        IF(?packetRate > 100000, "high", 
+        IF(?packetRate > 10000, "medium", "low"))) AS ?mitigationUrgency
+    
+    # Active DDoS attacks
+    FILTER (?timestamp > (NOW() - "PT2M"^^xsd:duration))
+    FILTER (?packetRate > 10000)
+}
+ORDER BY DESC(?packetRate) DESC(?byteRate)
+LIMIT 20
+
+#####################################################################
+# HIGH-FREQUENCY MONITORING QUERIES - Real-time security operations
+#####################################################################
+
+# Q5: Suspicious network communication patterns
+# Execution target: <150 microseconds
+# Usage: Network behavior analysis
+
+SELECT ?sourceAsset ?destAsset ?protocol ?suspicionScore ?communicationPattern
+WHERE {
+    ?sourceAsset cyber:communicatesWith ?destAsset .
+    ?sourceAsset cyber:protocol ?protocol .
+    ?sourceAsset cyber:networkSegment ?sourceSegment .
+    ?destAsset cyber:networkSegment ?destSegment .
+    ?sourceAsset cyber:port ?sourcePort .
+    ?destAsset cyber:port ?destPort .
+    
+    # Calculate suspicion score based on communication patterns
+    BIND(
+        IF(?sourceSegment != ?destSegment, 2.0, 0.0) +
+        IF(?destPort IN (22, 23, 3389), 3.0, 0.0) +
+        IF(?protocol = "TCP" && ?destPort > 49152, 1.0, 0.0) +
+        IF(?sourcePort = ?destPort, 1.5, 0.0)
+    AS ?suspicionScore)
+    
+    # Determine communication pattern
+    BIND(
+        IF(?sourceSegment != ?destSegment, "cross_segment",
+        IF(?destPort IN (22, 23, 3389), "remote_access",
+        IF(?protocol = "UDP" && ?destPort = 53, "dns_query", "normal")))
+    AS ?communicationPattern
+    
+    FILTER (?suspicionScore >= 2.0)
+}
+ORDER BY DESC(?suspicionScore)
+LIMIT 25
+
+#####################################################################
+
+# Q6: Privilege escalation detection and tracking
+# Execution target: <200 microseconds
+# Usage: Insider threat and compromise detection
+
+SELECT ?user ?asset ?escalationType ?riskLevel ?timeframe ?previousPrivileges
+WHERE {
+    ?attack a cyber:PrivilegeEscalation .
+    ?attack cyber:affects ?asset .
+    ?attack cyber:attackVector ?escalationType .
+    ?attack cyber:attackTimestamp ?timestamp .
+    ?user cyber:hasAccess ?asset .
+    ?asset cyber:criticality ?criticality .
+    ?asset cyber:confidentialityLevel ?confLevel .
+    
+    # Calculate risk level
+    BIND(
+        ?criticality * 
+        (IF(?confLevel = "top_secret", 2.0,
+         IF(?confLevel = "confidential", 1.5,
+         IF(?confLevel = "internal", 1.0, 0.5))))
+    AS ?riskLevel)
+    
+    # Time since escalation
+    BIND((NOW() - ?timestamp) / "PT1M"^^xsd:duration AS ?timeframe)
+    
+    # Previous privileges (simplified)
+    BIND("user_level" AS ?previousPrivileges)
+    
+    FILTER (?timestamp > (NOW() - "PT30M"^^xsd:duration))
+    FILTER (?riskLevel >= 5.0)
+}
+ORDER BY DESC(?riskLevel) ASC(?timeframe)
+
+#####################################################################
+
+# Q7: Data exfiltration attempts and anomaly detection
+# Execution target: <250 microseconds
+# Usage: Data loss prevention
+
+SELECT ?asset ?attack ?dataVolume ?exfiltrationMethod ?destinationRisk ?timeWindow
+WHERE {
+    ?attack a cyber:DataExfiltration .
+    ?attack cyber:affects ?asset .
+    ?attack cyber:byteCount ?dataVolume .
+    ?attack cyber:destinationIP ?destIP .
+    ?attack cyber:attackVector ?exfiltrationMethod .
+    ?attack cyber:attackTimestamp ?timestamp .
+    ?asset cyber:assetType ?assetType .
+    ?asset cyber:confidentialityLevel ?confLevel .
+    
+    # Calculate destination risk (simplified IP reputation)
+    BIND(
+        IF(REGEX(?destIP, "^10\\.|^192\\.168\\.|^172\\.(1[6-9]|2[0-9]|3[01])\\."), 0.2,
+        IF(REGEX(?destIP, "^169\\.254\\."), 0.1, 0.8))
+    AS ?destinationRisk)
+    
+    # Time window since attack
+    BIND((NOW() - ?timestamp) / "PT1M"^^xsd:duration AS ?timeWindow)
+    
+    # Filter for significant data volumes and recent attacks
+    FILTER (?dataVolume > 1048576) # >1MB
+    FILTER (?timeWindow <= 15.0) # Last 15 minutes
+    FILTER (?confLevel IN ("confidential", "restricted", "top_secret"))
+    FILTER (?destinationRisk >= 0.5)
+}
+ORDER BY DESC(?dataVolume) DESC(?destinationRisk) ASC(?timeWindow)
+
+#####################################################################
+
+# Q8: Vulnerability exploitation correlation analysis
+# Execution target: <300 microseconds
+# Usage: Vulnerability management and patch prioritization
+
+SELECT ?vulnerability ?asset ?exploitCount ?riskScore ?patchStatus ?exploitability
+WHERE {
+    ?vulnerability a cyber:Vulnerability .
+    ?asset cyber:hasVulnerability ?vulnerability .
+    ?vulnerability cyber:cvssScore ?cvss .
+    ?vulnerability cyber:exploitability ?exploitability .
+    ?vulnerability cyber:patchAvailable ?patchStatus .
+    ?asset cyber:criticality ?assetCriticality .
+    
+    # Count active exploits
+    {
+        SELECT ?vulnerability (COUNT(?attack) AS ?exploitCount) WHERE {
+            ?attack cyber:exploits ?vulnerability .
+            ?attack cyber:attackTimestamp ?timestamp .
+            FILTER (?timestamp > (NOW() - "P7D"^^xsd:duration))
+        }
+        GROUP BY ?vulnerability
+    }
+    
+    # Calculate combined risk score
+    BIND(?cvss * ?assetCriticality * 
+         (IF(?exploitCount > 0, 2.0, 1.0)) *
+         (IF(?patchStatus = false, 1.5, 1.0))
+    AS ?riskScore)
+    
+    FILTER (?riskScore >= 30.0)
+}
+ORDER BY DESC(?riskScore) DESC(?exploitCount) DESC(?cvss)
+LIMIT 30
+
+#####################################################################
+
+# Q9: Incident response automation triggers
+# Execution target: <400 microseconds
+# Usage: SOAR system automation
+
+SELECT ?incident ?asset ?severity ?responseAction ?automation ?priority
+WHERE {
+    ?incident a cyber:SecurityIncident .
+    ?incident cyber:affects ?asset .
+    ?incident cyber:incidentStatus ?status .
+    ?attack cyber:affects ?asset .
+    ?attack cyber:severity ?severity .
+    ?asset cyber:criticality ?criticality .
+    ?asset cyber:assetType ?assetType .
+    
+    # Determine appropriate response action
+    BIND(
+        IF(?severity >= 9, "isolate_immediately",
+        IF(?severity >= 7, "contain_and_investigate",
+        IF(?severity >= 5, "monitor_and_alert", "log_only")))
+    AS ?responseAction
+    
+    # Determine automation capability
+    BIND(
+        IF(?assetType IN ("workstation", "mobile_device"), "full_automation",
+        IF(?assetType IN ("web_server", "database_server"), "semi_automation",
+        "manual_only"))
+    AS ?automation
+    
+    # Calculate response priority
+    BIND(?severity * ?criticality / 10.0 AS ?priority)
+    
+    FILTER (?status IN ("new", "investigating"))
+    FILTER (?priority >= 5.0)
+}
+ORDER BY DESC(?priority) DESC(?severity)
+
+#####################################################################
+
+# Q10: Threat intelligence correlation and IOC matching
+# Execution target: <350 microseconds
+# Usage: Threat hunting and intelligence integration
+
+SELECT ?ioc ?asset ?iocType ?reputation ?matchConfidence ?threatFamily ?lastSeen
+WHERE {
+    ?ioc a cyber:IOC .
+    ?ioc cyber:iocType ?iocType .
+    ?ioc cyber:iocValue ?iocValue .
+    ?ioc cyber:reputation ?reputation .
+    
+    # Match IOCs with asset attributes
+    ?asset cyber:ipAddress ?assetIP .
+    ?threat cyber:targets ?asset .
+    ?threat cyber:threatFamily ?threatFamily .
+    ?threat cyber:lastSeen ?lastSeen .
+    
+    # Calculate match confidence based on IOC type and reputation
+    BIND(
+        (1.0 + ?reputation) * 
+        (IF(?iocType = "ip_address", 0.9,
+         IF(?iocType = "file_hash", 1.0,
+         IF(?iocType = "domain", 0.8, 0.7))))
+    AS ?matchConfidence)
+    
+    # Simple IOC matching (in practice would be more sophisticated)
+    FILTER (
+        (?iocType = "ip_address" && ?iocValue = ?assetIP) ||
+        (?iocType = "domain" && CONTAINS(?assetIP, ?iocValue))
+    )
+    
+    FILTER (?reputation <= -0.5) # Malicious reputation
+    FILTER (?matchConfidence >= 0.7)
+    FILTER (?lastSeen > (NOW() - "P30D"^^xsd:duration))
+}
+ORDER BY DESC(?matchConfidence) DESC(ABS(?reputation))
+
+#####################################################################
+
+# Q11: Network security posture assessment
+# Execution target: <500 microseconds
+# Usage: Security dashboard and risk assessment
+
+SELECT ?segment ?securityScore ?assetCount ?threatCount ?vulnerabilityCount ?controlCoverage
+WHERE {
+    ?segment a cyber:NetworkSegment .
+    
+    # Count assets in segment
+    {
+        SELECT ?segment (COUNT(?asset) AS ?assetCount) WHERE {
+            ?asset cyber:networkSegment ?segment .
+        }
+        GROUP BY ?segment
+    }
+    
+    # Count active threats
+    {
+        SELECT ?segment (COUNT(?threat) AS ?threatCount) WHERE {
+            ?asset cyber:networkSegment ?segment .
+            ?threat cyber:targets ?asset .
+            ?threat cyber:lastSeen ?lastSeen .
+            FILTER (?lastSeen > (NOW() - "P7D"^^xsd:duration))
+        }
+        GROUP BY ?segment
+    }
+    
+    # Count vulnerabilities
+    {
+        SELECT ?segment (COUNT(?vuln) AS ?vulnerabilityCount) WHERE {
+            ?asset cyber:networkSegment ?segment .
+            ?asset cyber:hasVulnerability ?vuln .
+            ?vuln cyber:patchAvailable false .
+        }
+        GROUP BY ?segment
+    }
+    
+    # Calculate control coverage
+    {
+        SELECT ?segment (COUNT(?control) AS ?controlCount) WHERE {
+            ?asset cyber:networkSegment ?segment .
+            ?control cyber:protects ?asset .
+        }
+        GROUP BY ?segment
+    }
+    
+    # Calculate security score
+    BIND(COALESCE(?controlCount, 0) / COALESCE(?assetCount, 1) AS ?controlCoverage)
+    BIND(
+        (100.0 * ?controlCoverage) - 
+        (COALESCE(?threatCount, 0) * 5.0) - 
+        (COALESCE(?vulnerabilityCount, 0) * 2.0)
+    AS ?securityScore)
+    
+    FILTER (?assetCount > 0)
+}
+ORDER BY ASC(?securityScore) DESC(?threatCount)
+
+#####################################################################
+
+# Q12: Real-time security event correlation
+# Execution target: <600 microseconds
+# Usage: Complex event processing and pattern detection
+
+SELECT ?eventPattern ?assetGroup ?eventCount ?riskLevel ?timeWindow ?recommendation
+WHERE {
+    ?event a cyber:SecurityEvent .
+    ?event cyber:eventType ?eventType .
+    ?event cyber:eventTimestamp ?timestamp .
+    ?event cyber:eventSeverity ?severity .
+    ?asset cyber:generatesEvent ?event .
+    ?asset cyber:networkSegment ?segment .
+    
+    # Group events by pattern and time window
+    {
+        SELECT ?segment ?eventType (COUNT(?event) AS ?eventCount) WHERE {
+            ?event a cyber:SecurityEvent .
+            ?event cyber:eventType ?eventType .
+            ?event cyber:eventTimestamp ?timestamp .
+            ?asset cyber:generatesEvent ?event .
+            ?asset cyber:networkSegment ?segment .
+            FILTER (?timestamp > (NOW() - "PT10M"^^xsd:duration))
+        }
+        GROUP BY ?segment ?eventType
+        HAVING (?eventCount >= 5)
+    }
+    
+    # Determine event patterns
+    BIND(
+        IF(?eventType = "login" && ?eventCount > 20, "brute_force_attempt",
+        IF(?eventType = "file_access" && ?eventCount > 50, "data_harvesting",
+        IF(?eventType = "network_connection" && ?eventCount > 100, "scanning_activity",
+        "normal_activity")))
+    AS ?eventPattern
+    
+    # Calculate risk level
+    BIND(?eventCount * 
+         (IF(?eventType = "privilege_escalation", 5.0,
+          IF(?eventType = "data_exfiltration", 8.0,
+          IF(?eventType = "malware_detection", 9.0, 2.0))))
+    AS ?riskLevel)
+    
+    # Generate recommendations
+    BIND(
+        IF(?riskLevel > 100, "immediate_isolation",
+        IF(?riskLevel > 50, "enhanced_monitoring",
+        IF(?riskLevel > 20, "investigate_further", "continue_monitoring")))
+    AS ?recommendation
+    
+    BIND(?segment AS ?assetGroup)
+    BIND("10_minutes" AS ?timeWindow)
+    
+    FILTER (?eventPattern != "normal_activity")
+    FILTER (?riskLevel >= 20.0)
+}
+ORDER BY DESC(?riskLevel) DESC(?eventCount)

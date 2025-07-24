@@ -1,0 +1,9 @@
+{
+  "Python": {
+    "language": "Python",
+    "import": false,
+    "instantiation": false,
+    "signal_processing": false,
+    "performance": {}
+  }
+}

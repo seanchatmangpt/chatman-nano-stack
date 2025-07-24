@@ -1,0 +1,430 @@
+# SPARQL Queries for Smart Grid Energy Management
+# Ultra-fast real-time queries for BitActor integration
+# Sub-millisecond response times for grid protection and optimization
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sg: <http://cns.ai/ontology/smart-grid#>
+
+#####################################################################
+# CRITICAL PROTECTION QUERIES - Ultra-fast execution required
+#####################################################################
+
+# Q1: EMERGENCY - Identify grid nodes with critical frequency deviations
+# Execution target: <50 microseconds
+# Usage: Emergency grid protection system
+
+SELECT ?node ?frequency ?severity ?location
+WHERE {
+    ?node sg:gridFrequency ?frequency .
+    ?node sg:gridNodeID ?nodeId .
+    ?node sg:latitude ?lat .
+    ?node sg:longitude ?lon .
+    BIND(CONCAT(STR(?lat), ",", STR(?lon)) AS ?location)
+    BIND(IF(?frequency < 47.0 || ?frequency > 53.0, "critical",
+         IF(?frequency < 49.0 || ?frequency > 51.0, "warning", "normal")) AS ?severity)
+    FILTER (?frequency < 49.0 || ?frequency > 51.0)
+}
+ORDER BY 
+    CASE 
+        WHEN ?frequency < 47.0 OR ?frequency > 53.0 THEN 1
+        WHEN ?frequency < 48.0 OR ?frequency > 52.0 THEN 2
+        ELSE 3
+    END
+LIMIT 10
+
+#####################################################################
+
+# Q2: EMERGENCY - Voltage violations requiring immediate response
+# Execution target: <100 microseconds
+# Usage: Voltage regulation protection
+
+SELECT ?node ?nominalVoltage ?actualVoltage ?violationType ?urgency
+WHERE {
+    ?node sg:nominalVoltage ?nominalVoltage .
+    ?node sg:hasMeasurement ?measurement .
+    ?measurement a sg:VoltageMeasurement .
+    ?measurement sg:measurementValue ?actualVoltage .
+    ?measurement sg:measurementTimestamp ?timestamp .
+    
+    # Calculate violation bounds
+    BIND(?nominalVoltage * 0.95 AS ?minVoltage)
+    BIND(?nominalVoltage * 1.05 AS ?maxVoltage)
+    BIND(?nominalVoltage * 0.90 AS ?criticalMinVoltage)
+    BIND(?nominalVoltage * 1.10 AS ?criticalMaxVoltage)
+    
+    # Determine violation type and urgency
+    BIND(IF(?actualVoltage < ?criticalMinVoltage, "critical_undervoltage",
+         IF(?actualVoltage > ?criticalMaxVoltage, "critical_overvoltage",
+         IF(?actualVoltage < ?minVoltage, "undervoltage",
+         IF(?actualVoltage > ?maxVoltage, "overvoltage", "normal")))) AS ?violationType)
+    
+    BIND(IF(?actualVoltage < ?criticalMinVoltage || ?actualVoltage > ?criticalMaxVoltage, 10,
+         IF(?actualVoltage < ?minVoltage || ?actualVoltage > ?maxVoltage, 5, 1)) AS ?urgency)
+    
+    FILTER (?actualVoltage < ?minVoltage || ?actualVoltage > ?maxVoltage)
+    FILTER (?timestamp > (NOW() - "PT10S"^^xsd:duration))
+}
+ORDER BY DESC(?urgency) DESC(ABS(?actualVoltage - ?nominalVoltage))
+LIMIT 20
+
+#####################################################################
+
+# Q3: EMERGENCY - Power system overloads and equipment stress
+# Execution target: <150 microseconds
+# Usage: Equipment protection and load shedding
+
+SELECT ?equipment ?thermalRating ?currentLoad ?overloadPercent ?timeToTrip
+WHERE {
+    ?equipment sg:thermalRating ?thermalRating .
+    ?equipment sg:hasMeasurement ?measurement .
+    ?measurement a sg:CurrentMeasurement .
+    ?measurement sg:measurementValue ?currentLoad .
+    
+    # Calculate overload percentage
+    BIND((?currentLoad / ?thermalRating) * 100.0 AS ?overloadPercent)
+    
+    # Estimate time to protective trip (simplified thermal model)
+    BIND(IF(?overloadPercent > 110.0, 60.0,
+         IF(?overloadPercent > 105.0, 300.0,
+         IF(?overloadPercent > 100.0, 900.0, 99999.0))) AS ?timeToTrip)
+    
+    FILTER (?overloadPercent > 95.0)
+}
+ORDER BY DESC(?overloadPercent) ASC(?timeToTrip)
+LIMIT 15
+
+#####################################################################
+# RENEWABLE ENERGY OPTIMIZATION - High frequency queries
+#####################################################################
+
+# Q4: Real-time renewable energy generation forecasting
+# Execution target: <200 microseconds
+# Usage: Generation dispatch optimization
+
+SELECT ?plant ?currentPower ?forecastPower ?plantType ?capacity ?weatherCondition
+WHERE {
+    ?plant a sg:RenewablePowerPlant .
+    ?plant sg:currentPower ?currentPower .
+    ?plant sg:maxPower ?capacity .
+    ?plant sg:weatherCondition ?weatherCondition .
+    ?plant sg:deviceType ?plantType .
+    
+    # Simple forecast based on current conditions and historical patterns
+    BIND(
+        IF(?plant a sg:SolarPowerPlant,
+           IF(?weatherCondition = "sunny", ?capacity * 0.85,
+           IF(?weatherCondition = "cloudy", ?capacity * 0.45,
+           IF(?weatherCondition = "overcast", ?capacity * 0.25, ?capacity * 0.10))),
+        IF(?plant a sg:WindPowerPlant,
+           IF(?weatherCondition = "windy", ?capacity * 0.75,
+           IF(?weatherCondition = "calm", ?capacity * 0.15, ?capacity * 0.40)),
+        ?currentPower)) AS ?forecastPower
+    
+    FILTER (?currentPower > 0.0 || ?forecastPower > 0.0)
+}
+ORDER BY DESC(?forecastPower) DESC(?currentPower)
+
+#####################################################################
+
+# Q5: Energy storage optimization for grid balancing
+# Execution target: <250 microseconds
+# Usage: Real-time energy storage dispatch
+
+SELECT ?storage ?stateOfCharge ?chargeCapacity ?dischargeCapacity ?optimalAction ?priority
+WHERE {
+    ?storage a sg:EnergyStorage .
+    ?storage sg:currentStateOfCharge ?stateOfCharge .
+    ?storage sg:maxChargeRate ?maxCharge .
+    ?storage sg:maxDischargeRate ?maxDischarge .
+    ?storage sg:chargingMode ?currentMode .
+    
+    # Calculate available capacity
+    BIND(IF(?currentMode = "charging", 0.0, ?maxCharge) AS ?chargeCapacity)
+    BIND(IF(?currentMode = "discharging", 0.0, ?maxDischarge) AS ?dischargeCapacity)
+    
+    # Determine optimal action based on state of charge and grid needs
+    BIND(IF(?stateOfCharge < 20.0, "emergency_charge",
+         IF(?stateOfCharge < 40.0, "charge",
+         IF(?stateOfCharge > 90.0, "discharge",
+         IF(?stateOfCharge > 70.0, "available_discharge", "available_both")))) AS ?optimalAction)
+    
+    # Priority based on SOC and capacity
+    BIND(IF(?stateOfCharge < 20.0, 10,
+         IF(?stateOfCharge > 90.0, 8,
+         IF(?stateOfCharge > 70.0, 6, 4))) AS ?priority)
+    
+    FILTER (?stateOfCharge > 0.0 && ?stateOfCharge < 100.0)
+}
+ORDER BY DESC(?priority) DESC(?chargeCapacity + ?dischargeCapacity)
+
+#####################################################################
+
+# Q6: Demand response opportunities for load balancing
+# Execution target: <300 microseconds
+# Usage: Dynamic demand management
+
+SELECT ?consumer ?currentDemand ?flexibleLoad ?priorityLevel ?reductionPotential ?costSaving
+WHERE {
+    ?consumer a sg:EnergyConsumer .
+    ?consumer sg:currentDemand ?currentDemand .
+    ?consumer sg:demandResponseCapacity ?responseCapacity .
+    ?consumer sg:flexibilityFactor ?flexibility .
+    ?consumer sg:priorityLevel ?priorityLevel .
+    ?consumer sg:energyPrice ?price .
+    
+    # Calculate flexible load and reduction potential
+    BIND(?currentDemand * ?flexibility AS ?flexibleLoad)
+    BIND(IF(?responseCapacity > 0, MIN(?responseCapacity, ?flexibleLoad), ?flexibleLoad) AS ?reductionPotential)
+    
+    # Estimate cost savings from demand reduction
+    BIND(?reductionPotential * ?price * 0.001 AS ?costSaving) # Convert to $/hour
+    
+    FILTER (?reductionPotential > 1.0)
+    FILTER (?priorityLevel <= 7) # Only consider non-critical loads
+}
+ORDER BY DESC(?reductionPotential) ASC(?priorityLevel)
+LIMIT 25
+
+#####################################################################
+
+# Q7: Grid topology analysis for optimal power flow
+# Execution target: <400 microseconds
+# Usage: Real-time power flow optimization
+
+SELECT ?fromNode ?toNode ?lineCapacity ?currentFlow ?congestionLevel ?lossRate
+WHERE {
+    ?line a sg:TransmissionLine .
+    ?fromNode sg:connectsTo ?toNode .
+    ?line sg:thermalRating ?lineCapacity .
+    ?line sg:lineLength ?length .
+    ?line sg:lineImpedance ?impedance .
+    
+    # Get current flow measurements
+    ?line sg:hasMeasurement ?measurement .
+    ?measurement a sg:CurrentMeasurement .
+    ?measurement sg:measurementValue ?currentFlow .
+    
+    # Calculate congestion level
+    BIND((?currentFlow / ?lineCapacity) * 100.0 AS ?congestionLevel)
+    
+    # Estimate power losses (simplified)
+    BIND(?currentFlow * ?currentFlow * ?impedance * 0.001 AS ?lossRate) # Approximate I²R losses
+    
+    FILTER (?currentFlow > 0.0)
+}
+ORDER BY DESC(?congestionLevel) DESC(?lossRate)
+LIMIT 30
+
+#####################################################################
+
+# Q8: Grid stability assessment and monitoring
+# Execution target: <250 microseconds
+# Usage: Real-time stability monitoring
+
+SELECT ?node ?stabilityScore ?frequencyDeviation ?voltageStability ?harmonic ?riskLevel
+WHERE {
+    ?node a sg:GridNode .
+    ?node sg:gridFrequency ?frequency .
+    ?node sg:voltageStability ?voltageStability .
+    ?node sg:totalHarmonicDistortion ?harmonic .
+    
+    # Calculate frequency deviation from nominal (50 Hz)
+    BIND(ABS(?frequency - 50.0) AS ?frequencyDeviation)
+    
+    # Calculate overall stability score
+    BIND((1.0 - ?frequencyDeviation / 5.0) * 
+         ?voltageStability * 
+         (1.0 - ?harmonic / 10.0) AS ?stabilityScore)
+    
+    # Determine risk level
+    BIND(IF(?stabilityScore < 0.3, "critical",
+         IF(?stabilityScore < 0.6, "warning",
+         IF(?stabilityScore < 0.8, "caution", "stable"))) AS ?riskLevel)
+    
+    FILTER (?stabilityScore < 0.9)
+}
+ORDER BY ASC(?stabilityScore) DESC(?frequencyDeviation)
+
+#####################################################################
+
+# Q9: Renewable energy curtailment optimization
+# Execution target: <350 microseconds
+# Usage: Minimize renewable energy waste
+
+SELECT ?plant ?currentOutput ?curtailmentNeeded ?economicImpact ?curtailmentReason
+WHERE {
+    ?plant a sg:RenewablePowerPlant .
+    ?plant sg:currentPower ?currentOutput .
+    ?plant sg:maxPower ?maxCapacity .
+    ?plant sg:marginalCost ?cost .
+    
+    # Determine if curtailment is needed based on grid conditions
+    # (Simplified logic - in reality would consider transmission constraints, demand, etc.)
+    {
+        SELECT (SUM(?generation) - SUM(?demand) AS ?excessGeneration) WHERE {
+            { ?gen a sg:PowerPlant . ?gen sg:currentPower ?generation . }
+            UNION
+            { ?cons a sg:EnergyConsumer . ?cons sg:currentDemand ?demand . }
+        }
+    }
+    
+    # Calculate curtailment needed
+    BIND(IF(?excessGeneration > 0, 
+         MIN(?currentOutput, ?currentOutput * (?excessGeneration / ?currentOutput)), 
+         0.0) AS ?curtailmentNeeded)
+    
+    # Calculate economic impact
+    BIND(?curtailmentNeeded * ?cost AS ?economicImpact)
+    
+    # Determine curtailment reason
+    BIND(IF(?excessGeneration > 100.0, "oversupply",
+         IF(?excessGeneration > 50.0, "transmission_constraint",
+         "stability_requirement")) AS ?curtailmentReason)
+    
+    FILTER (?curtailmentNeeded > 0.0)
+}
+ORDER BY ASC(?cost) DESC(?curtailmentNeeded)
+
+#####################################################################
+
+# Q10: Energy market price optimization
+# Execution target: <400 microseconds
+# Usage: Real-time energy trading decisions
+
+SELECT ?node ?currentPrice ?predictedPrice ?tradingOpportunity ?volumePotential ?profitEstimate
+WHERE {
+    ?node a sg:GridNode .
+    ?node sg:energyPrice ?currentPrice .
+    ?node sg:gridZone ?zone .
+    
+    # Simple price prediction based on supply/demand ratio
+    {
+        SELECT ?zone (AVG(?price) AS ?avgPrice) (COUNT(?node) AS ?nodeCount) WHERE {
+            ?node sg:energyPrice ?price .
+            ?node sg:gridZone ?zone .
+        }
+        GROUP BY ?zone
+    }
+    
+    # Calculate predicted price (simplified model)
+    BIND(?currentPrice * 1.05 AS ?predictedPrice) # 5% increase assumption
+    
+    # Identify trading opportunities
+    BIND(IF(?predictedPrice > ?currentPrice * 1.1, "buy",
+         IF(?predictedPrice < ?currentPrice * 0.9, "sell", "hold")) AS ?tradingOpportunity)
+    
+    # Estimate volume potential (based on local generation/demand)
+    OPTIONAL {
+        SELECT ?node (SUM(?capacity) AS ?volumePotential) WHERE {
+            ?plant sg:maxPower ?capacity .
+            ?plant sg:gridZone ?zone .
+        }
+        GROUP BY ?node
+    }
+    
+    # Calculate profit estimate
+    BIND(ABS(?predictedPrice - ?currentPrice) * COALESCE(?volumePotential, 10.0) AS ?profitEstimate)
+    
+    FILTER (?tradingOpportunity != "hold")
+}
+ORDER BY DESC(?profitEstimate) DESC(ABS(?predictedPrice - ?currentPrice))
+
+#####################################################################
+# ANALYTICS QUERIES - System optimization and planning
+#####################################################################
+
+# Q11: Grid efficiency analysis and optimization recommendations
+# Execution target: <500 microseconds
+# Usage: Operational efficiency improvement
+
+SELECT ?region ?totalGeneration ?totalDemand ?transmissionLosses ?efficiency ?recommendation
+WHERE {
+    {
+        SELECT ?region (SUM(?generation) AS ?totalGeneration) WHERE {
+            ?plant a sg:PowerPlant .
+            ?plant sg:currentPower ?generation .
+            ?plant sg:gridZone ?region .
+        }
+        GROUP BY ?region
+    }
+    {
+        SELECT ?region (SUM(?demand) AS ?totalDemand) WHERE {
+            ?consumer a sg:EnergyConsumer .
+            ?consumer sg:currentDemand ?demand .
+            ?consumer sg:gridZone ?region .
+        }
+        GROUP BY ?region
+    }
+    {
+        SELECT ?region (SUM(?losses) AS ?transmissionLosses) WHERE {
+            ?line a sg:TransmissionLine .
+            ?line sg:gridZone ?region .
+            ?line sg:hasMeasurement ?measurement .
+            ?measurement sg:measurementValue ?current .
+            ?line sg:lineImpedance ?impedance .
+            BIND(?current * ?current * ?impedance AS ?losses)
+        }
+        GROUP BY ?region
+    }
+    
+    # Calculate efficiency
+    BIND((?totalDemand / (?totalGeneration + 0.001)) * 100.0 AS ?efficiency)
+    
+    # Generate recommendations
+    BIND(IF(?efficiency < 85.0, "upgrade_transmission",
+         IF(?efficiency < 92.0, "optimize_generation_dispatch",
+         IF(?efficiency < 96.0, "reduce_reactive_power", "maintain_current_operation"))) AS ?recommendation)
+}
+ORDER BY ASC(?efficiency) DESC(?transmissionLosses)
+
+#####################################################################
+
+# Q12: Predictive maintenance scheduling
+# Execution target: <600 microseconds
+# Usage: Equipment maintenance optimization
+
+SELECT ?equipment ?lastMaintenance ?operatingHours ?stressLevel ?maintenanceUrgency ?scheduledDate
+WHERE {
+    ?equipment a sg:GridNode .
+    ?equipment sg:lastMaintenance ?lastMaintenance .
+    ?equipment sg:operationalStatus ?status .
+    
+    # Calculate operating hours since last maintenance
+    BIND((NOW() - ?lastMaintenance) / "PT1H"^^xsd:duration AS ?operatingHours)
+    
+    # Assess stress level based on loading
+    OPTIONAL {
+        ?equipment sg:hasMeasurement ?measurement .
+        ?measurement a sg:CurrentMeasurement .
+        ?equipment sg:thermalRating ?rating .
+        ?measurement sg:measurementValue ?current .
+        BIND((?current / ?rating) * 100.0 AS ?loadingPercent)
+    }
+    
+    # Calculate stress level
+    BIND(COALESCE(?loadingPercent, 50.0) / 100.0 AS ?stressLevel)
+    
+    # Determine maintenance urgency
+    BIND(IF(?operatingHours > 8760 && ?stressLevel > 0.8, "critical",
+         IF(?operatingHours > 4380 && ?stressLevel > 0.6, "high",
+         IF(?operatingHours > 2190, "medium", "low"))) AS ?maintenanceUrgency)
+    
+    # Calculate recommended maintenance date
+    BIND(IF(?maintenanceUrgency = "critical", NOW() + "P7D"^^xsd:duration,
+         IF(?maintenanceUrgency = "high", NOW() + "P30D"^^xsd:duration,
+         IF(?maintenanceUrgency = "medium", NOW() + "P90D"^^xsd:duration,
+         NOW() + "P180D"^^xsd:duration))) AS ?scheduledDate)
+    
+    FILTER (?status = "online")
+    FILTER (?operatingHours > 100.0)
+}
+ORDER BY 
+    CASE ?maintenanceUrgency
+        WHEN "critical" THEN 1
+        WHEN "high" THEN 2
+        WHEN "medium" THEN 3
+        ELSE 4
+    END,
+    DESC(?operatingHours)

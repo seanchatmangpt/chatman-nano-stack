@@ -1,0 +1,792 @@
+# SPARQL Queries for Real-time Healthcare Monitoring
+# Ultra-fast patient monitoring and clinical decision support
+# Sub-millisecond response times for critical patient care
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX health: <http://cns.ai/ontology/healthcare#>
+
+#####################################################################
+# EMERGENCY QUERIES - Ultra-fast execution required
+#####################################################################
+
+# Q1: EMERGENCY - Critical vital signs requiring immediate intervention
+# Execution target: <25 microseconds
+# Usage: Code Blue and emergency response activation
+
+SELECT ?patient ?vitalType ?currentValue ?criticalThreshold ?severity ?timeSinceMeasurement
+WHERE {
+    ?vitals a health:VitalSign .
+    ?vitals health:measurementOf ?patient .
+    ?vitals health:measurementValue ?currentValue .
+    ?vitals health:measurementTimestamp ?timestamp .
+    ?patient health:acuityLevel ?acuity .
+    ?patient health:patientID ?patientID .
+    
+    # Get critical thresholds for different vital signs
+    {
+        ?vitals a health:HeartRate .
+        ?vitals health:criticalRangeHigh ?critHigh .
+        ?vitals health:criticalRangeLow ?critLow .
+        BIND("heart_rate" AS ?vitalType)
+        BIND(
+            IF(?currentValue > ?critHigh, ?critHigh,
+            IF(?currentValue < ?critLow, ?critLow, 0.0))
+        AS ?criticalThreshold)
+        FILTER (?currentValue > ?critHigh || ?currentValue < ?critLow)
+    }
+    UNION
+    {
+        ?vitals a health:OxygenSaturation .
+        ?vitals health:criticalRangeLow ?critLow .
+        BIND("oxygen_saturation" AS ?vitalType)
+        BIND(?critLow AS ?criticalThreshold)
+        FILTER (?currentValue < ?critLow)
+    }
+    UNION
+    {
+        ?vitals a health:BloodPressure .
+        ?vitals health:systolicPressure ?systolic .
+        ?vitals health:diastolicPressure ?diastolic .
+        ?vitals health:criticalRangeHigh ?critHigh .
+        ?vitals health:criticalRangeLow ?critLow .
+        BIND("blood_pressure" AS ?vitalType)
+        BIND(?critHigh AS ?criticalThreshold)
+        BIND(?systolic AS ?currentValue)
+        FILTER (?systolic > ?critHigh || ?systolic < ?critLow || ?diastolic > 120.0 || ?diastolic < 40.0)
+    }
+    
+    # Calculate severity based on deviation from critical threshold and patient acuity
+    BIND(
+        ?acuity * ABS(?currentValue - ?criticalThreshold) / ?criticalThreshold * 10.0
+    AS ?severity)
+    
+    # Time since measurement
+    BIND((NOW() - ?timestamp) / "PT1M"^^xsd:duration AS ?timeSinceMeasurement)
+    
+    # Only recent measurements (within 5 minutes)
+    FILTER (?timeSinceMeasurement <= 5.0)
+    FILTER (?severity >= 8.0) # High severity only
+}
+ORDER BY DESC(?severity) DESC(?acuity) ASC(?timeSinceMeasurement)
+LIMIT 5
+
+#####################################################################
+
+# Q2: EMERGENCY - Device failures affecting critical patient monitoring
+# Execution target: <50 microseconds
+# Usage: Equipment failure alerts and backup system activation
+
+SELECT ?device ?patient ?deviceType ?failureType ?patientAcuity ?timeInFault
+WHERE {
+    ?device a health:MedicalDevice .
+    ?device health:deviceStatus ?status .
+    ?device health:deviceID ?deviceID .
+    ?patient health:monitoredBy ?device .
+    ?patient health:acuityLevel ?patientAcuity .
+    ?patient health:patientID ?patientID .
+    
+    # Determine device type
+    {
+        ?device a health:ECGMonitor .
+        BIND("ECG_monitor" AS ?deviceType)
+    }
+    UNION
+    {
+        ?device a health:VitalSignsMonitor .
+        BIND("vital_signs_monitor" AS ?deviceType)
+    }
+    UNION
+    {
+        ?device a health:PulseOximeter .
+        BIND("pulse_oximeter" AS ?deviceType)
+    }
+    UNION
+    {
+        ?device a health:InfusionPump .
+        BIND("infusion_pump" AS ?deviceType)
+    }
+    UNION
+    {
+        ?device a health:Ventilator .
+        BIND("ventilator" AS ?deviceType)
+    }
+    
+    # Determine failure type
+    BIND(
+        IF(?status = "fault", "device_fault",
+        IF(?status = "offline", "communication_loss",
+        IF(?status = "maintenance", "scheduled_maintenance", "unknown")))
+    AS ?failureType)
+    
+    # Calculate time in fault status (simplified)
+    BIND(5.0 AS ?timeInFault) # Would be calculated from device logs
+    
+    # Critical devices only
+    FILTER (?status IN ("fault", "offline"))
+    FILTER (?patientAcuity >= 3) # Medium to high acuity patients
+}
+ORDER BY DESC(?patientAcuity) DESC(?timeInFault)
+LIMIT 10
+
+#####################################################################
+
+# Q3: EMERGENCY - Medication administration errors and drug interactions
+# Execution target: <75 microseconds
+# Usage: Medication safety alerts and clinical pharmacist notification
+
+SELECT ?patient ?medication1 ?medication2 ?interactionSeverity ?administrationTime ?riskLevel
+WHERE {
+    ?patient a health:Patient .
+    ?patient health:patientID ?patientID .
+    ?patient health:acuityLevel ?acuity .
+    
+    # Find patients with multiple active prescriptions
+    ?prescription1 health:prescribedFor ?patient .
+    ?prescription2 health:prescribedFor ?patient .
+    ?prescription1 health:contains ?medication1 .
+    ?prescription2 health:contains ?medication2 .
+    ?medication1 health:medicationName ?med1Name .
+    ?medication2 health:medicationName ?med2Name .
+    
+    # Check for high-risk drug combinations
+    {
+        FILTER (?med1Name = "warfarin" && ?med2Name = "aspirin")
+        BIND("high" AS ?interactionSeverity)
+        BIND(8.0 AS ?baseRisk)
+    }
+    UNION
+    {
+        FILTER (?med1Name = "digoxin" && ?med2Name = "furosemide")
+        BIND("high" AS ?interactionSeverity)
+        BIND(7.5 AS ?baseRisk)
+    }
+    UNION
+    {
+        FILTER (?med1Name = "insulin" && ?med2Name = "metformin")
+        BIND("moderate" AS ?interactionSeverity)
+        BIND(5.0 AS ?baseRisk)
+    }
+    
+    # Get most recent administration time
+    OPTIONAL {
+        ?dosage1 health:prescribedIn ?prescription1 .
+        ?dosage1 health:administrationTime ?administrationTime .
+    }
+    
+    # Calculate risk level based on interaction severity and patient acuity
+    BIND(?baseRisk * ?acuity / 5.0 AS ?riskLevel)
+    
+    FILTER (?prescription1 != ?prescription2)
+    FILTER (?riskLevel >= 6.0) # High risk interactions only
+}
+ORDER BY DESC(?riskLevel) DESC(?acuity)
+LIMIT 15
+
+#####################################################################
+
+# Q4: EMERGENCY - Patient deterioration based on early warning scores
+# Execution target: <100 microseconds
+# Usage: Rapid response team activation and escalation
+
+SELECT ?patient ?currentEWS ?previousEWS ?ewsTrend ?deteriorationRate ?recommendedAction
+WHERE {
+    ?patient a health:Patient .
+    ?patient health:patientID ?patientID .
+    ?patient health:acuityLevel ?acuity .
+    
+    # Get current vital signs for Early Warning Score calculation
+    ?heartRate health:measurementOf ?patient .
+    ?heartRate a health:HeartRate .
+    ?heartRate health:beatsPerMinute ?hr .
+    ?heartRate health:measurementTimestamp ?hrTime .
+    
+    ?respRate health:measurementOf ?patient .
+    ?respRate a health:RespiratoryRate .
+    ?respRate health:breathsPerMinute ?rr .
+    ?respRate health:measurementTimestamp ?rrTime .
+    
+    ?temp health:measurementOf ?patient .
+    ?temp a health:BodyTemperature .
+    ?temp health:temperatureCelsius ?temperature .
+    ?temp health:measurementTimestamp ?tempTime .
+    
+    ?oxygen health:measurementOf ?patient .
+    ?oxygen a health:OxygenSaturation .
+    ?oxygen health:oxygenSaturationPercent ?spo2 .
+    ?oxygen health:measurementTimestamp ?spo2Time .
+    
+    # Calculate Early Warning Score (simplified NEWS2)
+    BIND(
+        (IF(?hr <= 40 || ?hr >= 131, 3,
+         IF(?hr <= 50 || ?hr >= 111, 2,
+         IF(?hr <= 60 || ?hr >= 91, 1, 0)))) +
+        (IF(?rr <= 8 || ?rr >= 25, 3,
+         IF(?rr <= 11 || ?rr >= 21, 2,
+         IF(?rr >= 9 && ?rr <= 11, 1, 0)))) +
+        (IF(?temperature <= 35.0 || ?temperature >= 39.1, 2,
+         IF(?temperature >= 38.1, 1, 0))) +
+        (IF(?spo2 <= 91, 3,
+         IF(?spo2 <= 93, 2,
+         IF(?spo2 <= 95, 1, 0))))
+    AS ?currentEWS)
+    
+    # Get previous EWS for trend analysis (simplified)
+    BIND(?currentEWS - 1 AS ?previousEWS) # Would be from historical data
+    
+    # Calculate trend
+    BIND(
+        IF(?currentEWS > ?previousEWS, "increasing",
+        IF(?currentEWS < ?previousEWS, "decreasing", "stable"))
+    AS ?ewsTrend)
+    
+    # Calculate deterioration rate
+    BIND((?currentEWS - ?previousEWS) AS ?deteriorationRate)
+    
+    # Recommended action based on EWS
+    BIND(
+        IF(?currentEWS >= 7, "immediate_clinical_review",
+        IF(?currentEWS >= 5, "urgent_clinical_review",
+        IF(?currentEWS >= 3, "increase_monitoring", "routine_monitoring")))
+    AS ?recommendedAction)
+    
+    # Recent measurements only
+    FILTER (?hrTime > (NOW() - "PT10M"^^xsd:duration))
+    FILTER (?rrTime > (NOW() - "PT10M"^^xsd:duration))
+    FILTER (?tempTime > (NOW() - "PT30M"^^xsd:duration))
+    FILTER (?spo2Time > (NOW() - "PT10M"^^xsd:duration))
+    
+    # High EWS or deteriorating trend
+    FILTER (?currentEWS >= 3 || ?deteriorationRate >= 2)
+}
+ORDER BY DESC(?currentEWS) DESC(?deteriorationRate)
+LIMIT 20
+
+#####################################################################
+# HIGH-FREQUENCY MONITORING QUERIES - Real-time clinical operations
+#####################################################################
+
+# Q5: Continuous vital signs monitoring with trend analysis
+# Execution target: <150 microseconds
+# Usage: Real-time patient monitoring dashboards
+
+SELECT ?patient ?vitalType ?currentValue ?trend ?normalRange ?alertStatus
+WHERE {
+    ?vitals a health:VitalSign .
+    ?vitals health:measurementOf ?patient .
+    ?vitals health:measurementValue ?currentValue .
+    ?vitals health:measurementTimestamp ?timestamp .
+    ?vitals health:normalRangeLow ?normalLow .
+    ?vitals health:normalRangeHigh ?normalHigh .
+    ?patient health:patientID ?patientID .
+    ?patient health:locatedIn ?unit .
+    
+    # Determine vital sign type
+    {
+        ?vitals a health:HeartRate .
+        BIND("heart_rate" AS ?vitalType)
+    }
+    UNION
+    {
+        ?vitals a health:BloodPressure .
+        BIND("blood_pressure" AS ?vitalType)
+    }
+    UNION
+    {
+        ?vitals a health:RespiratoryRate .
+        BIND("respiratory_rate" AS ?vitalType)
+    }
+    UNION
+    {
+        ?vitals a health:BodyTemperature .
+        BIND("body_temperature" AS ?vitalType)
+    }
+    UNION
+    {
+        ?vitals a health:OxygenSaturation .
+        BIND("oxygen_saturation" AS ?vitalType)
+    }
+    
+    # Calculate trend (simplified - would use historical data)
+    BIND(
+        IF(?currentValue > ?normalHigh, "above_normal",
+        IF(?currentValue < ?normalLow, "below_normal", "normal"))
+    AS ?trend)
+    
+    # Normal range string
+    BIND(CONCAT(STR(?normalLow), "-", STR(?normalHigh)) AS ?normalRange)
+    
+    # Alert status based on normal range
+    BIND(
+        IF(?currentValue > ?normalHigh * 1.2 || ?currentValue < ?normalLow * 0.8, "critical",
+        IF(?currentValue > ?normalHigh || ?currentValue < ?normalLow, "warning", "normal"))
+    AS ?alertStatus)
+    
+    # Recent measurements only (within 15 minutes)
+    FILTER (?timestamp > (NOW() - "PT15M"^^xsd:duration))
+    
+    # Focus on ICU and high-acuity units
+    FILTER (?unit IN (health:ICU, health:EmergencyDepartment, health:CardiologyUnit))
+}
+ORDER BY ?patient ?vitalType DESC(?timestamp)
+
+#####################################################################
+
+# Q6: Medication administration tracking and compliance
+# Execution target: <200 microseconds
+# Usage: Medication management and safety monitoring
+
+SELECT ?patient ?medication ?scheduledTime ?actualTime ?administeredBy ?complianceStatus ?delay
+WHERE {
+    ?patient a health:Patient .
+    ?patient health:patientID ?patientID .
+    ?prescription health:prescribedFor ?patient .
+    ?prescription health:contains ?medication .
+    ?medication health:medicationName ?medName .
+    ?dosage health:prescribedIn ?prescription .
+    ?dosage health:frequency ?frequency .
+    ?dosage health:dosageAmount ?amount .
+    ?dosage health:dosageUnit ?unit .
+    
+    # Get scheduled administration times (would be calculated from frequency)
+    BIND(NOW() AS ?scheduledTime) # Simplified - would be actual scheduled time
+    
+    OPTIONAL {
+        ?dosage health:administrationTime ?actualTime .
+        ?dosage health:administeredBy ?administeredBy .
+    }
+    
+    # Calculate compliance status
+    BIND(
+        IF(!BOUND(?actualTime), "missed",
+        IF(ABS(?actualTime - ?scheduledTime) <= "PT30M"^^xsd:duration, "on_time",
+        IF(?actualTime > ?scheduledTime, "delayed", "early")))
+    AS ?complianceStatus)
+    
+    # Calculate delay in minutes
+    BIND(
+        IF(BOUND(?actualTime), 
+           (?actualTime - ?scheduledTime) / "PT1M"^^xsd:duration, 
+           (NOW() - ?scheduledTime) / "PT1M"^^xsd:duration)
+    AS ?delay)
+    
+    # Focus on recent scheduled medications
+    FILTER (?scheduledTime > (NOW() - "PT4H"^^xsd:duration))
+    FILTER (?scheduledTime <= NOW())
+    
+    # Priority medications or compliance issues
+    FILTER (?complianceStatus IN ("missed", "delayed") || 
+            ?medName IN ("insulin", "warfarin", "digoxin", "vancomycin"))
+}
+ORDER BY DESC(?delay) ?patient ?scheduledTime
+
+#####################################################################
+
+# Q7: Medical device performance and maintenance monitoring
+# Execution target: <250 microseconds
+# Usage: Biomedical engineering and device management
+
+SELECT ?device ?deviceType ?patient ?performanceScore ?lastCalibration ?maintenanceDue ?utilizationRate
+WHERE {
+    ?device a health:MedicalDevice .
+    ?device health:deviceID ?deviceID .
+    ?device health:deviceStatus ?status .
+    ?device health:lastCalibrationDate ?lastCalibration .
+    ?device health:nextMaintenanceDate ?maintenanceDue .
+    
+    OPTIONAL {
+        ?patient health:monitoredBy ?device .
+        ?patient health:acuityLevel ?acuity .
+    }
+    
+    # Determine device type
+    {
+        ?device a health:ECGMonitor .
+        BIND("ECG_monitor" AS ?deviceType)
+        BIND(0.95 AS ?basePerformance) # High performance requirement
+    }
+    UNION
+    {
+        ?device a health:VitalSignsMonitor .
+        BIND("vital_signs_monitor" AS ?deviceType)
+        BIND(0.92 AS ?basePerformance)
+    }
+    UNION
+    {
+        ?device a health:PulseOximeter .
+        BIND("pulse_oximeter" AS ?deviceType)
+        BIND(0.98 AS ?basePerformance) # Very high accuracy requirement
+    }
+    UNION
+    {
+        ?device a health:InfusionPump .
+        BIND("infusion_pump" AS ?deviceType)
+        BIND(0.99 AS ?basePerformance) # Critical safety requirement
+    }
+    
+    # Calculate performance score based on calibration recency and status
+    BIND(
+        ?basePerformance * 
+        (IF(?status = "operational", 1.0,
+         IF(?status = "maintenance", 0.5,
+         IF(?status = "fault", 0.0, 0.7)))) *
+        (IF((NOW() - ?lastCalibration) <= "P30D"^^xsd:duration, 1.0,
+         IF((NOW() - ?lastCalibration) <= "P90D"^^xsd:duration, 0.9, 0.8)))
+    AS ?performanceScore)
+    
+    # Calculate utilization rate (simplified)
+    BIND(
+        IF(BOUND(?patient), 100.0, 0.0) # Simplified utilization calculation
+    AS ?utilizationRate)
+    
+    # Focus on devices requiring attention
+    FILTER (?performanceScore < 0.95 || 
+            ?maintenanceDue <= (NOW() + "P7D"^^xsd:duration) ||
+            ?utilizationRate < 80.0)
+}
+ORDER BY ASC(?performanceScore) ASC(?maintenanceDue)
+
+#####################################################################
+
+# Q8: Patient flow and bed management optimization
+# Execution target: <300 microseconds
+# Usage: Hospital operations and capacity management
+
+SELECT ?unit ?occupancyRate ?averageAcuity ?dischargeReadiness ?capacityStrain ?recommendedAction
+WHERE {
+    ?unit a health:MedicalUnit .
+    
+    # Count patients in each unit
+    {
+        SELECT ?unit (COUNT(?patient) AS ?patientCount) WHERE {
+            ?patient health:locatedIn ?unit .
+            FILTER NOT EXISTS { ?patient health:dischargeDate ?dischargeDate }
+        }
+        GROUP BY ?unit
+    }
+    
+    # Calculate average acuity
+    {
+        SELECT ?unit (AVG(?acuity) AS ?averageAcuity) WHERE {
+            ?patient health:locatedIn ?unit .
+            ?patient health:acuityLevel ?acuity .
+            FILTER NOT EXISTS { ?patient health:dischargeDate ?dischargeDate }
+        }
+        GROUP BY ?unit
+    }
+    
+    # Estimate bed capacity (would be from configuration)
+    BIND(
+        IF(?unit = health:ICU, 20,
+        IF(?unit = health:EmergencyDepartment, 30,
+        IF(?unit = health:CardiologyUnit, 25, 40)))
+    AS ?bedCapacity)
+    
+    # Calculate occupancy rate
+    BIND((?patientCount / ?bedCapacity) * 100.0 AS ?occupancyRate)
+    
+    # Count patients ready for discharge (simplified)
+    {
+        SELECT ?unit (COUNT(?patient) AS ?dischargeReady) WHERE {
+            ?patient health:locatedIn ?unit .
+            ?patient health:acuityLevel ?acuity .
+            FILTER (?acuity <= 2) # Low acuity may be ready for discharge
+            FILTER NOT EXISTS { ?patient health:dischargeDate ?dischargeDate }
+        }
+        GROUP BY ?unit
+    }
+    
+    BIND(COALESCE(?dischargeReady, 0) AS ?dischargeReadiness)
+    
+    # Calculate capacity strain
+    BIND(
+        (?occupancyRate / 100.0) * ?averageAcuity * 
+        (IF(?dischargeReadiness < 2, 1.5, 1.0))
+    AS ?capacityStrain)
+    
+    # Recommended action
+    BIND(
+        IF(?capacityStrain > 4.0, "urgent_capacity_management",
+        IF(?capacityStrain > 3.0, "expedite_discharges",
+        IF(?occupancyRate > 90.0, "monitor_closely", "normal_operations")))
+    AS ?recommendedAction)
+    
+    FILTER (?patientCount > 0)
+}
+ORDER BY DESC(?capacityStrain) DESC(?occupancyRate)
+
+#####################################################################
+
+# Q9: Clinical decision support and care pathway optimization
+# Execution target: <400 microseconds
+# Usage: Evidence-based care recommendations
+
+SELECT ?patient ?condition ?currentTreatment ?recommendedAction ?evidenceLevel ?urgency
+WHERE {
+    ?patient a health:Patient .
+    ?patient health:patientID ?patientID .
+    ?patient health:diagnosedWith ?condition .
+    ?patient health:acuityLevel ?acuity .
+    
+    OPTIONAL {
+        ?patient health:treatedWith ?currentTreatment .
+    }
+    
+    # Clinical decision support rules
+    {
+        ?condition a health:Diabetes .
+        ?glucose health:measurementOf ?patient .
+        ?glucose a health:BloodGlucose .
+        ?glucose health:glucoseMgDl ?glucoseValue .
+        
+        BIND(
+            IF(?glucoseValue > 250.0, "initiate_insulin_protocol",
+            IF(?glucoseValue < 70.0, "treat_hypoglycemia",
+            "continue_current_therapy"))
+        AS ?recommendedAction)
+        
+        BIND("high" AS ?evidenceLevel)
+        BIND(
+            IF(?glucoseValue > 400.0 || ?glucoseValue < 50.0, "critical",
+            IF(?glucoseValue > 250.0 || ?glucoseValue < 70.0, "urgent", "routine"))
+        AS ?urgency)
+        
+        FILTER (?glucoseValue > 180.0 || ?glucoseValue < 80.0)
+    }
+    UNION
+    {
+        ?condition a health:Hypertension .
+        ?bp health:measurementOf ?patient .
+        ?bp a health:BloodPressure .
+        ?bp health:systolicPressure ?systolic .
+        ?bp health:diastolicPressure ?diastolic .
+        
+        BIND(
+            IF(?systolic > 180.0 || ?diastolic > 120.0, "hypertensive_crisis_protocol",
+            IF(?systolic > 160.0 || ?diastolic > 100.0, "adjust_antihypertensive",
+            "continue_monitoring"))
+        AS ?recommendedAction)
+        
+        BIND("moderate" AS ?evidenceLevel)
+        BIND(
+            IF(?systolic > 180.0 || ?diastolic > 120.0, "critical",
+            IF(?systolic > 160.0 || ?diastolic > 100.0, "urgent", "routine"))
+        AS ?urgency)
+        
+        FILTER (?systolic > 140.0 || ?diastolic > 90.0)
+    }
+    UNION
+    {
+        ?condition a health:COPD .
+        ?oxygen health:measurementOf ?patient .
+        ?oxygen a health:OxygenSaturation .
+        ?oxygen health:oxygenSaturationPercent ?spo2 .
+        
+        BIND(
+            IF(?spo2 < 88.0, "increase_oxygen_therapy",
+            IF(?spo2 < 92.0, "optimize_bronchodilators",
+            "continue_current_therapy"))
+        AS ?recommendedAction)
+        
+        BIND("high" AS ?evidenceLevel)
+        BIND(
+            IF(?spo2 < 85.0, "critical",
+            IF(?spo2 < 90.0, "urgent", "routine"))
+        AS ?urgency)
+        
+        FILTER (?spo2 < 95.0)
+    }
+    
+    FILTER (?urgency IN ("critical", "urgent"))
+}
+ORDER BY 
+    (CASE ?urgency 
+     WHEN "critical" THEN 1 
+     WHEN "urgent" THEN 2 
+     ELSE 3 END) 
+    DESC(?acuity)
+
+#####################################################################
+
+# Q10: Quality metrics and patient safety indicators
+# Execution target: <350 microseconds
+# Usage: Quality improvement and safety monitoring
+
+SELECT ?unit ?safetyMetric ?currentValue ?target ?variance ?trendDirection ?actionRequired
+WHERE {
+    ?unit a health:MedicalUnit .
+    
+    # Calculate various safety metrics
+    {
+        # Medication error rate
+        SELECT ?unit ("medication_error_rate" AS ?safetyMetric) (2.3 AS ?currentValue) (1.0 AS ?target) WHERE {
+            # Would calculate from actual medication administration data
+        }
+    }
+    UNION
+    {
+        # Average length of stay
+        SELECT ?unit ("average_length_of_stay" AS ?safetyMetric) (4.2 AS ?currentValue) (3.5 AS ?target) WHERE {
+            # Would calculate from admission/discharge data
+        }
+    }
+    UNION
+    {
+        # Patient satisfaction score
+        SELECT ?unit ("patient_satisfaction" AS ?safetyMetric) (8.7 AS ?currentValue) (9.0 AS ?target) WHERE {
+            # Would calculate from patient surveys
+        }
+    }
+    UNION
+    {
+        # Readmission rate within 30 days
+        SELECT ?unit ("readmission_rate_30d" AS ?safetyMetric) (12.8 AS ?currentValue) (10.0 AS ?target) WHERE {
+            # Would calculate from readmission data
+        }
+    }
+    UNION
+    {
+        # Device uptime percentage
+        SELECT ?unit ("device_uptime" AS ?safetyMetric) (97.8 AS ?currentValue) (99.0 AS ?target) WHERE {
+            # Would calculate from device status logs
+        }
+    }
+    
+    # Calculate variance from target
+    BIND((?currentValue - ?target) / ?target * 100.0 AS ?variance)
+    
+    # Determine trend direction (simplified)
+    BIND(
+        IF(?variance > 10.0, "worsening",
+        IF(?variance < -5.0, "improving", "stable"))
+    AS ?trendDirection)
+    
+    # Determine if action is required
+    BIND(
+        IF(ABS(?variance) > 15.0, "immediate_action",
+        IF(ABS(?variance) > 10.0, "review_required", "monitor"))
+    AS ?actionRequired)
+    
+    # Focus on metrics requiring attention
+    FILTER (?actionRequired IN ("immediate_action", "review_required"))
+}
+ORDER BY 
+    (CASE ?actionRequired 
+     WHEN "immediate_action" THEN 1 
+     WHEN "review_required" THEN 2 
+     ELSE 3 END) 
+    DESC(ABS(?variance))
+
+#####################################################################
+
+# Q11: Infection control and antimicrobial stewardship
+# Execution target: <450 microseconds
+# Usage: Hospital-acquired infection prevention
+
+SELECT ?patient ?infectionRisk ?antibioticTherapy ?resistancePattern ?isolationStatus ?interventionNeeded
+WHERE {
+    ?patient a health:Patient .
+    ?patient health:patientID ?patientID .
+    ?patient health:acuityLevel ?acuity .
+    ?patient health:locatedIn ?unit .
+    
+    # Check for antibiotic prescriptions
+    OPTIONAL {
+        ?prescription health:prescribedFor ?patient .
+        ?prescription health:contains ?antibiotic .
+        ?antibiotic health:medicationName ?abxName .
+        FILTER (?abxName IN ("vancomycin", "ceftriaxone", "piperacillin", "meropenem", "ciprofloxacin"))
+    }
+    
+    # Calculate infection risk factors
+    BIND(
+        ?acuity + 
+        (IF(?unit = health:ICU, 3, 
+         IF(?unit = health:EmergencyDepartment, 2, 1))) +
+        (IF(BOUND(?antibiotic), 2, 0))
+    AS ?infectionRisk)
+    
+    # Determine antibiotic therapy status
+    BIND(
+        IF(BOUND(?antibiotic), CONCAT("receiving_", ?abxName), "no_antibiotics")
+    AS ?antibioticTherapy)
+    
+    # Simplified resistance pattern (would be from lab data)
+    BIND(
+        IF(?abxName = "vancomycin", "VRE_risk",
+        IF(?abxName = "meropenem", "CRE_risk", 
+        IF(BOUND(?antibiotic), "MRSA_risk", "low_risk")))
+    AS ?resistancePattern)
+    
+    # Determine isolation status
+    BIND(
+        IF(?infectionRisk >= 8, "contact_precautions",
+        IF(?infectionRisk >= 6, "droplet_precautions", "standard_precautions"))
+    AS ?isolationStatus)
+    
+    # Intervention needed
+    BIND(
+        IF(?infectionRisk >= 8, "infectious_disease_consult",
+        IF(?infectionRisk >= 6, "stewardship_review", "routine_monitoring"))
+    AS ?interventionNeeded)
+    
+    FILTER (?infectionRisk >= 5)
+}
+ORDER BY DESC(?infectionRisk) DESC(?acuity)
+
+#####################################################################
+
+# Q12: Resource utilization and staffing optimization
+# Execution target: <500 microseconds
+# Usage: Nursing workload and resource allocation
+
+SELECT ?unit ?staffingRatio ?workloadScore ?patientComplexity ?resourceStrain ?recommendedStaffing
+WHERE {
+    ?unit a health:MedicalUnit .
+    
+    # Count patients by acuity level
+    {
+        SELECT ?unit 
+               (SUM(IF(?acuity >= 4, 1, 0)) AS ?highAcuityCount)
+               (SUM(IF(?acuity = 3, 1, 0)) AS ?mediumAcuityCount) 
+               (SUM(IF(?acuity <= 2, 1, 0)) AS ?lowAcuityCount)
+               (COUNT(?patient) AS ?totalPatients)
+        WHERE {
+            ?patient health:locatedIn ?unit .
+            ?patient health:acuityLevel ?acuity .
+            FILTER NOT EXISTS { ?patient health:dischargeDate ?dischargeDate }
+        }
+        GROUP BY ?unit
+    }
+    
+    # Estimate current staffing (would be from actual staffing data)
+    BIND(
+        IF(?unit = health:ICU, 8,
+        IF(?unit = health:EmergencyDepartment, 12,
+        IF(?unit = health:CardiologyUnit, 6, 10)))
+    AS ?currentStaff)
+    
+    # Calculate staffing ratio (patients per nurse)
+    BIND(?totalPatients / ?currentStaff AS ?staffingRatio)
+    
+    # Calculate workload score based on patient acuity
+    BIND(
+        (?highAcuityCount * 3.0) + 
+        (?mediumAcuityCount * 2.0) + 
+        (?lowAcuityCount * 1.0)
+    AS ?workloadScore)
+    
+    # Patient complexity index
+    BIND(?workloadScore / ?totalPatients AS ?patientComplexity)
+    
+    # Resource strain calculation
+    BIND((?workloadScore / ?currentStaff) / 2.5 AS ?resourceStrain) # 2.5 = optimal workload per staff
+    
+    # Recommended staffing
+    BIND(CEIL(?workloadScore / 2.5) AS ?recommendedStaffing)
+    
+    FILTER (?totalPatients > 0)
+    FILTER (?resourceStrain > 1.2) # 20% over optimal capacity
+}
+ORDER BY DESC(?resourceStrain) DESC(?workloadScore)

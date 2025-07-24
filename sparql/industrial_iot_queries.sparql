@@ -1,0 +1,511 @@
+# SPARQL Queries for Real-time Industrial IoT Optimization
+# Ultra-fast manufacturing optimization and predictive maintenance
+# Sub-millisecond response times for production line control
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX iiot: <http://cns.ai/ontology/industrial-iot#>
+
+#####################################################################
+# EMERGENCY QUERIES - Ultra-fast execution required
+#####################################################################
+
+# Q1: EMERGENCY - Critical equipment failures requiring immediate response
+# Execution target: <25 microseconds
+# Usage: Production line emergency shutdown and containment
+
+SELECT ?machine ?failure ?probability ?severity ?remainingLife ?criticalityLevel
+WHERE {
+    ?failure a iiot:Failure .
+    ?failure iiot:affects ?machine .
+    ?failure iiot:failureProbability ?probability .
+    ?machine iiot:criticality ?criticalityLevel .
+    ?machine iiot:remainingUsefulLife ?remainingLife .
+    ?machine iiot:operationalStatus ?status .
+    
+    # Calculate severity based on criticality and failure probability
+    BIND(?criticalityLevel * ?probability * 10.0 AS ?severity)
+    
+    # Critical failures: high probability on critical equipment
+    FILTER (?probability >= 0.6)
+    FILTER (?criticalityLevel >= 7)
+    FILTER (?status = "running")
+    FILTER (?remainingLife < 168.0) # Less than 1 week remaining
+}
+ORDER BY DESC(?severity) DESC(?probability) DESC(?criticalityLevel)
+LIMIT 5
+
+#####################################################################
+
+# Q2: EMERGENCY - Quality defects exceeding threshold requiring immediate action
+# Execution target: <50 microseconds
+# Usage: Quality control system and production halt decisions
+
+SELECT ?product ?process ?machine ?defectRate ?qualityScore ?urgencyLevel
+WHERE {
+    ?product a iiot:Product .
+    ?product iiot:hasQualityMeasurement ?quality .
+    ?quality iiot:defectRate ?defectRate .
+    ?quality iiot:qualityScore ?qualityScore .
+    ?process iiot:produces ?product .
+    ?machine iiot:executes ?process .
+    ?machine iiot:criticality ?criticality .
+    
+    # Calculate urgency level
+    BIND(
+        (10.0 - ?qualityScore) * ?defectRate * ?criticality / 100.0
+    AS ?urgencyLevel)
+    
+    # High defect rate or low quality score
+    FILTER (?defectRate > 5.0 || ?qualityScore < 7.0)
+    FILTER (?urgencyLevel >= 3.0)
+}
+ORDER BY DESC(?urgencyLevel) DESC(?defectRate) ASC(?qualityScore)
+LIMIT 10
+
+#####################################################################
+
+# Q3: EMERGENCY - Process efficiency degradation requiring optimization
+# Execution target: <75 microseconds
+# Usage: Real-time process parameter adjustment
+
+SELECT ?process ?machine ?efficiency ?yieldRate ?throughput ?optimizationPriority
+WHERE {
+    ?process a iiot:ManufacturingProcess .
+    ?process iiot:efficiency ?efficiency .
+    ?process iiot:yieldRate ?yieldRate .
+    ?process iiot:throughput ?throughput .
+    ?machine iiot:executes ?process .
+    ?machine iiot:criticality ?criticality .
+    ?machine iiot:oeeScore ?oee .
+    
+    # Calculate optimization priority
+    BIND(
+        ?criticality * 
+        (IF(?efficiency < 80.0, 2.0, 1.0)) *
+        (IF(?yieldRate < 95.0, 1.5, 1.0)) *
+        (IF(?oee < 75.0, 2.0, 1.0))
+    AS ?optimizationPriority)
+    
+    # Efficiency below threshold or yield issues
+    FILTER (?efficiency < 85.0 || ?yieldRate < 95.0 || ?oee < 75.0)
+    FILTER (?optimizationPriority >= 8.0)
+}
+ORDER BY DESC(?optimizationPriority) ASC(?efficiency) ASC(?yieldRate)
+LIMIT 15
+
+#####################################################################
+
+# Q4: EMERGENCY - Sensor anomalies indicating equipment problems
+# Execution target: <100 microseconds
+# Usage: Predictive maintenance trigger and equipment monitoring
+
+SELECT ?sensor ?machine ?measurementValue ?threshold ?anomalyLevel ?sensorType
+WHERE {
+    ?sensor a iiot:Sensor .
+    ?sensor iiot:monitors ?machine .
+    ?sensor iiot:measurementValue ?measurementValue .
+    ?sensor iiot:measurementTimestamp ?timestamp .
+    ?machine iiot:criticality ?criticality .
+    
+    # Different thresholds for different sensor types
+    {
+        ?sensor a iiot:TemperatureSensor .
+        ?sensor iiot:alarmThresholdHigh ?threshold .
+        BIND("temperature" AS ?sensorType)
+        BIND(ABS(?measurementValue - ?threshold) / ?threshold * 100.0 AS ?anomalyLevel)
+        FILTER (?measurementValue > ?threshold * 0.9) # Within 10% of threshold
+    }
+    UNION
+    {
+        ?sensor a iiot:VibrationSensor .
+        ?sensor iiot:alarmThresholdHigh ?threshold .
+        BIND("vibration" AS ?sensorType)
+        BIND(?measurementValue / ?threshold * 100.0 AS ?anomalyLevel)
+        FILTER (?measurementValue > ?threshold * 0.8) # Within 20% of threshold
+    }
+    UNION
+    {
+        ?sensor a iiot:PressureSensor .
+        ?sensor iiot:alarmThresholdHigh ?thresholdHigh .
+        ?sensor iiot:alarmThresholdLow ?thresholdLow .
+        BIND("pressure" AS ?sensorType)
+        BIND(
+            IF(?measurementValue > ?thresholdHigh, ?thresholdHigh,
+            IF(?measurementValue < ?thresholdLow, ?thresholdLow, 0.0))
+        AS ?threshold)
+        BIND(ABS(?measurementValue - ?threshold) / ?threshold * 100.0 AS ?anomalyLevel)
+        FILTER (?measurementValue > ?thresholdHigh * 0.9 || ?measurementValue < ?thresholdLow * 1.1)
+    }
+    
+    # Recent measurements only
+    FILTER (?timestamp > (NOW() - "PT5M"^^xsd:duration))
+    FILTER (?anomalyLevel >= 10.0) # 10% anomaly threshold
+    FILTER (?criticality >= 6)
+}
+ORDER BY DESC(?anomalyLevel) DESC(?criticality)
+LIMIT 20
+
+#####################################################################
+# HIGH-FREQUENCY MONITORING QUERIES - Real-time optimization
+#####################################################################
+
+# Q5: Production line throughput optimization
+# Execution target: <150 microseconds
+# Usage: Real-time production rate adjustment
+
+SELECT ?productionLine ?throughput ?efficiency ?bottleneck ?optimizationTarget
+WHERE {
+    ?productionLine a iiot:ProductionLine .
+    
+    # Calculate line throughput (minimum of all stations)
+    {
+        SELECT ?productionLine (MIN(?stationThroughput) AS ?throughput) WHERE {
+            ?station iiot:partOf ?productionLine .
+            ?station iiot:executes ?process .
+            ?process iiot:throughput ?stationThroughput .
+        }
+        GROUP BY ?productionLine
+    }
+    
+    # Find bottleneck station
+    {
+        SELECT ?productionLine ?bottleneck WHERE {
+            ?station iiot:partOf ?productionLine .
+            ?station iiot:executes ?process .
+            ?process iiot:throughput ?stationThroughput .
+            {
+                SELECT ?productionLine (MIN(?stationThroughput) AS ?minThroughput) WHERE {
+                    ?station iiot:partOf ?productionLine .
+                    ?station iiot:executes ?process .
+                    ?process iiot:throughput ?stationThroughput .
+                }
+                GROUP BY ?productionLine
+            }
+            FILTER (?stationThroughput = ?minThroughput)
+            BIND(?station AS ?bottleneck)
+        }
+        GROUP BY ?productionLine ?bottleneck
+    }
+    
+    # Calculate overall line efficiency
+    {
+        SELECT ?productionLine (AVG(?stationEfficiency) AS ?efficiency) WHERE {
+            ?station iiot:partOf ?productionLine .
+            ?station iiot:executes ?process .
+            ?process iiot:efficiency ?stationEfficiency .
+        }
+        GROUP BY ?productionLine
+    }
+    
+    # Optimization target (increase throughput by 10%)
+    BIND(?throughput * 1.1 AS ?optimizationTarget)
+    
+    FILTER (?efficiency < 90.0) # Focus on lines below 90% efficiency
+}
+ORDER BY ASC(?efficiency) ASC(?throughput)
+
+#####################################################################
+
+# Q6: Energy consumption optimization analysis
+# Execution target: <200 microseconds
+# Usage: Real-time energy efficiency monitoring
+
+SELECT ?machine ?process ?energyConsumption ?throughput ?energyPerUnit ?efficiencyRating
+WHERE {
+    ?machine a iiot:Machine .
+    ?machine iiot:executes ?process .
+    ?process iiot:energyConsumption ?energyConsumption .
+    ?process iiot:throughput ?throughput .
+    ?machine iiot:operationalStatus ?status .
+    
+    # Calculate energy per unit
+    BIND(?energyConsumption / ?throughput AS ?energyPerUnit)
+    
+    # Energy efficiency rating
+    BIND(
+        IF(?energyPerUnit <= 1.0, "excellent",
+        IF(?energyPerUnit <= 2.0, "good",
+        IF(?energyPerUnit <= 3.0, "average",
+        IF(?energyPerUnit <= 5.0, "poor", "critical"))))
+    AS ?efficiencyRating)
+    
+    FILTER (?status = "running")
+    FILTER (?energyPerUnit > 2.0) # Focus on machines above 2 kWh per unit
+}
+ORDER BY DESC(?energyPerUnit)
+
+#####################################################################
+
+# Q7: Predictive maintenance scheduling optimization
+# Execution target: <250 microseconds
+# Usage: Maintenance planning and resource allocation
+
+SELECT ?machine ?failureProbability ?remainingLife ?maintenanceCost ?priority ?recommendedAction
+WHERE {
+    ?machine a iiot:Machine .
+    ?machine iiot:criticality ?criticality .
+    ?machine iiot:operationalStatus ?status .
+    
+    OPTIONAL {
+        ?failure a iiot:Failure .
+        ?failure iiot:affects ?machine .
+        ?failure iiot:failureProbability ?failureProbability .
+    }
+    
+    OPTIONAL {
+        ?machine iiot:remainingUsefulLife ?remainingLife .
+    }
+    
+    # Estimate maintenance cost based on criticality and machine type
+    BIND(?criticality * 1000.0 AS ?maintenanceCost)
+    
+    # Calculate maintenance priority
+    BIND(
+        COALESCE(?failureProbability, 0.1) * ?criticality * 
+        (IF(BOUND(?remainingLife) && ?remainingLife < 720.0, 2.0, 1.0)) # < 1 month
+    AS ?priority)
+    
+    # Recommended action based on priority
+    BIND(
+        IF(?priority >= 7.0, "emergency_maintenance",
+        IF(?priority >= 5.0, "schedule_urgent",
+        IF(?priority >= 3.0, "schedule_routine", "monitor")))
+    AS ?recommendedAction)
+    
+    FILTER (?status IN ("running", "idle"))
+    FILTER (?priority >= 2.0)
+}
+ORDER BY DESC(?priority) DESC(?failureProbability)
+
+#####################################################################
+
+# Q8: Real-time quality control and statistical process control
+# Execution target: <300 microseconds
+# Usage: Quality assurance and process adjustment
+
+SELECT ?process ?cpkValue ?defectRate ?qualityTrend ?controlAction ?urgencyLevel
+WHERE {
+    ?process a iiot:ManufacturingProcess .
+    ?machine iiot:executes ?process .
+    
+    # Get quality measurements
+    ?product iiot:hasQualityMeasurement ?quality .
+    ?process iiot:produces ?product .
+    ?quality iiot:defectRate ?defectRate .
+    
+    # Get statistical process control data
+    OPTIONAL {
+        ?spc a iiot:StatisticalProcessControl .
+        ?spc iiot:monitors ?process .
+        ?spc iiot:cpkValue ?cpkValue .
+    }
+    
+    # Calculate quality trend (simplified - would need historical data)
+    BIND(
+        IF(?defectRate > 5.0, "deteriorating",
+        IF(?defectRate > 2.0, "stable",
+        IF(?defectRate < 1.0, "improving", "stable")))
+    AS ?qualityTrend)
+    
+    # Determine control action
+    BIND(
+        IF(?defectRate > 10.0, "stop_production",
+        IF(?defectRate > 5.0, "adjust_parameters",
+        IF(BOUND(?cpkValue) && ?cpkValue < 1.33, "increase_monitoring", "continue")))
+    AS ?controlAction)
+    
+    # Calculate urgency level
+    BIND(
+        ?defectRate * 
+        (IF(?qualityTrend = "deteriorating", 2.0, 1.0)) *
+        (IF(BOUND(?cpkValue) && ?cpkValue < 1.0, 3.0, 1.0))
+    AS ?urgencyLevel)
+    
+    FILTER (?defectRate > 1.0 || (BOUND(?cpkValue) && ?cpkValue < 1.33))
+}
+ORDER BY DESC(?urgencyLevel) DESC(?defectRate)
+
+#####################################################################
+
+# Q9: Supply chain and inventory optimization
+# Execution target: <400 microseconds
+# Usage: Just-in-time manufacturing and inventory management
+
+SELECT ?material ?currentStock ?consumptionRate ?daysRemaining ?reorderPoint ?supplierLead
+WHERE {
+    ?material a iiot:RawMaterial .
+    ?inventory iiot:contains ?material .
+    ?inventory iiot:currentQuantity ?currentStock .
+    
+    # Calculate consumption rate
+    {
+        SELECT ?material (SUM(?consumption) AS ?totalConsumption) WHERE {
+            ?process iiot:consumes ?material .
+            ?process iiot:throughput ?throughput .
+            # Simplified consumption calculation
+            BIND(?throughput * 0.1 AS ?consumption) # 0.1 units per product
+        }
+        GROUP BY ?material
+    }
+    
+    BIND(?totalConsumption AS ?consumptionRate)
+    
+    # Calculate days remaining
+    BIND(?currentStock / ?consumptionRate AS ?daysRemaining)
+    
+    # Get supplier information
+    OPTIONAL {
+        ?material iiot:suppliedBy ?supplier .
+        ?supplier iiot:leadTime ?supplierLead .
+    }
+    
+    # Calculate reorder point (consumption during lead time + safety stock)
+    BIND(
+        ?consumptionRate * COALESCE(?supplierLead, 7.0) * 1.2 # 20% safety stock
+    AS ?reorderPoint)
+    
+    # Focus on materials running low
+    FILTER (?daysRemaining <= 14.0) # 2 weeks or less
+    FILTER (?currentStock > 0)
+}
+ORDER BY ASC(?daysRemaining) DESC(?consumptionRate)
+
+#####################################################################
+
+# Q10: Overall Equipment Effectiveness (OEE) real-time monitoring
+# Execution target: <500 microseconds
+# Usage: Production performance dashboard and optimization
+
+SELECT ?machine ?availability ?performance ?quality ?oeeScore ?lossCategory ?improvement
+WHERE {
+    ?machine a iiot:Machine .
+    ?machine iiot:availabilityRate ?availability .
+    ?machine iiot:performanceRate ?performance .
+    ?machine iiot:criticality ?criticality .
+    
+    # Calculate quality rate from yield
+    ?machine iiot:executes ?process .
+    ?process iiot:yieldRate ?quality .
+    
+    # Calculate OEE score
+    BIND((?availability * ?performance * ?quality) / 10000.0 AS ?oeeScore)
+    
+    # Identify primary loss category
+    BIND(
+        IF(?availability < ?performance && ?availability < ?quality, "availability_loss",
+        IF(?performance < ?quality, "performance_loss", "quality_loss"))
+    AS ?lossCategory)
+    
+    # Calculate potential improvement
+    BIND(
+        IF(?lossCategory = "availability_loss", (100.0 - ?availability) * 0.1,
+        IF(?lossCategory = "performance_loss", (100.0 - ?performance) * 0.1,
+        (100.0 - ?quality) * 0.1))
+    AS ?improvement)
+    
+    FILTER (?oeeScore < 85.0) # World-class OEE is typically >85%
+    FILTER (?criticality >= 5)
+}
+ORDER BY ASC(?oeeScore) DESC(?criticality)
+
+#####################################################################
+
+# Q11: Machine utilization and capacity planning
+# Execution target: <450 microseconds
+# Usage: Production capacity optimization and scheduling
+
+SELECT ?machine ?utilizationRate ?capacity ?actualOutput ?capacityGap ?schedulingPriority
+WHERE {
+    ?machine a iiot:Machine .
+    ?machine iiot:utilizationRate ?utilizationRate .
+    ?machine iiot:criticality ?criticality .
+    ?machine iiot:operationalStatus ?status .
+    
+    # Get process throughput as capacity indicator
+    ?machine iiot:executes ?process .
+    ?process iiot:throughput ?maxThroughput .
+    
+    # Calculate actual output
+    BIND(?maxThroughput * (?utilizationRate / 100.0) AS ?actualOutput)
+    
+    # Calculate theoretical capacity
+    BIND(?maxThroughput AS ?capacity)
+    
+    # Calculate capacity gap
+    BIND(?capacity - ?actualOutput AS ?capacityGap)
+    
+    # Calculate scheduling priority
+    BIND(
+        ?criticality * ?capacityGap * 
+        (IF(?utilizationRate < 70.0, 2.0, 1.0)) # Boost priority for underutilized machines
+    AS ?schedulingPriority)
+    
+    FILTER (?status = "running")
+    FILTER (?utilizationRate < 90.0) # Focus on underutilized machines
+}
+ORDER BY DESC(?schedulingPriority) ASC(?utilizationRate)
+
+#####################################################################
+
+# Q12: Cross-functional process correlation and bottleneck analysis
+# Execution target: <600 microseconds
+# Usage: Holistic manufacturing optimization and root cause analysis
+
+SELECT ?processGroup ?bottleneckProcess ?throughputLoss ?rootCause ?correctionPriority ?impactScope
+WHERE {
+    # Group related processes
+    ?process1 iiot:partOf ?processGroup .
+    ?process2 iiot:partOf ?processGroup .
+    ?process1 iiot:throughput ?throughput1 .
+    ?process2 iiot:throughput ?throughput2 .
+    
+    # Identify bottleneck (lowest throughput in group)
+    {
+        SELECT ?processGroup (MIN(?processThpt) AS ?minThroughput) WHERE {
+            ?proc iiot:partOf ?processGroup .
+            ?proc iiot:throughput ?processThpt .
+        }
+        GROUP BY ?processGroup
+    }
+    
+    # Find which process is the bottleneck
+    ?bottleneckProcess iiot:partOf ?processGroup .
+    ?bottleneckProcess iiot:throughput ?minThroughput .
+    
+    # Calculate throughput loss
+    {
+        SELECT ?processGroup (AVG(?processThpt) AS ?avgThroughput) WHERE {
+            ?proc iiot:partOf ?processGroup .
+            ?proc iiot:throughput ?processThpt .
+        }
+        GROUP BY ?processGroup
+    }
+    
+    BIND(?avgThroughput - ?minThroughput AS ?throughputLoss)
+    
+    # Analyze root cause based on process characteristics
+    ?bottleneckProcess iiot:efficiency ?efficiency .
+    ?bottleneckProcess iiot:setupTime ?setupTime .
+    
+    BIND(
+        IF(?efficiency < 80.0, "low_efficiency",
+        IF(?setupTime > 60.0, "excessive_setup",
+        "capacity_constraint"))
+    AS ?rootCause)
+    
+    # Calculate correction priority
+    BIND(?throughputLoss * 2.0 AS ?correctionPriority)
+    
+    # Count impacted processes
+    {
+        SELECT ?processGroup (COUNT(?proc) AS ?impactScope) WHERE {
+            ?proc iiot:partOf ?processGroup .
+        }
+        GROUP BY ?processGroup
+    }
+    
+    FILTER (?throughputLoss > 5.0) # Significant throughput loss
+}
+ORDER BY DESC(?correctionPriority) DESC(?throughputLoss)
