@@ -44,6 +44,9 @@ dependencies = [
 
     # DSPy integration for neural reasoning
     "dspy-ai>=2.4.0",
+    
+    # HTTP client integration for LLM packages
+    "httpx-aiohttp>=0.1.8",
 
     # Performance and monitoring  
     "opentelemetry-api>=1.12.0",

@@ -1,0 +1,60 @@
+{
+    "metadata": {
+        "compiler": "{{ metadata.compiler }}",
+        "version": "{{ metadata.version }}",
+        "timestamp": "{{ metadata.timestamp }}",
+        "config": {{ metadata.config|tojson }}
+    },
+    "statistics": {
+        "total_triples": {{ statistics.total_triples }},
+        "total_classes": {{ statistics.total_classes }},
+        "total_properties": {{ statistics.total_properties }},
+        "total_rules": {{ statistics.total_rules }},
+        "property_types": {{ statistics.property_types|tojson }},
+        "class_hierarchy_depth": {{ statistics.class_hierarchy_depth }},
+        "eightfold_coverage": {{ statistics.eightfold_coverage }}
+    },
+    "prefixes": {{ prefixes|tojson }},
+    "classes": [
+        {% for class in classes %}
+        {
+            "uri": "{{ class.uri }}",
+            "label": "{{ class.label }}",
+            "comment": {% if class.comment %}"{{ class.comment|escape_c_string }}"{% else %}null{% endif %},
+            "parent_classes": {{ class.parent_classes|tojson }},
+            "properties": {{ class.properties|tojson }},
+            "constraints": {{ class.constraints|tojson }},
+            "annotations": {{ class.annotations|tojson }},
+            "axioms": {{ class.axioms|tojson }},
+            "eightfold_mapping": {% if class.eightfold_mapping %}{{ class.eightfold_mapping|tojson }}{% else %}null{% endif %}
+        }{{ "," if not loop.last }}
+        {% endfor %}
+    ],
+    "properties": [
+        {% for prop in properties %}
+        {
+            "uri": "{{ prop.uri }}",
+            "label": "{{ prop.label }}",
+            "type": "{{ prop.type }}",
+            "domain": {% if prop.domain %}{{ prop.domain|tojson }}{% else %}null{% endif %},
+            "range": {% if prop.range %}{{ prop.range|tojson }}{% else %}null{% endif %},
+            "characteristics": {{ prop.characteristics|tojson }},
+            "inverse_of": {% if prop.inverse_of %}"{{ prop.inverse_of }}"{% else %}null{% endif %},
+            "constraints": {{ prop.constraints|tojson }},
+            "annotations": {{ prop.annotations|tojson }}
+        }{{ "," if not loop.last }}
+        {% endfor %}
+    ],
+    "rules": [
+        {% for rule in rules %}
+        {
+            "id": "{{ rule.id }}",
+            "type": "{{ rule.type }}",
+            "antecedent": {{ rule.antecedent|tojson }},
+            "consequent": {{ rule.consequent|tojson }},
+            "confidence": {{ rule.confidence }},
+            "eightfold_stage": {% if rule.eightfold_stage %}"{{ rule.eightfold_stage }}"{% else %}null{% endif %}
+        }{{ "," if not loop.last }}
+        {% endfor %}
+    ]
+}

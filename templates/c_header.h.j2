@@ -1,0 +1,193 @@
+/*
+ * Generated OWL C Header
+ * Timestamp: {{ now().isoformat() }}
+ * Compiler: {{ metadata.compiler }} {{ metadata.version }}
+ */
+
+#ifndef {{ header_guard }}
+#define {{ header_guard }}
+
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Ontology Metadata */
+#define ONTOLOGY_VERSION "{{ metadata.version }}"
+#define ONTOLOGY_TIMESTAMP "{{ metadata.timestamp }}"
+#define TOTAL_CLASSES {{ statistics.total_classes }}
+#define TOTAL_PROPERTIES {{ statistics.total_properties }}
+#define TOTAL_RULES {{ statistics.total_rules }}
+
+/* Namespace Prefixes */
+{% for prefix, namespace in prefixes.items() %}
+#define PREFIX_{{ prefix|upper }}_URI "{{ namespace }}"
+{% endfor %}
+
+/* Forward Declarations */
+{% for class in classes %}
+typedef struct {{ class.label|c_identifier }}_s {{ class.label|c_identifier }}_t;
+{% endfor %}
+
+/* Eightfold Path Stages */
+typedef enum {
+{% for stage in eightfold_stages %}
+    EIGHTFOLD_{{ stage|upper_case }},
+{% endfor %}
+    EIGHTFOLD_STAGE_COUNT
+} eightfold_stage_t;
+
+/* Property Types */
+typedef enum {
+    PROPERTY_TYPE_OBJECT,
+    PROPERTY_TYPE_DATATYPE,
+    PROPERTY_TYPE_ANNOTATION
+} property_type_t;
+
+/* Property Characteristics */
+typedef enum {
+    PROP_FUNCTIONAL = 1 << 0,
+    PROP_INVERSE_FUNCTIONAL = 1 << 1,
+    PROP_TRANSITIVE = 1 << 2,
+    PROP_SYMMETRIC = 1 << 3,
+    PROP_ASYMMETRIC = 1 << 4,
+    PROP_REFLEXIVE = 1 << 5,
+    PROP_IRREFLEXIVE = 1 << 6
+} property_characteristics_t;
+
+/* Base OWL Object */
+typedef struct {
+    const char* uri;
+    const char* label;
+    const char* comment;
+    eightfold_stage_t eightfold_stage;
+    uint32_t type_id;
+    void* instance_data;
+} owl_object_t;
+
+/* Property Descriptor */
+typedef struct {
+    const char* uri;
+    const char* label;
+    property_type_t type;
+    property_characteristics_t characteristics;
+    const char** domain_classes;
+    const char** range_classes;
+    const char* inverse_property;
+    size_t domain_count;
+    size_t range_count;
+} property_descriptor_t;
+
+/* Class Definitions */
+{% for class in classes %}
+/* {{ class.comment|format_comment if class.comment else "Class: " + class.label }} */
+struct {{ class.label|c_identifier }}_s {
+    owl_object_t base;
+    
+    /* Parent class data */
+    {% for parent in class.parent_classes %}
+    {% if parent in classes|map(attribute='uri')|list %}
+    {{ parent|extract_local_name|c_identifier }}_t* {{ parent|extract_local_name|snake_case }}_parent;
+    {% else %}
+    /* Parent class {{ parent|extract_local_name }} not available in current ontology */
+    void* {{ parent|extract_local_name|snake_case }}_parent;  
+    {% endif %}
+    {% endfor %}
+    
+    /* Properties */
+    {% for prop in class.properties %}
+    {% if prop.range %}
+    {% for range_type in prop.range %}
+    {% if range_type|is_primitive_type %}
+    {{ range_type|xsd_to_c_type }} {{ prop.label|snake_case }};
+    {% else %}
+    {{ range_type|extract_local_name|c_identifier }}_t* {{ prop.label|snake_case }};
+    {% endif %}
+    {% endfor %}
+    {% else %}
+    void* {{ prop.label|snake_case }};
+    {% endif %}
+    {% endfor %}
+    
+    /* Constraint validation flags */
+    {% for constraint in class.constraints %}
+    bool constraint_{{ loop.index0 }}_valid;
+    {% endfor %}
+    
+    /* Optimization hints */
+    {% if class.annotations.optimization_hints %}
+    struct {
+        {% for hint in class.annotations.optimization_hints %}
+        bool {{ hint.type|snake_case }}_enabled;
+        {% endfor %}
+    } optimization;
+    {% endif %}
+};
+
+/* Constructor/Destructor for {{ class.label }} */
+{{ class.label|c_identifier }}_t* {{ class.label|snake_case }}_create(void);
+void {{ class.label|snake_case }}_destroy({{ class.label|c_identifier }}_t* obj);
+bool {{ class.label|snake_case }}_validate(const {{ class.label|c_identifier }}_t* obj);
+
+{% endfor %}
+
+/* Property Descriptors Array */
+extern const property_descriptor_t g_property_descriptors[{{ properties|length }}];
+
+/* Class Registry */
+typedef struct {
+    const char* uri;
+    const char* label;
+    size_t instance_size;
+    eightfold_stage_t eightfold_stage;
+    const char** parent_classes;
+    size_t parent_count;
+    owl_object_t* (*constructor)(void);
+    void (*destructor)(owl_object_t*);
+    bool (*validator)(const owl_object_t*);
+} class_descriptor_t;
+
+extern const class_descriptor_t g_class_descriptors[{{ classes|length }}];
+
+/* Reasoning Engine */
+typedef struct {
+    const char* id;
+    const char* type;
+    float confidence;
+    eightfold_stage_t stage;
+    bool (*apply_rule)(owl_object_t* subject);
+} reasoning_rule_t;
+
+extern const reasoning_rule_t g_reasoning_rules[{{ rules|length }}];
+
+/* API Functions */
+owl_object_t* owl_create_instance(const char* class_uri);
+void owl_destroy_instance(owl_object_t* obj);
+bool owl_validate_instance(const owl_object_t* obj);
+const property_descriptor_t* owl_get_property(const char* property_uri);
+const class_descriptor_t* owl_get_class(const char* class_uri);
+bool owl_apply_reasoning(owl_object_t* obj);
+eightfold_stage_t owl_get_eightfold_stage(const char* class_uri);
+
+/* Eightfold Path Integration */
+typedef struct {
+    eightfold_stage_t stage;
+    owl_object_t** instances;
+    size_t instance_count;
+    size_t capacity;
+} eightfold_context_t;
+
+eightfold_context_t* eightfold_create_context(void);
+void eightfold_destroy_context(eightfold_context_t* ctx);
+bool eightfold_add_instance(eightfold_context_t* ctx, owl_object_t* obj);
+owl_object_t** eightfold_get_stage_instances(eightfold_context_t* ctx, eightfold_stage_t stage);
+bool eightfold_execute_stage(eightfold_context_t* ctx, eightfold_stage_t stage);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* {{ header_guard }} */

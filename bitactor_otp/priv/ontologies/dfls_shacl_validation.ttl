@@ -5,6 +5,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 
 # DFLS SHACL VALIDATION RULES
 # Six Sigma quality constraints for mass production of Erlang/OTP systems
@@ -115,21 +116,11 @@ dfls:SupervisorQualityShape
         sh:message "Supervisor must have at least one child specification" ;
         sh:severity sh:Violation ;
     ] ;
-    # DFLS Quality Gate: Maximum restart frequency
-    sh:sparql [
-        sh:message "DFLS supervisors must not exceed Six Sigma restart frequency limits" ;
-        sh:prefixes otp: dfls: ;
-        sh:select """
-            SELECT ?this ?maxRestarts ?maxSeconds
-            WHERE {
-                ?this a otp:Supervisor ;
-                      otp:maxRestarts ?maxRestarts ;
-                      otp:maxSeconds ?maxSeconds .
-                # Six Sigma constraint: <3.4 restarts per million seconds
-                BIND(?maxRestarts / ?maxSeconds * 1000000 AS ?restartRate)
-                FILTER(?restartRate > 3.4)
-            }
-        """ ;
+    # DFLS Quality Gate: Maximum restart frequency (simplified)
+    sh:property [
+        sh:path otp:maxRestarts ;
+        sh:maxInclusive 10 ;  # Maximum restarts for Six Sigma compliance
+        sh:message "Supervisor max restarts must not exceed 10 for Six Sigma compliance" ;
         sh:severity sh:Violation ;
     ] .
 

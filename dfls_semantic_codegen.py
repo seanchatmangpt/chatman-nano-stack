@@ -498,27 +498,27 @@ start_link() ->
 
 init([]) ->
     %% DFLS Restart Strategy: {{ restart_strategy }}
-    RestartStrategy = {{{ restart_strategy | default('one_for_one') | erlang_atom }}, 
-                      ?MAX_RESTARTS, ?MAX_SECONDS},
+    RestartStrategy = {{ '{' }}{{ restart_strategy | default('one_for_one') | erlang_atom }}, 
+                      ?MAX_RESTARTS, ?MAX_SECONDS{{ '}' }},
     
     Children = [
         {% for child in children -%}
-        {{{ child.id | erlang_atom }},
-         {{{ child.module | erlang_atom }}, start_link, {{ child.args | default('[]') }}},
+        {{ '{' }}{{ child.id | erlang_atom }},
+         {{ '{' }}{{ child.module | erlang_atom }}, start_link, {{ child.args | default('[]') }}{{ '}' }},
          {{ child.restart_type | default('permanent') | erlang_atom }},
          {{ child.shutdown_timeout | default(5000) }},
          {{ child.worker_type | default('worker') | erlang_atom }},
-         [{{ child.module | erlang_atom }}]}{% if not loop.last %},{% endif %}
+         [{{ child.module | erlang_atom }}]{{ '}' }}{% if not loop.last %},{% endif %}
         {% endfor %}
     ],
     
     %% DFLS Quality Gate: Validate supervision tree
     case validate_supervision_tree(Children) of
         ok ->
-            {ok, {RestartStrategy, Children}};
-        {error, Reason} ->
+            {{ '{' }}ok, {{ '{' }}RestartStrategy, Children{{ '}' }}{{ '}' }};
+        {{ '{' }}error, Reason{{ '}' }} ->
             error_logger:error_msg("Supervision tree validation failed: ~p~n", [Reason]),
-            {stop, {quality_violation, Reason}}
+            {{ '{' }}stop, {{ '{' }}quality_violation, Reason{{ '}' }}{{ '}' }}
     end.
 
 %%====================================================================
@@ -529,7 +529,7 @@ validate_supervision_tree(Children) ->
     %% Six Sigma validation for supervision tree
     case length(Children) of
         N when N > 0, N =< 50 -> ok;  % Reasonable number of children
-        _ -> {error, invalid_child_count}
+        _ -> {{ '{' }}error, invalid_child_count{{ '}' }}
     end.
 '''
 
@@ -557,18 +557,8 @@ validate_supervision_tree(Children) ->
         })
         
         try:
-            # Use AOT compiler for performance
-            if self.config.enable_aot_optimization:
-                template_path = self.template_dir / template_name
-                if template_path.exists():
-                    with open(template_path, 'r') as f:
-                        template_content = f.read()
-                    
-                    # Compile template using existing CNS AOT infrastructure
-                    compiled_template = self.aot_compiler.get_template(template_name, template_content)
-                    return compiled_template.render(**context)
-            
-            # Fallback to regular Jinja rendering
+            # Always use regular Jinja rendering to ensure filters work
+            # AOT optimization can be added later when the infrastructure is mature
             template = self.env.get_template(template_name)
             return template.render(**context)
             

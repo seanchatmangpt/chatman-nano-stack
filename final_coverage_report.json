@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-07-24T10:11:45.465943",
+  "target": 80.0,
+  "achieved": 60.0,
+  "target_met": false,
+  "breakdown": {
+    "python_coverage": 0,
+    "c_coverage": 100.0,
+    "functional_coverage": 100.0,
+    "performance_score": 100.0
+  },
+  "status": "APPROACHING"
+}

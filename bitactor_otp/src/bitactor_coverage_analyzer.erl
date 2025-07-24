@@ -30,14 +30,6 @@
     test_results = []
 }).
 
--record(test_metrics, {
-    total_tests,
-    passed_tests,
-    failed_tests,
-    execution_time_ms,
-    memory_usage_mb,
-    performance_metrics = #{}
-}).
 
 %%%===================================================================
 %%% API Functions
@@ -112,15 +104,15 @@ run_comprehensive_tests() ->
             }
         catch
             Type:Error:Stacktrace ->
-                EndTime = erlang:monotonic_time(millisecond),
-                ExecutionTime = EndTime - StartTime,
+                EndTime2 = erlang:monotonic_time(millisecond),
+                ExecutionTime2 = EndTime2 - StartTime,
                 
                 #{
                     suite => Name,
                     status => failed,
                     error => {Type, Error},
                     stacktrace => Stacktrace,
-                    execution_time_ms => ExecutionTime
+                    execution_time_ms => ExecutionTime2
                 }
         end
     end, TestSuites),
@@ -162,11 +154,12 @@ compile_modules_for_coverage() ->
     io:format("Compiling modules for coverage analysis...~n"),
     
     lists:foreach(fun(Module) ->
-        case cover:compile_module(Module) of
+        SourceFile = filename:join("src", atom_to_list(Module) ++ ".erl"),
+        case cover:compile(SourceFile) of
             {ok, Module} ->
-                io:format("  ✓ ~p compiled for coverage~n", [Module]);
+                io:format("  + ~p compiled for coverage~n", [Module]);
             {error, Reason} ->
-                io:format("  ✗ Failed to compile ~p: ~p~n", [Module, Reason])
+                io:format("  - Failed to compile ~p: ~p~n", [Module, Reason])
         end
     end, ?MODULES_TO_ANALYZE).
 
@@ -418,7 +411,7 @@ generate_comprehensive_report(CoverageResults, TestResults) ->
     %% Coverage summary
     io:format("~n--- Coverage Summary ---~n"),
     lists:foreach(fun(#coverage_result{module = Module, coverage_percent = Percent, lines_covered = Covered, lines_total = Total}) ->
-        Status = if Percent >= ?TARGET_COVERAGE -> "✅"; true -> "❌" end,
+        Status = if Percent >= ?TARGET_COVERAGE -> "PASS"; true -> "FAIL" end,
         io:format("~s ~p: ~.2f% (~p/~p lines)~n", [Status, Module, Percent, Covered, Total])
     end, CoverageResults),
     
@@ -427,11 +420,11 @@ generate_comprehensive_report(CoverageResults, TestResults) ->
     maps:fold(fun(Suite, Result, _) ->
         case maps:get(status, Result, unknown) of
             passed ->
-                io:format("✅ ~p: PASSED~n", [Suite]);
+                io:format("PASS ~p: PASSED~n", [Suite]);
             failed ->
-                io:format("❌ ~p: FAILED - ~p~n", [Suite, maps:get(error, Result, unknown)]);
+                io:format("FAIL ~p: FAILED - ~p~n", [Suite, maps:get(error, Result, unknown)]);
             _ ->
-                io:format("⚠️  ~p: ~p~n", [Suite, Result])
+                io:format("WARN ~p: ~p~n", [Suite, Result])
         end
     end, ok, TestResults),
     
@@ -444,7 +437,7 @@ generate_coverage_report(CoverageResults) ->
     
     lists:foreach(fun(#coverage_result{module = Module, coverage_percent = Percent}) ->
         ModuleStr = atom_to_list(Module),
-        Status = if Percent >= ?TARGET_COVERAGE -> "✓"; true -> "✗" end,
+        Status = if Percent >= ?TARGET_COVERAGE -> "PASS"; true -> "FAIL" end,
         io:format("    B --> ~s[~s ~s: ~.1f%]~n", [ModuleStr, Status, ModuleStr, Percent])
     end, CoverageResults),
     

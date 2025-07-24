@@ -1,6 +1,6 @@
 /*
  * Generated OWL C Header
- * Timestamp: 2025-07-23T10:35:35.309397
+ * Timestamp: 2025-07-24T10:18:22.521909
  * Compiler: OWL AOT Compiler with Jinja 1.0.0
  */
 
@@ -17,7 +17,7 @@ extern "C" {
 
 /* Ontology Metadata */
 #define ONTOLOGY_VERSION "1.0.0"
-#define ONTOLOGY_TIMESTAMP "2025-07-23T10:35:35.302530"
+#define ONTOLOGY_TIMESTAMP "2025-07-24T10:18:22.511530"
 #define TOTAL_CLASSES 4
 #define TOTAL_PROPERTIES 12
 #define TOTAL_RULES 0

@@ -4,21 +4,15 @@
     "build": true,
     "tests": true,
     "benchmark": true,
-    "performance": {
-      "throughput": "86.05 Msignals/sec",
-      "latency": "11.52 CPU ticks/signal"
-    },
-    "test_output": "TEST BitActor Test Suite\n================================\n\nTesting test_bitactor_init...\n\u2705 test_bitactor_init passed\nTesting signal enqueue...\n\u2705 Signal enqueue passed\nTesting tick performance (8-tick budget)...\n\u2705 Processed 3 signals, avg ticks: 41\nTesting ring buffer overflow protection...\n\u2705 Ring buffer overflow protection working (capacity: 4095)\nTesting Semantic Signal signal...\n\u2705 Semantic Signal signal processed\nTesting na13d9ceb402c4351b38704b501d2fdcbb6 signal...\n\u2705 na13d9ceb402c4351b38704b501d2fdcbb6 signal processed\nTesting na13d9ceb402c4351b38704b501d2fdcbb7 signal...\n\u2705 na13d9ceb402c4351b38704b501d2fdcbb7 signal processed\nTesting HeartbeatSignal signal...\n\u2705 HeartbeatSignal signal processed\nTesting NormalSignal signal...\n\u2705 NormalSignal signal processed\nTesting DebugSignal signal...\n\u2705 DebugSignal signal processed\n\n\u2705 All tests passed!\n"
+    "performance": {},
+    "test_output": "success"
   },
   "Python": {
     "language": "Python",
-    "import": true,
-    "instantiation": true,
-    "signal_processing": true,
-    "performance": {
-      "throughput": "3461904.67 signals/sec",
-      "latency": "0.29 \u00b5s/signal"
-    }
+    "import": false,
+    "instantiation": false,
+    "signal_processing": false,
+    "performance": {}
   },
   "Erlang": {
     "language": "Erlang",
