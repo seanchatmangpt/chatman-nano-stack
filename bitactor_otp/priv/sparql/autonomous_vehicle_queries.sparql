@@ -1,0 +1,368 @@
+# SPARQL Queries for Autonomous Vehicle Coordination
+# Ultra-fast real-time queries for BitActor integration
+# Sub-millisecond response times for collision avoidance
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX av: <http://cns.ai/ontology/autonomous-vehicle#>
+
+#####################################################################
+# CRITICAL SAFETY QUERIES - Ultra-fast execution required
+#####################################################################
+
+# Q1: EMERGENCY - Find vehicles with immediate collision risk
+# Execution target: <100 microseconds
+# Usage: Emergency collision avoidance system
+
+SELECT ?vehicle ?riskLevel ?timeToCollision ?threatVehicle
+WHERE {
+    ?vehicle av:hasCollisionRisk ?risk .
+    ?risk av:riskLevel ?riskLevel .
+    ?risk av:timeToCollision ?timeToCollision .
+    ?risk av:threatVehicle ?threatVehicle .
+    FILTER (?riskLevel > 0.8 && ?timeToCollision < 2.0)
+}
+ORDER BY DESC(?riskLevel) ASC(?timeToCollision)
+LIMIT 10
+
+#####################################################################
+
+# Q2: EMERGENCY - Vehicles requiring immediate emergency maneuvers
+# Execution target: <50 microseconds
+# Usage: Emergency response system
+
+SELECT ?vehicle ?maneuverType ?urgency ?executionTime
+WHERE {
+    ?vehicle av:requiresEmergencyManeuver ?maneuver .
+    ?maneuver av:maneuverType ?maneuverType .
+    ?maneuver av:maneuverUrgency ?urgency .
+    ?maneuver av:executionTime ?executionTime .
+    FILTER (?urgency >= 8)
+}
+ORDER BY DESC(?urgency) ASC(?executionTime)
+
+#####################################################################
+
+# Q3: EMERGENCY - Emergency vehicles requiring right-of-way
+# Execution target: <100 microseconds
+# Usage: Emergency vehicle priority system
+
+SELECT ?emergencyVehicle ?vehicleType ?position ?speed ?heading
+WHERE {
+    ?emergencyVehicle a av:EmergencyVehicle .
+    ?emergencyVehicle av:vehicleType ?vehicleType .
+    ?emergencyVehicle av:hasPosition ?pos .
+    ?pos av:latitude ?lat .
+    ?pos av:longitude ?lon .
+    ?emergencyVehicle av:speed ?speed .
+    ?emergencyVehicle av:heading ?heading .
+    BIND(CONCAT(STR(?lat), ",", STR(?lon)) AS ?position)
+    FILTER (?speed > 0)
+}
+ORDER BY DESC(?speed)
+
+#####################################################################
+# HIGH-FREQUENCY QUERIES - Standard operation
+#####################################################################
+
+# Q4: Find vehicles in collision path with specific vehicle
+# Execution target: <200 microseconds
+# Usage: Path planning and collision avoidance
+
+SELECT ?vehicle ?distance ?relativeSpeed ?riskLevel
+WHERE {
+    ?targetVehicle av:vehicleID "TARGET_VEHICLE_ID" .
+    ?targetVehicle av:hasPosition ?targetPos .
+    ?targetPos av:latitude ?targetLat .
+    ?targetPos av:longitude ?targetLon .
+    
+    ?vehicle av:hasPosition ?pos .
+    ?pos av:latitude ?lat .
+    ?pos av:longitude ?lon .
+    ?vehicle av:speed ?speed .
+    
+    ?vehicle av:hasCollisionRisk ?risk .
+    ?risk av:threatVehicle ?targetVehicle .
+    ?risk av:riskLevel ?riskLevel .
+    ?risk av:distanceToCollision ?distance .
+    
+    BIND(ABS(?speed - ?targetSpeed) AS ?relativeSpeed)
+    FILTER (?vehicle != ?targetVehicle)
+    FILTER (?distance < 500.0)
+}
+ORDER BY ASC(?distance) DESC(?riskLevel)
+
+#####################################################################
+
+# Q5: Vehicles in proximity for V2V communication
+# Execution target: <150 microseconds
+# Usage: V2V message routing optimization
+
+SELECT ?vehicle1 ?vehicle2 ?distance ?communicationQuality
+WHERE {
+    ?vehicle1 av:hasPosition ?pos1 .
+    ?pos1 av:latitude ?lat1 .
+    ?pos1 av:longitude ?lon1 .
+    
+    ?vehicle2 av:hasPosition ?pos2 .
+    ?pos2 av:latitude ?lat2 .
+    ?pos2 av:longitude ?lon2 .
+    
+    # Approximate distance calculation (for ultra-fast processing)
+    BIND(((?lat2 - ?lat1) * (?lat2 - ?lat1)) + ((?lon2 - ?lon1) * (?lon2 - ?lon1)) AS ?distanceSquared)
+    BIND(SQRT(?distanceSquared) * 111000 AS ?distance)
+    
+    # Communication quality based on distance
+    BIND(IF(?distance < 100, "excellent",
+         IF(?distance < 200, "good",
+         IF(?distance < 300, "fair", "poor"))) AS ?communicationQuality)
+    
+    FILTER (?vehicle1 != ?vehicle2)
+    FILTER (?distance < 300.0)
+}
+ORDER BY ASC(?distance)
+
+#####################################################################
+
+# Q6: Lane change safety assessment
+# Execution target: <250 microseconds
+# Usage: Lane change decision support
+
+SELECT ?vehicle ?currentLane ?targetLane ?safetyScore ?gapSize
+WHERE {
+    ?vehicle av:currentLane ?currentLane .
+    ?vehicle av:targetLane ?targetLane .
+    ?currentLane av:laneID ?currentLaneID .
+    ?targetLane av:laneID ?targetLaneID .
+    
+    # Calculate safety score based on surrounding vehicles
+    OPTIONAL {
+        ?vehicle av:hasCollisionRisk ?risk .
+        ?risk av:riskLevel ?riskLevel .
+        BIND((1.0 - ?riskLevel) AS ?safetyScore)
+    }
+    
+    # Estimate gap size in target lane
+    OPTIONAL {
+        SELECT ?vehicle (MIN(?distance) AS ?gapSize) WHERE {
+            ?vehicle av:targetLane ?lane .
+            ?otherVehicle av:currentLane ?lane .
+            ?otherVehicle av:hasCollisionRisk ?risk .
+            ?risk av:threatVehicle ?vehicle .
+            ?risk av:distanceToCollision ?distance .
+            FILTER (?otherVehicle != ?vehicle)
+        }
+        GROUP BY ?vehicle
+    }
+    
+    FILTER (?currentLaneID != ?targetLaneID)
+    FILTER (?safetyScore > 0.5)
+}
+ORDER BY DESC(?safetyScore) DESC(?gapSize)
+
+#####################################################################
+
+# Q7: Traffic flow optimization at intersections
+# Execution target: <300 microseconds
+# Usage: Intersection management system
+
+SELECT ?intersection ?vehicle ?arrivalTime ?priority ?recommendedSpeed
+WHERE {
+    ?intersection a av:Intersection .
+    ?vehicle av:hasPosition ?pos .
+    ?vehicle av:speed ?currentSpeed .
+    ?vehicle av:hasTrajectory ?trajectory .
+    ?trajectory av:predictionHorizon ?horizon .
+    
+    # Calculate estimated arrival time at intersection
+    BIND(?horizon AS ?arrivalTime)
+    
+    # Assign priority based on vehicle type and current conditions
+    BIND(IF(EXISTS {?vehicle a av:EmergencyVehicle}, 10,
+         IF(?currentSpeed > 15.0, 5, 3)) AS ?priority)
+    
+    # Recommend speed adjustment for smooth flow
+    BIND(IF(?arrivalTime < 5.0, ?currentSpeed * 0.8, ?currentSpeed * 1.1) AS ?recommendedSpeed)
+    
+    FILTER (?arrivalTime < 30.0)
+}
+ORDER BY ASC(?arrivalTime) DESC(?priority)
+
+#####################################################################
+
+# Q8: Performance monitoring - BitActor processing metrics
+# Execution target: <100 microseconds
+# Usage: System performance monitoring
+
+SELECT ?vehicle ?avgLatency ?maxTicks ?messageCount ?performanceScore
+WHERE {
+    ?vehicle av:bitactorID ?bitactorID .
+    
+    # Calculate average processing latency
+    {
+        SELECT ?vehicle (AVG(?latency) AS ?avgLatency) (COUNT(?msg) AS ?messageCount) WHERE {
+            ?vehicle av:sendsMessage ?msg .
+            ?msg av:processingLatency ?latency .
+        }
+        GROUP BY ?vehicle
+    }
+    
+    # Find maximum ticks used
+    {
+        SELECT ?vehicle (MAX(?ticks) AS ?maxTicks) WHERE {
+            ?vehicle av:sendsMessage ?msg .
+            ?msg av:ticksUsed ?ticks .
+        }
+        GROUP BY ?vehicle
+    }
+    
+    # Calculate performance score
+    BIND(IF(?maxTicks <= 8 && ?avgLatency < 500000, 1.0,
+         IF(?maxTicks <= 10 && ?avgLatency < 1000000, 0.8,
+         IF(?maxTicks <= 15, 0.6, 0.3))) AS ?performanceScore)
+    
+    FILTER (?messageCount > 0)
+}
+ORDER BY DESC(?performanceScore) ASC(?avgLatency)
+
+#####################################################################
+
+# Q9: Optimal route calculation with real-time traffic
+# Execution target: <500 microseconds
+# Usage: Dynamic routing system
+
+SELECT ?route ?totalDistance ?estimatedTime ?congestionLevel ?fuelEfficiency
+WHERE {
+    ?route a av:Route .
+    ?route av:startPosition ?start .
+    ?route av:endPosition ?end .
+    ?route av:totalDistance ?totalDistance .
+    
+    # Calculate congestion level based on vehicle density
+    {
+        SELECT ?route (COUNT(?vehicle) AS ?vehicleCount) WHERE {
+            ?vehicle av:currentLane ?lane .
+            ?lane av:partOfRoute ?route .
+        }
+        GROUP BY ?route
+    }
+    
+    BIND(?vehicleCount / (?totalDistance / 1000) AS ?density)
+    BIND(IF(?density < 20, "low",
+         IF(?density < 50, "medium",
+         IF(?density < 100, "high", "severe"))) AS ?congestionLevel)
+    
+    # Estimate travel time based on congestion
+    BIND(?totalDistance / 
+         (IF(?density < 20, 25.0,
+          IF(?density < 50, 15.0,
+          IF(?density < 100, 8.0, 3.0)))) AS ?estimatedTime)
+    
+    # Calculate fuel efficiency score
+    BIND((1.0 / (1.0 + (?density / 100))) AS ?fuelEfficiency)
+    
+    FILTER (?totalDistance > 0)
+}
+ORDER BY ASC(?estimatedTime) DESC(?fuelEfficiency)
+
+#####################################################################
+
+# Q10: Predictive collision detection with trajectory analysis
+# Execution target: <400 microseconds
+# Usage: Advanced collision prediction system
+
+SELECT ?vehicle1 ?vehicle2 ?collisionProbability ?collisionPoint ?timeToCollision
+WHERE {
+    ?vehicle1 av:hasTrajectory ?traj1 .
+    ?traj1 av:trajectoryPoints ?points1 .
+    ?traj1 av:confidence ?conf1 .
+    
+    ?vehicle2 av:hasTrajectory ?traj2 .
+    ?traj2 av:trajectoryPoints ?points2 .
+    ?traj2 av:confidence ?conf2 .
+    
+    # Simplified trajectory intersection analysis
+    # (In production, this would use complex geometric calculations)
+    BIND(?conf1 * ?conf2 AS ?collisionProbability)
+    BIND("intersection_point_placeholder" AS ?collisionPoint)
+    
+    ?vehicle1 av:hasCollisionRisk ?risk .
+    ?risk av:threatVehicle ?vehicle2 .
+    ?risk av:timeToCollision ?timeToCollision .
+    
+    FILTER (?vehicle1 != ?vehicle2)
+    FILTER (?collisionProbability > 0.3)
+    FILTER (?timeToCollision < 10.0)
+}
+ORDER BY DESC(?collisionProbability) ASC(?timeToCollision)
+
+#####################################################################
+# ANALYTICS QUERIES - System optimization
+#####################################################################
+
+# Q11: Traffic pattern analysis for optimization
+# Execution target: <1 millisecond
+# Usage: Traffic management system
+
+SELECT ?timeOfDay ?avgSpeed ?vehicleCount ?congestionHotspots
+WHERE {
+    # Time-based traffic analysis
+    BIND(HOUR(NOW()) AS ?timeOfDay)
+    
+    # Calculate average speed by time period
+    {
+        SELECT ?timeOfDay (AVG(?speed) AS ?avgSpeed) (COUNT(?vehicle) AS ?vehicleCount) WHERE {
+            ?vehicle av:speed ?speed .
+            ?vehicle av:timestamp ?timestamp .
+            BIND(HOUR(?timestamp) AS ?timeOfDay)
+            FILTER (?speed > 0)
+        }
+        GROUP BY ?timeOfDay
+    }
+    
+    # Identify congestion hotspots
+    {
+        SELECT ?timeOfDay (GROUP_CONCAT(?lane) AS ?congestionHotspots) WHERE {
+            ?vehicle av:currentLane ?lane .
+            ?vehicle av:speed ?speed .
+            ?vehicle av:timestamp ?timestamp .
+            BIND(HOUR(?timestamp) AS ?timeOfDay)
+            FILTER (?speed < 5.0)
+        }
+        GROUP BY ?timeOfDay
+        HAVING (COUNT(?vehicle) > 10)
+    }
+}
+ORDER BY ?timeOfDay
+
+#####################################################################
+
+# Q12: System health monitoring
+# Execution target: <200 microseconds
+# Usage: System diagnostics and alerts
+
+SELECT ?componentType ?healthStatus ?lastUpdate ?errorCount ?performanceMetric
+WHERE {
+    ?component av:componentType ?componentType .
+    ?component av:healthStatus ?healthStatus .
+    ?component av:lastUpdate ?lastUpdate .
+    
+    # Count recent errors
+    {
+        SELECT ?component (COUNT(?error) AS ?errorCount) WHERE {
+            ?component av:hasError ?error .
+            ?error av:timestamp ?errorTime .
+            FILTER (?errorTime > (NOW() - "PT1M"^^xsd:duration))
+        }
+        GROUP BY ?component
+    }
+    
+    # Calculate performance metric
+    BIND(IF(?errorCount = 0, 1.0,
+         IF(?errorCount < 5, 0.8,
+         IF(?errorCount < 10, 0.5, 0.2))) AS ?performanceMetric)
+    
+    FILTER (?healthStatus != "disabled")
+}
+ORDER BY ASC(?performanceMetric) DESC(?errorCount)

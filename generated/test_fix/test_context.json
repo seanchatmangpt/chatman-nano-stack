@@ -1,0 +1,116 @@
+{
+  "ontology_name": "bitactor_semantic_core",
+  "prefix": "test",
+  "module_name": "test",
+  "class_prefix": "Test",
+  "guard_name": "TEST_BITACTOR_H",
+  "signals": [
+    {
+      "id": 1,
+      "name": "SemanticSignal",
+      "label": "Semantic Signal",
+      "description": "Signal enriched with semantic metadata",
+      "uri": "http://bitactor.org/ontology#SemanticSignal"
+    },
+    {
+      "id": 2,
+      "name": "na13d9ceb402c4351b38704b501d2fdcbb6",
+      "label": "na13d9ceb402c4351b38704b501d2fdcbb6",
+      "description": "",
+      "uri": "na13d9ceb402c4351b38704b501d2fdcbb6"
+    },
+    {
+      "id": 3,
+      "name": "na13d9ceb402c4351b38704b501d2fdcbb7",
+      "label": "na13d9ceb402c4351b38704b501d2fdcbb7",
+      "description": "",
+      "uri": "na13d9ceb402c4351b38704b501d2fdcbb7"
+    },
+    {
+      "id": 4,
+      "name": "HeartbeatSignal",
+      "label": "HeartbeatSignal",
+      "description": "",
+      "uri": "http://bitactor.org/ontology#HeartbeatSignal"
+    },
+    {
+      "id": 5,
+      "name": "NormalSignal",
+      "label": "NormalSignal",
+      "description": "",
+      "uri": "http://bitactor.org/ontology#NormalSignal"
+    },
+    {
+      "id": 6,
+      "name": "DebugSignal",
+      "label": "DebugSignal",
+      "description": "",
+      "uri": "http://bitactor.org/ontology#DebugSignal"
+    }
+  ],
+  "handlers": [
+    {
+      "name": "semanticsignal_handler",
+      "signal": "SemanticSignal",
+      "tick_budget": 8,
+      "operations": [
+        "/* Process SemanticSignal signal */",
+        "/* TODO: Implement signal processing */"
+      ],
+      "description": "Handler for Semantic Signal"
+    },
+    {
+      "name": "na13d9ceb402c4351b38704b501d2fdcbb6_handler",
+      "signal": "na13d9ceb402c4351b38704b501d2fdcbb6",
+      "tick_budget": 8,
+      "operations": [
+        "/* Process na13d9ceb402c4351b38704b501d2fdcbb6 signal */",
+        "/* TODO: Implement signal processing */"
+      ],
+      "description": "Handler for na13d9ceb402c4351b38704b501d2fdcbb6"
+    },
+    {
+      "name": "na13d9ceb402c4351b38704b501d2fdcbb7_handler",
+      "signal": "na13d9ceb402c4351b38704b501d2fdcbb7",
+      "tick_budget": 8,
+      "operations": [
+        "/* Process na13d9ceb402c4351b38704b501d2fdcbb7 signal */",
+        "/* TODO: Implement signal processing */"
+      ],
+      "description": "Handler for na13d9ceb402c4351b38704b501d2fdcbb7"
+    },
+    {
+      "name": "heartbeatsignal_handler",
+      "signal": "HeartbeatSignal",
+      "tick_budget": 8,
+      "operations": [
+        "/* Process HeartbeatSignal signal */",
+        "/* TODO: Implement signal processing */"
+      ],
+      "description": "Handler for HeartbeatSignal"
+    },
+    {
+      "name": "normalsignal_handler",
+      "signal": "NormalSignal",
+      "tick_budget": 8,
+      "operations": [
+        "/* Process NormalSignal signal */",
+        "/* TODO: Implement signal processing */"
+      ],
+      "description": "Handler for NormalSignal"
+    },
+    {
+      "name": "debugsignal_handler",
+      "signal": "DebugSignal",
+      "tick_budget": 8,
+      "operations": [
+        "/* Process DebugSignal signal */",
+        "/* TODO: Implement signal processing */"
+      ],
+      "description": "Handler for DebugSignal"
+    }
+  ],
+  "tick_budget": 8,
+  "max_signals": 256,
+  "ring_size": 4096
+}

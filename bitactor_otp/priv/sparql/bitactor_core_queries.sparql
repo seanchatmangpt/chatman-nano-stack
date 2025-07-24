@@ -1,0 +1,461 @@
+# BitActor Core SPARQL Queries
+# Optimized for 8-tick execution with BitActor bytecode compilation
+# Designed for 80/20 principle: core operations providing maximum value
+
+PREFIX ba: <http://bitactor.org/ontology#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Query 1: Signal Dispatch Resolution (1-2 ticks)
+# Finds appropriate handler for incoming signal based on semantic type
+QUERY signal_dispatch {
+    SELECT ?handler ?hash ?budget WHERE {
+        ?signal a ba:SemanticSignal ;
+                ba:hasType ?signalType ;
+                ba:hasPredicate ?predicate .
+        
+        ?handler a ba:SemanticHandler ;
+                 ba:hasHash ?hash ;
+                 ba:hasTickBudget ?budgetObj .
+        
+        ?budgetObj ba:tickLimit ?budget .
+        
+        # Semantic matching based on predicate
+        ?handler ba:handlesPredicate ?predicate .
+        
+        # Ensure handler can execute within remaining budget
+        FILTER(?budget <= 6)  # Reserve 2 ticks for dispatch overhead
+    }
+    ORDER BY ?budget  # Prefer faster handlers
+    LIMIT 1
+}
+
+# Query 2: Real-time Validation Check (1 tick)
+# Validates signal against SHACL constraints in real-time
+QUERY realtime_validation {
+    ASK WHERE {
+        ?signal a ba:SemanticSignal ;
+                ba:hasId ?id ;
+                ba:hasType ?type ;
+                ba:hasPayload ?payload ;
+                ba:hasTimestamp ?timestamp .
+        
+        # Validate required fields
+        FILTER(bound(?id) && bound(?type) && bound(?payload) && bound(?timestamp))
+        
+        # Validate type range
+        FILTER(?type >= 0 && ?type <= 255)
+        
+        # Validate timestamp is not future
+        FILTER(?timestamp <= NOW())
+    }
+}
+
+# Query 3: Performance Monitoring (1 tick)
+# Tracks execution performance for telemetry
+QUERY performance_monitor {
+    SELECT ?avgTicks ?maxTicks ?budgetViolations WHERE {
+        {
+            SELECT (AVG(?ticks) as ?avgTicks) WHERE {
+                ?result a ba:ExecutionResult ;
+                        ba:actualTicks ?ticks ;
+                        ba:hasTimestamp ?time .
+                FILTER(?time > ?cutoff)  # Last N seconds
+            }
+        }
+        {
+            SELECT (MAX(?ticks) as ?maxTicks) WHERE {
+                ?result a ba:ExecutionResult ;
+                        ba:actualTicks ?ticks ;
+                        ba:hasTimestamp ?time .
+                FILTER(?time > ?cutoff)
+            }
+        }
+        {
+            SELECT (COUNT(*) as ?budgetViolations) WHERE {
+                ?result a ba:ExecutionResult ;
+                        ba:actualTicks ?ticks ;
+                        ba:executionStatus "BUDGET_EXCEEDED" ;
+                        ba:hasTimestamp ?time .
+                FILTER(?time > ?cutoff)
+            }
+        }
+    }
+}
+
+# Query 4: Semantic Context Lookup (1-2 ticks)
+# Retrieves semantic context for signal processing
+QUERY semantic_context {
+    SELECT ?subject ?predicate ?object WHERE {
+        ?signal a ba:SemanticSignal ;
+                ba:hasSemanticContext ?context .
+        
+        ?context a ba:TripleStore .
+        
+        # Get related triples from context
+        GRAPH ?context {
+            ?subject ?predicate ?object .
+        }
+        
+        # Limit to immediate context for performance
+        FILTER(?subject = ?signalSubject || ?object = ?signalSubject)
+    }
+    LIMIT 10  # Constrain result set for 8-tick guarantee
+}
+
+# Query 5: Handler Registration (2 ticks)
+# Registers new semantic handler with dispatch table
+UPDATE handler_registration {
+    INSERT {
+        ?handler a ba:SemanticHandler ;
+                 ba:hasHash ?hash ;
+                 ba:hasTickBudget ?budget ;
+                 ba:handlesPredicate ?predicate ;
+                 ba:vectorizable ?vectorizable .
+    }
+    WHERE {
+        BIND(?handlerUri as ?handler)
+        BIND(?hashValue as ?hash)
+        BIND(?budgetUri as ?budget)
+        BIND(?predicateUri as ?predicate)
+        BIND(?isVectorizable as ?vectorizable)
+    }
+}
+
+# Query 6: Signal Semantic Enrichment (2-3 ticks)
+# Adds semantic metadata to incoming signals
+UPDATE signal_enrichment {
+    INSERT {
+        ?signal a ba:SemanticSignal ;
+                ba:hasSubject ?subject ;
+                ba:hasPredicate ?predicate ;
+                ba:hasObject ?object ;
+                ba:hasSemanticContext ?context .
+    }
+    WHERE {
+        ?signal a ba:Signal ;
+                ba:hasPayload ?payload .
+        
+        # Extract semantic triple from payload
+        # (Implementation-specific payload parsing)
+        BIND(SUBSTR(STR(?payload), 1, 16) as ?subjectBits)
+        BIND(SUBSTR(STR(?payload), 17, 16) as ?predicateBits)
+        BIND(SUBSTR(STR(?payload), 33, 16) as ?objectBits)
+        
+        # Map to semantic resources
+        BIND(IRI(CONCAT("http://bitactor.org/resource/", ?subjectBits)) as ?subject)
+        BIND(IRI(CONCAT("http://bitactor.org/predicate/", ?predicateBits)) as ?predicate)
+        BIND(IRI(CONCAT("http://bitactor.org/resource/", ?objectBits)) as ?object)
+        
+        # Default context
+        BIND(ba:DefaultContext as ?context)
+    }
+}
+
+# Query 7: Query Complexity Estimation (1 tick)
+# Estimates execution complexity for query optimization
+QUERY complexity_estimation {
+    SELECT ?complexity WHERE {
+        ?query a ba:SPARQLQuery ;
+               ba:hasQueryText ?text .
+        
+        # Complexity heuristics based on query structure
+        BIND(
+            (IF(CONTAINS(?text, "OPTIONAL"), 2, 0)) +
+            (IF(CONTAINS(?text, "UNION"), 2, 0)) +
+            (IF(CONTAINS(?text, "FILTER"), 1, 0)) +
+            (IF(CONTAINS(?text, "ORDER BY"), 1, 0)) +
+            (IF(CONTAINS(?text, "GROUP BY"), 2, 0)) +
+            (STRLEN(?text) / 100)  # Base complexity on query length
+            as ?complexity
+        )
+        
+        # Ensure complexity stays within budget
+        FILTER(?complexity <= 8)
+    }
+}
+
+# Query 8: Telemetry Trace Lookup (1 tick)
+# Fast lookup of execution traces for debugging
+QUERY telemetry_trace {
+    SELECT ?traceId ?operation ?ticks ?status WHERE {
+        ?result a ba:ExecutionResult ;
+                ba:hasTraceId ?traceId ;
+                ba:actualTicks ?ticks ;
+                ba:executionStatus ?status ;
+                ba:hasTimestamp ?timestamp .
+        
+        # Get operation from signal
+        ?signal ba:generatedResult ?result ;
+                ba:hasType ?operation .
+        
+        # Recent traces only
+        FILTER(?timestamp > ?startTime)
+    }
+    ORDER BY DESC(?timestamp)
+    LIMIT 50
+}
+
+# Query 9: Memory Pool Status (1 tick)
+# Monitors memory pool utilization
+QUERY memory_status {
+    SELECT ?poolSize ?usedBytes ?freeBytes ?fragmentation WHERE {
+        ?engine a ba:Engine ;
+                ba:hasMemoryPool ?pool .
+        
+        ?pool a ba:MemoryPool ;
+              ba:poolSize ?poolSize ;
+              ba:usedBytes ?usedBytes ;
+              ba:alignmentBytes ?alignment .
+        
+        BIND(?poolSize - ?usedBytes as ?freeBytes)
+        BIND(?usedBytes / ?poolSize as ?fragmentation)
+        
+        # Alert if memory usage > 80%
+        FILTER(?fragmentation <= 0.8)
+    }
+}
+
+# Query 10: SIMD Batch Optimization (2 ticks)
+# Identifies signals that can be processed in SIMD batches
+QUERY simd_batching {
+    SELECT ?handler ?signals WHERE {
+        ?handler a ba:SemanticHandler ;
+                 ba:vectorizable true ;
+                 ba:batchSize ?batchSize .
+        
+        # Find signals suitable for batching
+        {
+            SELECT ?handler (GROUP_CONCAT(?signal) as ?signals) WHERE {
+                ?signal a ba:SemanticSignal ;
+                        ba:hasType ?type .
+                
+                ?handler ba:handlesType ?type .
+                
+                # Ensure we have enough signals for a batch
+                HAVING(COUNT(?signal) >= ?batchSize)
+            }
+            GROUP BY ?handler
+        }
+    }
+}
+
+# Query 11: Hash Collision Detection (1 tick)
+# Detects and resolves handler hash collisions
+QUERY hash_collision_check {
+    ASK WHERE {
+        ?handler1 a ba:Handler ;
+                  ba:hasHash ?hash .
+        
+        ?handler2 a ba:Handler ;
+                  ba:hasHash ?hash .
+        
+        FILTER(?handler1 != ?handler2)
+    }
+}
+
+# Query 12: Knowledge Graph Reasoning (3-4 ticks)
+# Simple reasoning for semantic signal processing
+QUERY knowledge_reasoning {
+    SELECT ?inferredTriple WHERE {
+        ?signal a ba:SemanticSignal ;
+                ba:hasSubject ?subject ;
+                ba:hasPredicate ?predicate ;
+                ba:hasObject ?object .
+        
+        # Simple transitivity reasoning
+        {
+            ?subject ?predicate ?intermediate .
+            ?intermediate ?predicate ?object .
+            BIND(CONCAT(STR(?subject), " ", STR(?predicate), " ", STR(?object)) as ?inferredTriple)
+        }
+        UNION
+        # Subclass reasoning
+        {
+            ?subject rdf:type ?class .
+            ?class rdfs:subClassOf ?superClass .
+            BIND(CONCAT(STR(?subject), " rdf:type ", STR(?superClass)) as ?inferredTriple)
+        }
+    }
+    LIMIT 5  # Constrain for performance
+}
+
+# Query 13: Signal Priority Scheduling (1 tick)
+# Orders signals by priority for processing
+QUERY priority_scheduling {
+    SELECT ?signal ?priority WHERE {
+        ?signal a ba:Signal ;
+                ba:hasPriority ?priority ;
+                ba:hasTimestamp ?timestamp .
+        
+        # Unprocessed signals only
+        MINUS {
+            ?signal ba:hasExecutionResult ?result .
+        }
+    }
+    ORDER BY DESC(?priority) ASC(?timestamp)
+    LIMIT 100
+}
+
+# Query 14: Validation Error Reporting (2 ticks)
+# Reports SHACL validation violations efficiently
+QUERY validation_errors {
+    SELECT ?signal ?violation ?message WHERE {
+        ?signal a ba:ValidationSignal ;
+                ba:hasValidationResult ?result .
+        
+        ?result a ba:ExecutionResult ;
+                ba:validationResult false ;
+                ba:hasViolation ?violation .
+        
+        ?violation ba:violationMessage ?message ;
+                   ba:violationPath ?path .
+    }
+    ORDER BY DESC(?signal)
+    LIMIT 20
+}
+
+# Query 15: Dispatch Table Optimization (2 ticks)
+# Optimizes handler dispatch table for perfect hashing
+UPDATE dispatch_optimization {
+    DELETE {
+        ?handler ba:hasHash ?oldHash .
+    }
+    INSERT {
+        ?handler ba:hasHash ?newHash .
+    }
+    WHERE {
+        ?handler a ba:Handler ;
+                 ba:hasHash ?oldHash ;
+                 ba:handlesPredicate ?predicate .
+        
+        # Calculate optimal hash based on predicate
+        BIND(ABS(HASH(?predicate)) as ?newHash)
+        
+        # Ensure no collisions in new hash space
+        MINUS {
+            ?otherHandler ba:hasHash ?newHash .
+            FILTER(?otherHandler != ?handler)
+        }
+    }
+}
+
+# Query 16: Real-time News Validation (3 ticks)
+# Validates news articles using semantic rules
+QUERY news_validation {
+    SELECT ?article ?credibility ?violations WHERE {
+        ?article a ba:NewsArticle ;
+                 ba:hasSource ?source ;
+                 ba:hasContent ?content ;
+                 ba:hasAuthor ?author .
+        
+        # Calculate credibility score
+        {
+            SELECT ?article (AVG(?score) as ?credibility) WHERE {
+                ?article ba:hasSource ?source .
+                ?source ba:credibilityScore ?score .
+            }
+            GROUP BY ?article
+        }
+        
+        # Count validation violations
+        {
+            SELECT ?article (COUNT(?violation) as ?violations) WHERE {
+                ?article ba:hasValidationResult ?result .
+                ?result ba:hasViolation ?violation .
+            }
+            GROUP BY ?article
+        }
+        
+        # Only high-credibility articles
+        FILTER(?credibility > 0.7)
+    }
+}
+
+# Query 17: Federated SPARQL Execution (4 ticks)
+# Executes federated queries across multiple graphs
+QUERY federated_execution {
+    SELECT ?result WHERE {
+        GRAPH ?graph1 {
+            ?entity1 ?predicate1 ?entity2 .
+        }
+        
+        GRAPH ?graph2 {
+            ?entity2 ?predicate2 ?entity3 .
+        }
+        
+        # Join results from different graphs
+        BIND(CONCAT(STR(?entity1), " -> ", STR(?entity3)) as ?result)
+    }
+    LIMIT 10
+}
+
+# Query 18: Concurrent Signal Processing (2 ticks)
+# Identifies signals that can be processed concurrently
+QUERY concurrent_processing {
+    SELECT ?signal1 ?signal2 WHERE {
+        ?signal1 a ba:SemanticSignal ;
+                 ba:hasSubject ?subject1 .
+        
+        ?signal2 a ba:SemanticSignal ;
+                 ba:hasSubject ?subject2 .
+        
+        # Different subjects = no data dependency
+        FILTER(?subject1 != ?subject2)
+        
+        # Same handler type = can use SIMD
+        ?signal1 ba:hasType ?type .
+        ?signal2 ba:hasType ?type .
+        
+        FILTER(?signal1 != ?signal2)
+    }
+    LIMIT 50
+}
+
+# Query 19: Execution Profiling (1 tick)
+# Profiles handler execution for optimization
+QUERY execution_profiling {
+    SELECT ?handler ?avgTicks ?maxTicks ?callCount WHERE {
+        {
+            SELECT ?handler (AVG(?ticks) as ?avgTicks) (MAX(?ticks) as ?maxTicks) (COUNT(*) as ?callCount) WHERE {
+                ?result a ba:ExecutionResult ;
+                        ba:actualTicks ?ticks ;
+                        ba:executedBy ?handler ;
+                        ba:hasTimestamp ?time .
+                
+                # Recent executions only
+                FILTER(?time > ?recentCutoff)
+            }
+            GROUP BY ?handler
+        }
+        
+        # Focus on frequently called handlers
+        FILTER(?callCount > 10)
+    }
+    ORDER BY DESC(?avgTicks)
+}
+
+# Query 20: System Health Check (1 tick)
+# Quick system health assessment
+QUERY system_health {
+    ASK WHERE {
+        # Check if system is within performance bounds
+        {
+            SELECT (AVG(?ticks) as ?avgTicks) WHERE {
+                ?result a ba:ExecutionResult ;
+                        ba:actualTicks ?ticks ;
+                        ba:hasTimestamp ?time .
+                FILTER(?time > ?healthCheckWindow)
+            }
+            HAVING(?avgTicks <= 6)  # Healthy if avg ≤ 6 ticks
+        }
+        
+        # Check for critical errors
+        MINUS {
+            ?result ba:executionStatus "ERROR" ;
+                    ba:hasTimestamp ?time .
+            FILTER(?time > ?healthCheckWindow)
+        }
+    }
+}

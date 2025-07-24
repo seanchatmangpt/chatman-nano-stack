@@ -130,36 +130,38 @@ module_files = glob.glob('*_bitactor.py')
 if module_files:
     module_name = module_files[0].replace('.py', '')
     exec(f'from {module_name} import *')
-    # Get the class names dynamically
-    for name in dir():
-        if 'BitActor' in name and name != 'BitActor':
-            BitActorClass = eval(name)
-        elif 'Signal' in name and 'Type' not in name and name != 'Signal':
-            SignalClass = eval(name)
-        elif 'SignalType' in name:
-            SignalTypeClass = eval(name)
-
-# Test instantiation
-ba = BitActorClass()
-print("✅ BitActor instantiated")
-
-# Test signal processing
-signal = SignalClass(
-    type=1,  # First signal type
-    flags=0,
-    timestamp=int(time.time() * 1e9),
-    payload=0xDEADBEEF
-)
-
-start = time.perf_counter()
-for i in range(100000):
-    ba.process_signal(signal)
-elapsed = time.perf_counter() - start
-
-stats = ba.get_stats()
-print(f"✅ Processed {stats['signals_processed']} signals")
-print(f"Throughput: {stats['signals_processed']/elapsed:.2f} signals/sec")
-print(f"Avg time: {elapsed/stats['signals_processed']*1e6:.2f} µs/signal")
+    
+    # Get the prefix from module name (everything before _bitactor)
+    prefix = module_name.replace('_bitactor', '')
+    prefix_cap = prefix.title()  # Capitalize first letter
+    
+    # Construct class names
+    BitActorClass = eval(f'{prefix_cap}BitActor')
+    SignalClass = eval(f'{prefix_cap}Signal')
+    
+    # Test instantiation
+    ba = BitActorClass()
+    print("✅ BitActor instantiated")
+    
+    # Test signal processing
+    signal = SignalClass(
+        type=1,  # First signal type
+        flags=0,
+        timestamp=int(time.time() * 1e9),
+        payload=0xDEADBEEF
+    )
+    
+    start = time.perf_counter()
+    for i in range(100000):
+        ba.process_signal(signal)
+    elapsed = time.perf_counter() - start
+    
+    stats = ba.get_stats()
+    print(f"✅ Processed {stats['signals_processed']} signals")
+    print(f"Throughput: {stats['signals_processed']/elapsed:.2f} signals/sec")
+    print(f"Avg time: {elapsed/stats['signals_processed']*1e6:.2f} µs/signal")
+else:
+    print("❌ No BitActor module found")
 '''
             test_script.write_text(test_code)
             

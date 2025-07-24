@@ -20,8 +20,10 @@
               {licenses,["Proprietary"]},
               {links,[{"GitHub","https://github.com/chatmangpt/cns"}]},
               {modules,[bitactor_app,bitactor_benchmark,bitactor_health,
-                        bitactor_nif,bitactor_pool_sup,bitactor_server,
+                        bitactor_nif,bitactor_pool_sup,bitactor_semantic,
+                        bitactor_semantic_test,bitactor_server,
                         bitactor_server_optimized,bitactor_sup,
-                        bitactor_telemetry,bitactor_worker,
-                        quick_optimization_test,quick_test,stress_runner,
-                        uhft_comprehensive_test,uhft_stress_test]}]}.
+                        bitactor_telemetry,bitactor_test_runner,
+                        bitactor_worker,quick_optimization_test,quick_test,
+                        stress_runner,uhft_comprehensive_test,
+                        uhft_stress_test]}]}.

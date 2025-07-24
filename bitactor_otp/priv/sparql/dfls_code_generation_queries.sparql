@@ -1,0 +1,445 @@
+# DFLS SPARQL QUERIES FOR ERLANG/OTP CODE GENERATION
+# Queries to extract semantic information for mass production of DFLS systems
+
+PREFIX dfls: <http://cns.bitactor.io/ontology/dfls#>
+PREFIX otp: <http://cns.bitactor.io/ontology/otp#>
+PREFIX bitactor: <http://cns.bitactor.io/ontology/bitactor#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+# ============================================================================
+# GENSERVER CODE GENERATION QUERIES
+# ============================================================================
+
+# Query 1: Extract GenServer specifications for code generation
+# Returns: GenServer module details with state and quality constraints
+SELECT ?genServer ?module ?label ?comment ?stateType ?qualityTarget ?defectRate
+WHERE {
+    ?genServer a otp:GenServer ;
+               otp:hasModule ?module ;
+               rdfs:label ?label .
+    
+    OPTIONAL { ?genServer rdfs:comment ?comment }
+    OPTIONAL { ?genServer otp:hasState ?state .
+               ?state a ?stateType }
+    OPTIONAL { ?genServer dfls:hasQualityTarget ?qualityTarget .
+               ?qualityTarget dfls:defectRate ?defectRate }
+}
+ORDER BY ?module
+
+# Query 2: Extract GenServer callback functions and their constraints
+# Returns: Callback function specifications with performance requirements
+SELECT ?genServer ?module ?callback ?callbackType ?latencyLimit ?errorRate
+WHERE {
+    ?genServer a otp:GenServer ;
+               otp:hasModule ?module ;
+               otp:hasCallback ?callback .
+    
+    ?callback a ?callbackType .
+    
+    OPTIONAL { ?callback bitactor:messageLatency ?latencyLimit }
+    OPTIONAL { ?callback dfls:errorRate ?errorRate }
+    
+    FILTER(?callbackType IN (otp:HandleCall, otp:HandleCast, otp:HandleInfo, otp:Init, otp:Terminate))
+}
+ORDER BY ?module ?callbackType
+
+# Query 3: Ultra-Fast GenServer specifications with NIF integration
+# Returns: BitActor-optimized GenServer details for high-performance generation
+SELECT ?ultraGenServer ?module ?nifModule ?sourceFile ?latencyTarget ?cpuBudget ?memoryBudget
+WHERE {
+    ?ultraGenServer a bitactor:UltraFastGenServer ;
+                    otp:hasModule ?module ;
+                    bitactor:hasNIFModule ?nifModule ;
+                    bitactor:messageLatency ?latencyTarget .
+    
+    ?nifModule bitactor:hasSourceFile ?sourceFile .
+    
+    OPTIONAL { ?ultraGenServer bitactor:cpuUsage ?cpuBudget }
+    OPTIONAL { ?ultraGenServer bitactor:memoryUsage ?memoryBudget }
+    
+    # Filter for sub-millisecond performance
+    FILTER(?latencyTarget < 0.001)
+}
+ORDER BY ?latencyTarget
+
+# ============================================================================
+# SUPERVISOR CODE GENERATION QUERIES
+# ============================================================================
+
+# Query 4: Extract Supervisor specifications with restart strategies
+# Returns: Complete supervisor configuration for OTP supervision trees
+SELECT ?supervisor ?module ?label ?restartStrategy ?maxRestarts ?maxSeconds ?childCount
+WHERE {
+    ?supervisor a otp:Supervisor ;
+                otp:hasModule ?module ;
+                rdfs:label ?label ;
+                otp:hasRestartStrategy ?restartStrategy .
+    
+    OPTIONAL { ?supervisor otp:maxRestarts ?maxRestarts }
+    OPTIONAL { ?supervisor otp:maxSeconds ?maxSeconds }
+    
+    # Count children
+    {
+        SELECT ?supervisor (COUNT(?child) AS ?childCount)
+        WHERE {
+            ?supervisor otp:hasChildSpec ?child .
+        }
+        GROUP BY ?supervisor
+    }
+}
+ORDER BY ?module
+
+# Query 5: Extract Child Specifications with quality constraints
+# Returns: Child process specifications with DFLS quality requirements
+SELECT ?childSpec ?childId ?module ?restartType ?shutdownTimeout ?workType ?qualityGate
+WHERE {
+    ?supervisor otp:hasChildSpec ?childSpec .
+    
+    ?childSpec otp:childId ?childId ;
+               otp:module ?module ;
+               otp:restartType ?restartType ;
+               otp:shutdownTimeout ?shutdownTimeout .
+    
+    OPTIONAL { ?childSpec otp:workType ?workType }
+    OPTIONAL { ?childSpec dfls:hasQualityGate ?qualityGate }
+    
+    # Ensure shutdown timeout meets DFLS requirements (<30 seconds)
+    FILTER(?shutdownTimeout <= 30000)
+}
+ORDER BY ?childId
+
+# Query 6: Extract Supervision Tree with Quality Gates
+# Returns: Complete supervision hierarchy with embedded quality controls
+SELECT ?supervisor ?level ?child ?childModule ?qualityCheck ?checkType ?threshold
+WHERE {
+    ?supervisor a otp:Supervisor .
+    
+    # Recursive supervision tree traversal
+    ?supervisor otp:hasChildSpec* ?childSpec .
+    ?childSpec otp:module ?child ;
+               otp:supervisorLevel ?level .
+    
+    OPTIONAL { ?childSpec otp:module ?childModule }
+    OPTIONAL { ?childSpec dfls:hasQualityCheck ?qualityCheck .
+               ?qualityCheck a ?checkType ;
+                           dfls:threshold ?threshold }
+}
+ORDER BY ?level ?child
+
+# ============================================================================
+# QUALITY CONTROL QUERIES
+# ============================================================================
+
+# Query 7: Extract Six Sigma Quality Metrics for code generation
+# Returns: Quality targets and control limits for generated monitoring code
+SELECT ?system ?qualityMetric ?defectRate ?controlChart ?ucl ?lcl ?targetValue
+WHERE {
+    ?system a dfls:DFLSSystem ;
+            dfls:hasQualityTarget ?qualityMetric .
+    
+    ?qualityMetric dfls:defectRate ?defectRate .
+    
+    OPTIONAL { ?qualityMetric dfls:hasControlChart ?controlChart .
+               ?controlChart dfls:upperControlLimit ?ucl ;
+                           dfls:lowerControlLimit ?lcl ;
+                           dfls:targetValue ?targetValue }
+    
+    # Ensure Six Sigma compliance
+    FILTER(?defectRate <= 0.00034)
+}
+ORDER BY ?defectRate
+
+# Query 8: Extract FMEA Risk Analysis for error handling generation
+# Returns: Failure modes and mitigation strategies for robust code generation
+SELECT ?fmea ?failureMode ?severity ?occurrence ?detection ?rpn ?mitigation ?mitigationCode
+WHERE {
+    ?component dfls:hasFMEA ?fmea .
+    
+    ?fmea dfls:failureMode ?failureMode ;
+          dfls:severity ?severity ;
+          dfls:occurrence ?occurrence ;
+          dfls:detection ?detection ;
+          dfls:riskPriorityNumber ?rpn .
+    
+    OPTIONAL { ?fmea dfls:mitigation ?mitigation }
+    OPTIONAL { ?fmea dfls:mitigationCode ?mitigationCode }
+    
+    # Focus on high-risk items (RPN > 50)
+    FILTER(?rpn > 50)
+}
+ORDER BY DESC(?rpn)
+
+# Query 9: Extract Lean Process Metrics for optimization
+# Returns: Waste reduction targets and process efficiency requirements
+SELECT ?process ?processName ?wastePercentage ?cycleTime ?throughput ?efficiencyTarget
+WHERE {
+    ?process a dfls:LeanProcess ;
+             rdfs:label ?processName ;
+             dfls:wastePercentage ?wastePercentage .
+    
+    OPTIONAL { ?process dfls:cycleTime ?cycleTime }
+    OPTIONAL { ?process dfls:throughput ?throughput }
+    OPTIONAL { ?process dfls:efficiencyTarget ?efficiencyTarget }
+    
+    # Lean compliance check (<10% waste)
+    FILTER(?wastePercentage <= 0.1)
+}
+ORDER BY ?wastePercentage
+
+# ============================================================================
+# PERFORMANCE OPTIMIZATION QUERIES
+# ============================================================================
+
+# Query 10: Extract Performance Budget Constraints
+# Returns: System-wide performance requirements for optimization
+SELECT ?system ?component ?latencyBudget ?cpuBudget ?memoryBudget ?throughputTarget
+WHERE {
+    ?system a dfls:DFLSSystem ;
+            dfls:hasComponent ?component .
+    
+    ?component bitactor:messageLatency ?latencyBudget ;
+               bitactor:cpuUsage ?cpuBudget ;
+               bitactor:memoryUsage ?memoryBudget .
+    
+    OPTIONAL { ?component dfls:throughputTarget ?throughputTarget }
+    
+    # Ultra-high performance requirements
+    FILTER(?latencyBudget < 0.001)  # <1ms
+    FILTER(?cpuBudget < 0.8)        # <80% CPU
+    FILTER(?memoryBudget < 0.9)     # <90% memory
+}
+ORDER BY ?latencyBudget
+
+# Query 11: Extract Memory Pool Configurations
+# Returns: BitActor memory pool settings for zero-waste allocation
+SELECT ?memoryPool ?poolSize ?blockSize ?alignmentBytes ?efficiencyTarget ?fragmentationLimit
+WHERE {
+    ?component bitactor:hasMemoryPool ?memoryPool .
+    
+    ?memoryPool bitactor:allocationEfficiency ?efficiencyTarget ;
+                bitactor:poolSize ?poolSize ;
+                bitactor:blockSize ?blockSize ;
+                bitactor:alignmentBytes ?alignmentBytes .
+    
+    OPTIONAL { ?memoryPool bitactor:fragmentation ?fragmentationLimit }
+    
+    # Lean memory management (>95% efficiency)
+    FILTER(?efficiencyTarget >= 0.95)
+}
+ORDER BY DESC(?efficiencyTarget)
+
+# ============================================================================
+# CODE TEMPLATE SELECTION QUERIES
+# ============================================================================
+
+# Query 12: Select appropriate Jinja templates for code generation
+# Returns: Template mappings based on component types and requirements
+SELECT ?component ?componentType ?templateType ?templatePath ?optimizationLevel
+WHERE {
+    ?component a ?componentType .
+    
+    # Template mapping rules
+    VALUES (?componentType ?templateType) {
+        (otp:GenServer dfls:GenServerTemplate)
+        (otp:Supervisor dfls:SupervisorTemplate)
+        (bitactor:UltraFastGenServer dfls:UltraGenServerTemplate)
+        (bitactor:NIFModule dfls:NIFTemplate)
+    }
+    
+    OPTIONAL { ?templateType dfls:templatePath ?templatePath }
+    OPTIONAL { ?templateType dfls:optimizationLevel ?optimizationLevel }
+}
+ORDER BY ?componentType
+
+# Query 13: Extract Template Variables and Parameters
+# Returns: Dynamic parameters for Jinja template rendering
+SELECT ?template ?variable ?variableType ?defaultValue ?description ?isRequired
+WHERE {
+    ?template a dfls:JinjaTemplate ;
+              dfls:hasVariable ?variable .
+    
+    ?variable dfls:variableType ?variableType ;
+              dfls:defaultValue ?defaultValue ;
+              rdfs:comment ?description ;
+              dfls:required ?isRequired .
+}
+ORDER BY ?template ?variable
+
+# ============================================================================
+# WORKFLOW ORCHESTRATION QUERIES
+# ============================================================================
+
+# Query 14: Extract Production Workflow Steps
+# Returns: Complete workflow pipeline for mass production
+SELECT ?workflow ?step ?stepOrder ?inputType ?outputType ?qualityGate ?duration
+WHERE {
+    ?workflow a dfls:ProductionWorkflow ;
+              dfls:hasStep ?step .
+    
+    ?step dfls:stepOrder ?stepOrder ;
+          dfls:inputType ?inputType ;
+          dfls:outputType ?outputType .
+    
+    OPTIONAL { ?step dfls:hasQualityGate ?qualityGate }
+    OPTIONAL { ?step dfls:estimatedDuration ?duration }
+}
+ORDER BY ?stepOrder
+
+# Query 15: Extract Batch Processing Requirements
+# Returns: Batch processing configuration for mass production
+SELECT ?batchProcess ?batchSize ?concurrencyLevel ?qualityThreshold ?throughputTarget
+WHERE {
+    ?workflow dfls:hasBatchProcess ?batchProcess .
+    
+    ?batchProcess dfls:batchSize ?batchSize ;
+                  dfls:concurrencyLevel ?concurrencyLevel ;
+                  dfls:qualityThreshold ?qualityThreshold .
+    
+    OPTIONAL { ?batchProcess dfls:throughputTarget ?throughputTarget }
+    
+    # Optimize for high-throughput batch processing
+    FILTER(?batchSize >= 100)
+    FILTER(?concurrencyLevel >= 4)
+}
+ORDER BY DESC(?throughputTarget)
+
+# ============================================================================
+# INTEGRATION AND DEPENDENCY QUERIES
+# ============================================================================
+
+# Query 16: Extract Component Dependencies for Build Order
+# Returns: Dependency graph for proper compilation sequence
+SELECT ?component ?dependsOn ?dependencyType ?buildOrder ?criticalPath
+WHERE {
+    ?component dfls:dependsOn ?dependsOn .
+    
+    OPTIONAL { ?component dfls:dependencyType ?dependencyType }
+    OPTIONAL { ?component dfls:buildOrder ?buildOrder }
+    OPTIONAL { ?component dfls:criticalPath ?criticalPath }
+}
+ORDER BY ?buildOrder
+
+# Query 17: Extract Integration Points with Existing CNS Infrastructure
+# Returns: Integration configuration with BitActor and existing systems
+SELECT ?component ?integrationPoint ?cnsModule ?cnsFunction ?optimizationLevel
+WHERE {
+    ?component dfls:integratesWith ?cnsModule .
+    
+    ?cnsModule dfls:integrationPoint ?integrationPoint ;
+               dfls:cnsFunction ?cnsFunction .
+    
+    OPTIONAL { ?cnsModule dfls:optimizationLevel ?optimizationLevel }
+    
+    # Focus on high-performance integration points
+    FILTER(?optimizationLevel IN ("ultra-fast", "high-performance"))
+}
+ORDER BY ?optimizationLevel ?component
+
+# ============================================================================
+# QUALITY ASSURANCE AND TESTING QUERIES
+# ============================================================================
+
+# Query 18: Extract Test Requirements for Generated Code
+# Returns: Test specifications and coverage requirements
+SELECT ?component ?testType ?coverageTarget ?performanceTest ?loadTest ?faultTest
+WHERE {
+    ?component dfls:hasTest ?test .
+    
+    ?test a ?testType ;
+          dfls:coverageTarget ?coverageTarget .
+    
+    OPTIONAL { ?test dfls:performanceTest ?performanceTest }
+    OPTIONAL { ?test dfls:loadTest ?loadTest }
+    OPTIONAL { ?test dfls:faultTest ?faultTest }
+    
+    # Ensure high test coverage for quality
+    FILTER(?coverageTarget >= 0.90)  # >90% coverage
+}
+ORDER BY DESC(?coverageTarget)
+
+# Query 19: Extract Continuous Integration Pipeline Requirements
+# Returns: CI/CD pipeline configuration for automated quality assurance
+SELECT ?pipeline ?stage ?stageOrder ?qualityGate ?passThreshold ?toolchain
+WHERE {
+    ?system dfls:hasCIPipeline ?pipeline .
+    
+    ?pipeline dfls:hasStage ?stage .
+    ?stage dfls:stageOrder ?stageOrder ;
+           dfls:qualityGate ?qualityGate ;
+           dfls:passThreshold ?passThreshold .
+    
+    OPTIONAL { ?stage dfls:toolchain ?toolchain }
+}
+ORDER BY ?stageOrder
+
+# ============================================================================
+# MONITORING AND OBSERVABILITY QUERIES
+# ============================================================================
+
+# Query 20: Extract Monitoring and Observability Requirements
+# Returns: Real-time monitoring configuration for operational excellence
+SELECT ?system ?metric ?metricType ?alertThreshold ?dashboardConfig ?slaTarget
+WHERE {
+    ?system a dfls:DFLSSystem ;
+            dfls:hasMonitoring ?monitoring .
+    
+    ?monitoring dfls:hasMetric ?metric .
+    ?metric a ?metricType ;
+            dfls:alertThreshold ?alertThreshold .
+    
+    OPTIONAL { ?metric dfls:dashboardConfig ?dashboardConfig }
+    OPTIONAL { ?metric dfls:slaTarget ?slaTarget }
+    
+    # Focus on critical performance metrics
+    FILTER(?metricType IN (dfls:LatencyMetric, dfls:ThroughputMetric, dfls:ErrorRateMetric))
+}
+ORDER BY ?metricType ?alertThreshold
+
+# ============================================================================
+# DEPLOYMENT AND SCALING QUERIES
+# ============================================================================
+
+# Query 21: Extract Deployment Configuration
+# Returns: Production deployment settings and scaling parameters
+SELECT ?system ?deploymentTarget ?scalingPolicy ?resourceLimits ?replicationFactor
+WHERE {
+    ?system dfls:hasDeployment ?deployment .
+    
+    ?deployment dfls:deploymentTarget ?deploymentTarget ;
+                dfls:scalingPolicy ?scalingPolicy ;
+                dfls:resourceLimits ?resourceLimits .
+    
+    OPTIONAL { ?deployment dfls:replicationFactor ?replicationFactor }
+    
+    # Production-ready deployments only
+    FILTER(?deploymentTarget = "production")
+}
+ORDER BY ?system
+
+# ============================================================================
+# MASS PRODUCTION OPTIMIZATION QUERIES
+# ============================================================================
+
+# Query 22: Extract Mass Production Optimization Patterns
+# Returns: Patterns and optimizations for scaling code generation
+SELECT ?pattern ?patternType ?optimizationGain ?applicabilityScore ?implementationCost
+WHERE {
+    ?component dfls:hasOptimizationPattern ?pattern .
+    
+    ?pattern a ?patternType ;
+             dfls:optimizationGain ?optimizationGain ;
+             dfls:applicabilityScore ?applicabilityScore ;
+             dfls:implementationCost ?implementationCost .
+    
+    # High-value optimizations (high gain, low cost)
+    BIND(?optimizationGain / ?implementationCost AS ?valueRatio)
+    FILTER(?valueRatio > 2.0)  # 2:1 benefit-cost ratio minimum
+}
+ORDER BY DESC(?valueRatio)
+
+# ============================================================================
+# END OF SPARQL QUERIES
+# ============================================================================
