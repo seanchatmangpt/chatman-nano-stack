@@ -196,3 +196,5 @@ v8/temp/*.dump
 *.db
 .swarm/
 .jinja_cache/
+*.gcda
+*.gcno
