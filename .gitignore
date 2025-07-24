@@ -193,3 +193,6 @@ yarn-error.log*
 v8/generated/
 v8/cache/
 v8/temp/*.dump
+*.db
+.swarm/
+.jinja_cache/
