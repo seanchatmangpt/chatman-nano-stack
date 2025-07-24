@@ -1,0 +1,85 @@
+# Production BitActor Makefile
+# Compiles and tests the real BitActor implementation
+
+CC = gcc
+CFLAGS = -Wall -Wextra -O3 -std=c99 -march=native -fno-omit-frame-pointer
+LDFLAGS = -lpthread
+
+# Source directories
+BITACTOR_SRC = bitactor/src
+BITACTOR_INC = bitactor/include
+TEST_DIR = tests
+
+# Source files
+BITACTOR_SOURCES = \
+	$(BITACTOR_SRC)/bitactor.c \
+	$(BITACTOR_SRC)/bitfiber.c \
+	$(BITACTOR_SRC)/bitactor_dispatch.c \
+	$(BITACTOR_SRC)/bitactor_telemetry.c
+
+# Object files
+BITACTOR_OBJECTS = $(BITACTOR_SOURCES:.c=.o)
+
+# Test executable
+STRESS_TEST = test_production_bitactor_stress
+
+# Include paths
+INCLUDES = -I$(BITACTOR_INC)
+
+.PHONY: all clean test stress production
+
+# Default target
+all: production test
+
+# Production BitActor library
+production: $(BITACTOR_OBJECTS)
+	@echo "✅ Production BitActor system compiled successfully"
+
+# Compile object files
+%.o: %.c
+	@echo "🔨 Compiling $<..."
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Build stress test
+$(STRESS_TEST): $(BITACTOR_OBJECTS) $(TEST_DIR)/test_production_bitactor_stress.c
+	@echo "🔨 Building stress test..."
+	$(CC) $(CFLAGS) $(INCLUDES) -o $(STRESS_TEST) \
+		$(BITACTOR_OBJECTS) \
+		$(TEST_DIR)/test_production_bitactor_stress.c \
+		$(LDFLAGS)
+
+# Run stress test
+test: $(STRESS_TEST)
+	@echo "🚀 Running Production BitActor Stress Test..."
+	./$(STRESS_TEST)
+
+# Run stress test with timing
+stress: $(STRESS_TEST)
+	@echo "⚡ Running Production BitActor Stress Test with timing..."
+	time ./$(STRESS_TEST)
+
+# Validate 8-tick constraints with perf
+validate: $(STRESS_TEST)
+	@echo "🎯 Validating 8-tick constraints with performance monitoring..."
+	@if command -v perf >/dev/null 2>&1; then \
+		perf stat -e cycles,instructions ./$(STRESS_TEST); \
+	else \
+		echo "⚠️  perf not available, running basic timing test..."; \
+		time ./$(STRESS_TEST); \
+	fi
+
+# Clean build artifacts
+clean:
+	@echo "🧹 Cleaning build artifacts..."
+	rm -f $(BITACTOR_OBJECTS) $(STRESS_TEST)
+	@echo "✅ Clean complete"
+
+# Show build info
+info:
+	@echo "📋 Production BitActor Build Information"
+	@echo "======================================="
+	@echo "Compiler: $(CC)"
+	@echo "Flags: $(CFLAGS)"
+	@echo "Sources: $(BITACTOR_SOURCES)"
+	@echo "Test: $(STRESS_TEST)"
+	@echo "======================================="

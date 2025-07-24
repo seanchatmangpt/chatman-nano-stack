@@ -13,6 +13,8 @@
 #define BITACTOR_TICK_BUDGET 8
 #define BITACTOR_MAX_FIBERS 256
 #define BITACTOR_DISPATCH_SIZE 256
+#define BITACTOR_MAX_SIGNALS 1024
+#define BITACTOR_SCRATCH_SIZE 2048
 
 /* Status codes */
 typedef enum {
@@ -49,6 +51,7 @@ typedef struct result {
     uint32_t exec_hash;
     uint64_t result;
     uint8_t flags;
+    uint32_t fiber_id;
 } result_t;
 
 /* Forward declarations */
@@ -61,13 +64,18 @@ typedef struct telemetry_ring telemetry_ring_t;
 typedef result_t (*bitactor_handler_fn)(signal_t* signal, void* context);
 
 /* Engine management */
-bitactor_engine_t* bitactor_engine_create(void);
-void bitactor_engine_destroy(bitactor_engine_t* engine);
+bitactor_engine_t* bitactor_init(void);
+void bitactor_destroy(bitactor_engine_t* engine);
 int bitactor_register(bitactor_engine_t* engine, uint8_t signal_kind, 
                      bitactor_handler_fn handler);
 
 /* Signal processing */
-result_t bitactor_process_signal(bitactor_engine_t* engine, signal_t* signal);
+result_t bitactor_tick(bitactor_engine_t* engine, signal_t* signal);
+bool bitactor_enqueue(bitactor_engine_t* engine, signal_t* signal);
+uint32_t bitactor_drain(bitactor_engine_t* engine, uint32_t max_signals);
+uint32_t bitactor_pending_count(const bitactor_engine_t* engine);
+bool bitactor_is_ready(const bitactor_engine_t* engine);
+void bitactor_stats(const bitactor_engine_t* engine, void* stats_out);
 
 /* Zero-tick optimization functions */
 bool bitactor_signal_is_zero_tick(const signal_t* signal);
@@ -85,16 +93,27 @@ static inline uint32_t bitactor_max(uint32_t a, uint32_t b) {
 /* Portable cycle counter */
 #ifdef __x86_64__
 #include <x86intrin.h>
+static inline uint64_t bitactor_rdtsc(void) {
+    return __rdtsc();
+}
 static inline uint64_t bitactor_get_cycles(void) {
     return __rdtsc();
 }
 #elif defined(__aarch64__)
+static inline uint64_t bitactor_rdtsc(void) {
+    uint64_t val;
+    __asm__ volatile("mrs %0, cntvct_el0" : "=r" (val));
+    return val;
+}
 static inline uint64_t bitactor_get_cycles(void) {
     uint64_t val;
     __asm__ volatile("mrs %0, cntvct_el0" : "=r" (val));
     return val;
 }
 #else
+static inline uint64_t bitactor_rdtsc(void) {
+    return 0;
+}
 static inline uint64_t bitactor_get_cycles(void) {
     return 0;
 }

@@ -4,6 +4,7 @@
  */
 #include "../include/bitactor/bitactor_telemetry.h"
 #include <string.h>
+#include <stdio.h>
 
 /* Blake3-like hash for trace integrity (simplified) */
 static uint32_t trace_hash(const uint8_t* data, size_t len) {
@@ -28,6 +29,14 @@ void telemetry_init(telemetry_ring_t* ring) {
     ring->write_idx = 0;
     ring->read_idx = 0;
     ring->total_frames = 0;
+    ring->enabled = false;
+}
+
+/* Enable telemetry recording */
+void telemetry_enable(telemetry_ring_t* ring) {
+    if (ring) {
+        ring->enabled = true;
+    }
 }
 
 /* Zero-tick telemetry metrics */
@@ -207,4 +216,35 @@ bool telemetry_verify(const telemetry_frame_t* frame) {
     
     /* Hash difference must be < 0x1000 as per spec */
     return diff < 0x1000;
+}
+
+/* Get last recorded frame */
+telemetry_frame_t* telemetry_get_last_frame(telemetry_ring_t* ring) {
+    if (!ring || ring->total_frames == 0) {
+        return NULL;
+    }
+    
+    uint32_t last_idx = (ring->write_idx - 1 + TELEMETRY_RING_SIZE) % TELEMETRY_RING_SIZE;
+    return &ring->frames[last_idx];
+}
+
+/* Get frame by index */
+telemetry_frame_t* telemetry_get_frame(telemetry_ring_t* ring, uint32_t index) {
+    if (!ring || index >= ring->total_frames || index >= TELEMETRY_RING_SIZE) {
+        return NULL;
+    }
+    
+    uint32_t frame_idx = (ring->read_idx + index) % TELEMETRY_RING_SIZE;
+    return &ring->frames[frame_idx];
+}
+
+/* Get telemetry from engine */
+telemetry_ring_t* bitactor_get_telemetry(bitactor_engine_t* engine) {
+    if (!engine) {
+        return NULL;
+    }
+    
+    /* This would return a pointer to the engine's telemetry system */
+    /* For now, return NULL as the engine structure is opaque */
+    return NULL;
 }

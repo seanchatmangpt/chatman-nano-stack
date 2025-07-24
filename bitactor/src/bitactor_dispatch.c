@@ -76,7 +76,7 @@ void dispatch_init(dispatch_table_t* table) {
 }
 
 /* Check if signal is zero-tick eligible */
-static inline bool signal_is_zero_tick_candidate(const signal_t* signal) {
+bool signal_is_zero_tick_candidate(const signal_t* signal) {
     return signal->type == 0xFF ||           // Heartbeat
            (signal->payload & 0xFF) == 0 ||  // Zero confidence
            (signal->flags & 0x80) != 0;      // Test signal

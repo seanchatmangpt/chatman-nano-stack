@@ -14,4 +14,5 @@
               {links,[{"GitHub","https://github.com/chatmangpt/cns"}]},
               {modules,[bitactor_app,bitactor_benchmark,bitactor_health,
                         bitactor_nif,bitactor_pool_sup,bitactor_server,
-                        bitactor_sup,bitactor_telemetry,bitactor_worker]}]}.
+                        bitactor_sup,bitactor_telemetry,bitactor_worker,
+                        quick_test,stress_runner]}]}.

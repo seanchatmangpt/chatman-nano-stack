@@ -61,7 +61,7 @@ init([]) ->
     %% Schedule first health check
     erlang:send_after(5000, self(), health_check),
     
-    error_logger:info("BitActor health monitor started"),
+    error_logger:info_msg("BitActor health monitor started"),
     {ok, State}.
 
 -spec handle_call(term(), {pid(), term()}, #state{}) ->
@@ -95,7 +95,7 @@ handle_info(_Info, State) ->
 
 -spec terminate(term(), #state{}) -> ok.
 terminate(Reason, _State) ->
-    error_logger:info("BitActor health monitor terminating: ~p", [Reason]),
+    error_logger:info_msg("BitActor health monitor terminating: ~p", [Reason]),
     ok.
 
 -spec code_change(term(), #state{}, term()) -> {ok, #state{}}.

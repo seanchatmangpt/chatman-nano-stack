@@ -79,7 +79,7 @@ init([]) ->
         start_time = erlang:system_time(millisecond)
     },
     
-    error_logger:info("BitActor telemetry handler started"),
+    error_logger:info_msg("BitActor telemetry handler started"),
     {ok, State}.
 
 -spec handle_call(term(), {pid(), term()}, #state{}) ->
@@ -131,7 +131,7 @@ handle_info(_Info, State) ->
 
 -spec terminate(term(), #state{}) -> ok.
 terminate(Reason, _State) ->
-    error_logger:info("BitActor telemetry handler terminating: ~p", [Reason]),
+    error_logger:info_msg("BitActor telemetry handler terminating: ~p", [Reason]),
     ok.
 
 -spec code_change(term(), #state{}, term()) -> {ok, #state{}}.

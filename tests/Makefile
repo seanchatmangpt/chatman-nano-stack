@@ -10,7 +10,7 @@ USE_REAL_IMPL ?= 1
 MOCK_TESTS = test_cns_pipeline_bdd test_tick_parallel_bdd test_news_validator_bdd test_sparql_parser_bdd test_generated_uhft_bdd test_bitactor_core_extended_bdd test_sparql_complete_bdd test_uhft_comprehensive_bdd test_bitactor_advanced_bdd test_algorithms_8tick_bdd test_benchmarks_validation_bdd
 
 # Real implementation tests (primary)
-REAL_TESTS = test_bitactor_core_real_bdd test_bitactor_integration_real_bdd test_sparql_real_bdd test_news_validator_real_bdd test_bitfiber_real_bdd test_cns_integration_real_bdd
+REAL_TESTS = test_bitactor_core_real_bdd test_bitactor_integration_real_bdd test_sparql_real_bdd test_news_validator_real_bdd test_bitfiber_real_bdd test_cns_integration_real_bdd test_bitactor_chaos_bdd test_cns_system_integration_complete
 
 # All tests
 BDD_TESTS = $(REAL_TESTS) $(MOCK_TESTS)
@@ -73,7 +73,7 @@ test_benchmarks_validation_bdd: test_benchmarks_validation_bdd.c
 
 # Real implementation tests
 test_bitactor_core_real_bdd: test_bitactor_core_real_bdd.c
-	$(CC) $(CFLAGS) -o $@ $< -DUSE_REAL_IMPLEMENTATIONS -I../bitactor/src -I../bitactor/include
+	$(CC) $(CFLAGS) -o $@ $< ../bitactor/src/bitactor.c ../bitactor/src/bitactor_dispatch.c ../bitactor/src/bitactor_telemetry.c -DUSE_REAL_IMPLEMENTATIONS -I../bitactor/src -I../bitactor/include -lpthread
 
 test_bitactor_integration_real_bdd: test_bitactor_integration_real_bdd.c
 	$(CC) $(CFLAGS) -o $@ $< -DUSE_REAL_IMPLEMENTATIONS -I../bitactor/integration -I../bitactor/src
@@ -81,14 +81,23 @@ test_bitactor_integration_real_bdd: test_bitactor_integration_real_bdd.c
 test_sparql_real_bdd: test_sparql_real_bdd.c
 	$(CC) $(CFLAGS) -o $@ $< -DUSE_REAL_IMPLEMENTATIONS -I../src/sparql
 
+# News validator real test (link actual implementation)
 test_news_validator_real_bdd: test_news_validator_real_bdd.c
-	$(CC) $(CFLAGS) -o $@ $< -DUSE_REAL_IMPLEMENTATIONS -I../src/news
+	$(CC) $(CFLAGS) -o $@ $< ../bitactor/src/news_validation_real_10ns.c ../src/news/news_validator.c -DUSE_REAL_IMPLEMENTATIONS -I../src/news -I../bitactor/include -lpthread
 
 test_bitfiber_real_bdd: test_bitfiber_real_bdd.c
 	$(CC) $(CFLAGS) -o $@ $< -DUSE_REAL_IMPLEMENTATIONS -I../bitactor/src
 
 test_cns_integration_real_bdd: test_cns_integration_real_bdd.c
 	$(CC) $(CFLAGS) -o $@ $< -DUSE_REAL_IMPLEMENTATIONS -I../bitactor/integration -I../src/sparql -I../src/news
+
+# Chaos engineering test - include all required source files
+test_bitactor_chaos_bdd: test_bitactor_chaos_bdd.c
+	$(CC) $(CFLAGS) -o $@ $< ../bitactor/src/bitactor.c ../bitactor/src/bitactor_dispatch.c ../bitactor/src/bitactor_telemetry.c ../src/cns/bitfiber.c -DUSE_REAL_IMPLEMENTATIONS -I../bitactor/src -I../bitactor/include -I../src/cns -lpthread
+
+# Complete system integration test - Available subsystems (BitActor core + telemetry + fiber)
+test_cns_system_integration_complete: test_cns_system_integration_complete.c
+	$(CC) $(CFLAGS) -o $@ $< ../bitactor/src/bitactor.c ../bitactor/src/bitactor_dispatch.c ../bitactor/src/bitactor_telemetry.c ../bitactor/src/bitfiber.c -DUSE_REAL_IMPLEMENTATIONS -I../bitactor/src -I../bitactor/include -lpthread
 
 # Run all BDD tests
 test-bdd: $(BDD_TESTS)

@@ -30,12 +30,16 @@ struct telemetry_frame {
     uint8_t ticks_used;
     uint64_t timestamp;
     uint64_t result_payload;
+    uint8_t status;
+    uint8_t flags;
     uint8_t trace_ops[TRACE_OPS_SIZE];
 };
 
 /* Telemetry ring structure */
 struct telemetry_ring {
-    uint32_t write_index;
+    uint32_t write_idx;
+    uint32_t read_idx;
+    uint32_t total_frames;
     bool enabled;
     struct telemetry_frame frames[TELEMETRY_RING_SIZE];
 };

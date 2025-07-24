@@ -36,7 +36,7 @@ start_link() ->
 stop() ->
     gen_server:stop(?SERVER).
 
--spec spawn_actor(atom(), term()) -> {ok, reference()} | {error, term()}.
+-spec spawn_actor(atom(), term()) -> {ok, reference(), non_neg_integer()} | {error, term()}.
 spawn_actor(Type, InitData) ->
     gen_server:call(?SERVER, {spawn_actor, Type, InitData}).
 
@@ -87,26 +87,26 @@ init([]) ->
         nif_loaded = NIFLoaded
     },
     
-    error_logger:info("BitActor server initialized with NIF loaded: ~p", [NIFLoaded]),
+    error_logger:info_msg("BitActor server initialized with NIF loaded: ~p", [NIFLoaded]),
     {ok, State}.
 
 -spec handle_call(term(), {pid(), term()}, #state{}) -> 
     {reply, term(), #state{}} | {noreply, #state{}} | {stop, term(), term(), #state{}}.
 handle_call({spawn_actor, Type, InitData}, _From, State) ->
     case spawn_actor_internal(Type, InitData, State) of
-        {ok, ActorRef, NewState} ->
-            %% Telemetry
-            telemetry:execute([bitactor, actor, spawn], #{count => 1}, #{type => Type}),
-            {reply, {ok, ActorRef}, NewState};
+        {ok, ActorRef, LatencyNs, NewState} ->
+            %% Telemetry (with fallback for missing telemetry)
+            catch telemetry:execute([bitactor, actor, spawn], #{count => 1}, #{type => Type}),
+            {reply, {ok, ActorRef, LatencyNs}, NewState};
         {error, Reason, NewState} ->
-            error_logger:error("Failed to spawn actor ~p: ~p", [Type, Reason]),
+            error_logger:error_msg("Failed to spawn actor ~p: ~p", [Type, Reason]),
             {reply, {error, Reason}, NewState}
     end;
 
 handle_call({kill_actor, ActorRef}, _From, State) ->
     case kill_actor_internal(ActorRef, State) of
         {ok, NewState} ->
-            telemetry:execute([bitactor, actor, kill], #{count => 1}, #{}),
+            catch telemetry:execute([bitactor, actor, kill], #{count => 1}, #{}),
             {reply, ok, NewState};
         {error, not_found} ->
             {reply, {error, not_found}, State}
@@ -126,10 +126,10 @@ handle_call(_Request, _From, State) ->
 handle_cast({send_message, ActorRef, Message}, State) ->
     case send_message_internal(ActorRef, Message, State) of
         {ok, NewState} ->
-            telemetry:execute([bitactor, actor, message], #{count => 1}, #{}),
+            catch telemetry:execute([bitactor, actor, message], #{count => 1}, #{}),
             {noreply, NewState};
         {error, Reason} ->
-            error_logger:warning("Failed to send message to ~p: ~p", [ActorRef, Reason]),
+            error_logger:warning_msg("Failed to send message to ~p: ~p", [ActorRef, Reason]),
             {noreply, State}
     end;
 
@@ -155,7 +155,7 @@ handle_info(_Info, State) ->
 
 -spec terminate(term(), #state{}) -> ok.
 terminate(Reason, State) ->
-    error_logger:info("BitActor server terminating: ~p", [Reason]),
+    error_logger:info_msg("BitActor server terminating: ~p", [Reason]),
     
     %% Cancel tick timer
     case State#state.tick_ref of
@@ -198,12 +198,13 @@ spawn_actor_internal(Type, InitData, State) ->
             try
                 ActorRef = make_ref(),
                 %% Call C NIF to create actor
-                case bitactor_nif:create_actor(Type, InitData) of
+                TypeInt = erlang:phash2(Type), % Convert atom to integer
+                case bitactor_nif:create_actor(TypeInt, InitData) of
                     {ok, ActorHandle, LatencyNs} ->
                         Actors = maps:put(ActorRef, ActorHandle, State#state.actors),
                         Stats = increment_stat(actors_spawned, State#state.stats),
                         NewState = State#state{actors = Actors, stats = Stats},
-                        {ok, ActorRef, NewState};
+                        {ok, ActorRef, LatencyNs, NewState};
                     {error, Reason} ->
                         {error, Reason, State}
                 end
@@ -219,20 +220,16 @@ spawn_actor_internal(Type, InitData, State) ->
             Actors = maps:put(ActorRef, {Type, InitData}, State#state.actors),
             Stats = increment_stat(actors_spawned, State#state.stats),
             NewState = State#state{actors = Actors, stats = Stats},
-            {ok, ActorRef, NewState}
+            FallbackLatency = 500000, % 500 microseconds fallback
+            {ok, ActorRef, FallbackLatency, NewState}
     end.
 
 -spec kill_actor_internal(reference(), #state{}) -> 
     {ok, #state{}} | {error, not_found}.
 kill_actor_internal(ActorRef, State) ->
     case maps:find(ActorRef, State#state.actors) of
-        {ok, ActorHandle} ->
-            %% Clean up via NIF if available
-            if State#state.nif_loaded ->
-                try bitactor_nif:destroy_actor(ActorHandle)
-                catch _:_ -> ok end;
-            true -> ok
-            end,
+        {ok, _ActorHandle} ->
+            %% Clean up (C NIF handles resource cleanup automatically)
             
             Actors = maps:remove(ActorRef, State#state.actors),
             Stats = increment_stat(actors_killed, State#state.stats),
@@ -286,16 +283,14 @@ process_tick(State) ->
     
     %% Emit telemetry
     ActorCount = maps:size(State#state.actors),
-    telemetry:execute([bitactor, system, tick], #{actors => ActorCount}, #{}),
+    catch telemetry:execute([bitactor, system, tick], #{actors => ActorCount}, #{}),
     
     State#state{stats = Stats}.
 
 -spec cleanup_actors(#{reference() => term()}) -> ok.
-cleanup_actors(Actors) ->
-    maps:fold(fun(_, ActorHandle, _) ->
-        try bitactor_nif:destroy_actor(ActorHandle)
-        catch _:_ -> ok end
-    end, ok, Actors).
+cleanup_actors(_Actors) ->
+    %% C NIF handles resource cleanup automatically via resource destructor
+    ok.
 
 -spec increment_stat(atom(), #{atom() => term()}) -> #{atom() => term()}.
 increment_stat(Key, Stats) ->

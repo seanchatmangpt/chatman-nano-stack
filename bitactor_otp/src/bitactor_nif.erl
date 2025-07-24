@@ -62,13 +62,13 @@ init() ->
     
     case erlang:load_nif(NIFPath, 0) of
         ok ->
-            error_logger:info("BitActor NIF loaded successfully from ~s", [NIFPath]),
+            error_logger:info_msg("BitActor NIF loaded successfully from ~s", [NIFPath]),
             ok;
         {error, {reload, _}} ->
             %% NIF already loaded
             ok;
         {error, Reason} ->
             error_logger:warning("Failed to load BitActor NIF from ~s: ~p", [NIFPath, Reason]),
-            error_logger:info("BitActor will run in fallback mode without C acceleration"),
+            error_logger:info_msg("BitActor will run in fallback mode without C acceleration"),
             {error, Reason}
     end.
