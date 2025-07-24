@@ -77,5 +77,5 @@ init([]) ->
         }
     ],
     
-    error_logger:info("BitActor supervisor initialized with ~p children", [length(ChildSpecs)]),
+    error_logger:info_msg("BitActor supervisor initialized with ~p children", [length(ChildSpecs)]),
     {ok, {SupFlags, ChildSpecs}}.

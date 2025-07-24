@@ -1,0 +1,261 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: bitactor-uhft-alerts
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+  # Latency Alerts - Critical for UHFT
+  - name: bitactor.latency
+    interval: 1s  # Ultra-high frequency monitoring
+    rules:
+    # Market Data Latency
+    - alert: MarketDataHighLatency
+      expr: |
+        histogram_quantile(0.99,
+          sum(rate(bitactor_message_latency_nanoseconds_bucket{workload="market-data"}[10s])) by (le, region, exchange)
+        ) > 500
+      for: 10s
+      labels:
+        severity: critical
+        team: trading-systems
+      annotations:
+        summary: "Market data latency exceeds 500ns target"
+        description: "P99 latency for {{ $labels.exchange }} in {{ $labels.region }} is {{ $value }}ns (target: <500ns)"
+        runbook_url: "https://wiki.bitactor.io/runbooks/market-data-latency"
+        
+    # Order Engine Latency
+    - alert: OrderEngineHighLatency
+      expr: |
+        histogram_quantile(0.99,
+          sum(rate(bitactor_order_latency_nanoseconds_bucket{workload="order-engine"}[10s])) by (le, region)
+        ) > 1000
+      for: 10s
+      labels:
+        severity: critical
+        team: trading-systems
+      annotations:
+        summary: "Order engine latency exceeds 1μs target"
+        description: "P99 order processing latency in {{ $labels.region }} is {{ $value }}ns"
+        
+    # Extreme Latency Spike
+    - alert: ExtremeLatencySpike
+      expr: |
+        histogram_quantile(0.999,
+          sum(rate(bitactor_message_latency_nanoseconds_bucket[30s])) by (le, workload, region)
+        ) > 10000
+      for: 5s
+      labels:
+        severity: critical
+        team: trading-systems
+        page: true
+      annotations:
+        summary: "Extreme latency spike detected"
+        description: "P99.9 latency for {{ $labels.workload }} in {{ $labels.region }} is {{ $value }}ns (>10μs)"
+        
+  # Throughput and Performance
+  - name: bitactor.performance
+    interval: 5s
+    rules:
+    - alert: LowMessageThroughput
+      expr: |
+        sum(rate(bitactor_messages_processed_total[1m])) by (region, exchange) < 900000
+      for: 30s
+      labels:
+        severity: warning
+        team: trading-systems
+      annotations:
+        summary: "Message throughput below 900k/sec"
+        description: "{{ $labels.exchange }} in {{ $labels.region }} processing only {{ $value }} messages/sec"
+        
+    - alert: OrderRejectionRate
+      expr: |
+        sum(rate(bitactor_orders_rejected_total[1m])) by (region, reason) /
+        sum(rate(bitactor_orders_total[1m])) by (region, reason) > 0.01
+      for: 30s
+      labels:
+        severity: critical
+        team: trading-systems
+      annotations:
+        summary: "High order rejection rate"
+        description: "{{ $labels.region }} rejecting {{ $value | humanizePercentage }} of orders due to {{ $labels.reason }}"
+        
+  # Risk and Compliance
+  - name: bitactor.risk
+    interval: 1s
+    rules:
+    - alert: PositionLimitBreach
+      expr: |
+        bitactor_position_value_usd > bitactor_position_limit_usd
+      for: 1s
+      labels:
+        severity: critical
+        team: risk-management
+        compliance: true
+        page: true
+      annotations:
+        summary: "Position limit breach detected"
+        description: "{{ $labels.symbol }} position ${{ $value }} exceeds limit in {{ $labels.account }}"
+        action: "Immediate position reduction required"
+        
+    - alert: DailyLossLimitApproaching
+      expr: |
+        (bitactor_daily_pnl_usd < 0) and 
+        (abs(bitactor_daily_pnl_usd) / bitactor_daily_loss_limit_usd > 0.8)
+      for: 10s
+      labels:
+        severity: warning
+        team: risk-management
+      annotations:
+        summary: "Daily loss limit approaching (80%)"
+        description: "Account {{ $labels.account }} at ${{ $value }} loss (80% of limit)"
+        
+    - alert: RegulatoryHaltDetected
+      expr: |
+        bitactor_symbol_halted == 1
+      for: 1s
+      labels:
+        severity: critical
+        team: trading-systems
+        compliance: true
+      annotations:
+        summary: "Regulatory halt on {{ $labels.symbol }}"
+        description: "Trading halted on {{ $labels.symbol }} at {{ $labels.exchange }}"
+        
+  # System Health
+  - name: bitactor.health
+    interval: 10s
+    rules:
+    - alert: ActorCrashRate
+      expr: |
+        sum(rate(bitactor_actor_crashes_total[1m])) by (region, workload) > 10
+      for: 30s
+      labels:
+        severity: critical
+        team: platform
+      annotations:
+        summary: "High actor crash rate"
+        description: "{{ $labels.workload }} in {{ $labels.region }} crashing {{ $value }} times/min"
+        
+    - alert: MemoryPressure
+      expr: |
+        (bitactor_memory_used_bytes / bitactor_memory_limit_bytes) > 0.9
+      for: 1m
+      labels:
+        severity: warning
+        team: platform
+      annotations:
+        summary: "Memory pressure detected"
+        description: "{{ $labels.pod }} using {{ $value | humanizePercentage }} of memory limit"
+        
+    - alert: CPUThrottling
+      expr: |
+        rate(container_cpu_cfs_throttled_seconds_total{container="bitactor"}[1m]) > 0.1
+      for: 1m
+      labels:
+        severity: warning
+        team: platform
+      annotations:
+        summary: "CPU throttling detected"
+        description: "{{ $labels.pod }} CPU throttled {{ $value }} seconds/min"
+        
+  # Network and Connectivity
+  - name: bitactor.network
+    interval: 5s
+    rules:
+    - alert: ExchangeConnectionLoss
+      expr: |
+        bitactor_exchange_connection_status == 0
+      for: 5s
+      labels:
+        severity: critical
+        team: network-ops
+        page: true
+      annotations:
+        summary: "Lost connection to {{ $labels.exchange }}"
+        description: "Connection to {{ $labels.exchange }} from {{ $labels.region }} is down"
+        impact: "No market data or order routing to {{ $labels.exchange }}"
+        
+    - alert: NetworkLatencyHigh
+      expr: |
+        bitactor_network_rtt_microseconds{quantile="0.99"} > 100
+      for: 30s
+      labels:
+        severity: warning
+        team: network-ops
+      annotations:
+        summary: "High network latency detected"
+        description: "P99 RTT to {{ $labels.destination }} is {{ $value }}μs"
+        
+    - alert: PacketLoss
+      expr: |
+        rate(bitactor_network_packets_dropped_total[1m]) > 0
+      for: 30s
+      labels:
+        severity: critical
+        team: network-ops
+      annotations:
+        summary: "Network packet loss detected"
+        description: "Dropping {{ $value }} packets/sec on {{ $labels.interface }}"
+        
+  # Business Metrics
+  - name: bitactor.business
+    interval: 10s
+    rules:
+    - alert: NegativePnL
+      expr: |
+        sum(bitactor_realized_pnl_usd) by (strategy, region) < -10000
+      for: 1m
+      labels:
+        severity: warning
+        team: trading-desk
+      annotations:
+        summary: "Strategy losing money"
+        description: "{{ $labels.strategy }} in {{ $labels.region }} down ${{ $value }}"
+        
+    - alert: LowFillRate
+      expr: |
+        sum(rate(bitactor_orders_filled_total[5m])) by (venue) /
+        sum(rate(bitactor_orders_sent_total[5m])) by (venue) < 0.5
+      for: 5m
+      labels:
+        severity: warning
+        team: trading-systems
+      annotations:
+        summary: "Low fill rate at {{ $labels.venue }}"
+        description: "Only {{ $value | humanizePercentage }} of orders filling at {{ $labels.venue }}"
+        
+  # SLO Monitoring
+  - name: bitactor.slo
+    interval: 30s
+    rules:
+    - alert: SLOLatencyBudgetBurn
+      expr: |
+        (
+          sum(rate(bitactor_message_latency_nanoseconds_bucket{le="1000"}[5m])) by (workload) /
+          sum(rate(bitactor_message_latency_nanoseconds_count[5m])) by (workload)
+        ) < 0.999
+      for: 5m
+      labels:
+        severity: warning
+        team: platform
+        slo: true
+      annotations:
+        summary: "SLO latency budget burn for {{ $labels.workload }}"
+        description: "Only {{ $value | humanizePercentage }} of requests meeting <1μs SLO"
+        
+    - alert: SLOAvailabilityBreach
+      expr: |
+        avg_over_time(up{job="bitactor"}[5m]) < 0.9999
+      for: 5m
+      labels:
+        severity: critical
+        team: platform
+        slo: true
+        page: true
+      annotations:
+        summary: "Availability SLO breach"
+        description: "BitActor availability at {{ $value | humanizePercentage }} (target: 99.99%)"

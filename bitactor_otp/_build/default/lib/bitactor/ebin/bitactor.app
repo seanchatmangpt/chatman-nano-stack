@@ -1,8 +1,8 @@
 {application,bitactor,
              [{description,"BitActor - Production Financial Computing Engine"},
               {vsn,"1.0.0"},
-              {registered,[bitactor_sup,bitactor_server]},
-              {applications,[kernel,stdlib,sasl,lager,runtime_tools]},
+              {registered,[bitactor_sup,bitactor_server,bitactor_telemetry]},
+              {applications,[kernel,stdlib,sasl,runtime_tools]},
               {mod,{bitactor_app,[]}},
               {env,[{max_actors,10000},
                     {supervision_intensity,10},
@@ -12,6 +12,6 @@
               {maintainers,["James I. Chatman","Sean A. Chatman"]},
               {licenses,["Proprietary"]},
               {links,[{"GitHub","https://github.com/chatmangpt/cns"}]},
-              {modules,[bitactor_app,bitactor_health,bitactor_nif,
-                        bitactor_pool_sup,bitactor_server,bitactor_sup,
-                        bitactor_telemetry,bitactor_worker]}]}.
+              {modules,[bitactor_app,bitactor_benchmark,bitactor_health,
+                        bitactor_nif,bitactor_pool_sup,bitactor_server,
+                        bitactor_sup,bitactor_telemetry,bitactor_worker]}]}.

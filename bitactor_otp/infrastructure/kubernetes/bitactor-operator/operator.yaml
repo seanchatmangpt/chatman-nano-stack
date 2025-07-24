@@ -1,0 +1,374 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bitactor-system
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: bitactorclusters.uhft.bitactor.io
+spec:
+  group: uhft.bitactor.io
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              replicas:
+                type: integer
+                minimum: 1
+                maximum: 100
+              workloadType:
+                type: string
+                enum: ["market-data", "order-engine", "risk-engine", "alpha-calculator", "execution-gateway"]
+              performance:
+                type: object
+                properties:
+                  targetLatencyNs:
+                    type: integer
+                  cpuPinning:
+                    type: boolean
+                  numaNode:
+                    type: integer
+                  hugepages:
+                    type: boolean
+              networking:
+                type: object
+                properties:
+                  srIov:
+                    type: boolean
+                  dpdk:
+                    type: boolean
+                  rdma:
+                    type: boolean
+              exchanges:
+                type: array
+                items:
+                  type: string
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+              currentReplicas:
+                type: integer
+              metrics:
+                type: object
+                properties:
+                  p99LatencyNs:
+                    type: integer
+                  throughput:
+                    type: integer
+                  errorRate:
+                    type: number
+  scope: Namespaced
+  names:
+    plural: bitactorclusters
+    singular: bitactorcluster
+    kind: BitActorCluster
+    shortNames:
+    - bac
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bitactor-operator
+  namespace: bitactor-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: bitactor-operator
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets", "daemonsets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["uhft.bitactor.io"]
+  resources: ["bitactorclusters"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["monitoring.coreos.com"]
+  resources: ["servicemonitors"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: bitactor-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: bitactor-operator
+subjects:
+- kind: ServiceAccount
+  name: bitactor-operator
+  namespace: bitactor-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bitactor-operator
+  namespace: bitactor-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bitactor-operator
+  template:
+    metadata:
+      labels:
+        app: bitactor-operator
+    spec:
+      serviceAccountName: bitactor-operator
+      containers:
+      - name: operator
+        image: bitactor/operator:latest
+        imagePullPolicy: Always
+        env:
+        - name: WATCH_NAMESPACE
+          value: ""  # Watch all namespaces
+        - name: OPERATOR_NAME
+          value: "bitactor-operator"
+        - name: LOG_LEVEL
+          value: "info"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+# Example BitActorCluster for market data processing
+apiVersion: uhft.bitactor.io/v1
+kind: BitActorCluster
+metadata:
+  name: market-data-nyse
+  namespace: default
+spec:
+  replicas: 5
+  workloadType: market-data
+  performance:
+    targetLatencyNs: 500
+    cpuPinning: true
+    numaNode: 0
+    hugepages: true
+  networking:
+    srIov: true
+    dpdk: true
+    rdma: false
+  exchanges:
+  - NYSE
+  - NASDAQ
+  - ARCA
+---
+# High-performance StatefulSet template managed by operator
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bitactor-statefulset-template
+  namespace: bitactor-system
+data:
+  template.yaml: |
+    apiVersion: apps/v1
+    kind: StatefulSet
+    metadata:
+      name: {{ .Name }}
+      namespace: {{ .Namespace }}
+      labels:
+        app: bitactor
+        workload: {{ .WorkloadType }}
+    spec:
+      serviceName: {{ .Name }}-headless
+      replicas: {{ .Replicas }}
+      selector:
+        matchLabels:
+          app: bitactor
+          cluster: {{ .Name }}
+      template:
+        metadata:
+          labels:
+            app: bitactor
+            cluster: {{ .Name }}
+            workload: {{ .WorkloadType }}
+          annotations:
+            prometheus.io/scrape: "true"
+            prometheus.io/port: "9090"
+            prometheus.io/path: "/metrics"
+        spec:
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: cluster
+                    operator: In
+                    values:
+                    - {{ .Name }}
+                topologyKey: kubernetes.io/hostname
+          nodeSelector:
+            workload: {{ .WorkloadType }}
+            {{ if .Performance.SrIov }}
+            feature.node.kubernetes.io/network-sriov.capable: "true"
+            {{ end }}
+            {{ if .Performance.Dpdk }}
+            feature.node.kubernetes.io/cpu-cpuid.AVX2: "true"
+            {{ end }}
+          tolerations:
+          - key: workload
+            operator: Equal
+            value: {{ .WorkloadType }}
+            effect: NoSchedule
+          containers:
+          - name: bitactor
+            image: bitactor/uhft:{{ .Version }}
+            imagePullPolicy: Always
+            env:
+            - name: BITACTOR_ROLE
+              value: {{ .WorkloadType }}
+            - name: BITACTOR_EXCHANGES
+              value: {{ .Exchanges | join "," }}
+            - name: BITACTOR_TARGET_LATENCY_NS
+              value: "{{ .Performance.TargetLatencyNs }}"
+            - name: BITACTOR_CPU_AFFINITY
+              value: "{{ .Performance.CpuPinning }}"
+            - name: BITACTOR_NUMA_NODE
+              value: "{{ .Performance.NumaNode }}"
+            - name: OTP_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OTP_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: bitactor-erlang-cookie
+                  key: cookie
+            ports:
+            - containerPort: 4369  # EPMD
+              name: epmd
+            - containerPort: 9090  # Metrics
+              name: metrics
+            - containerPort: 8080  # Health
+              name: health
+            - containerPort: 9100  # BitActor protocol
+              name: bitactor
+              protocol: TCP
+            {{ if .Performance.Dpdk }}
+            - containerPort: 9101  # DPDK port
+              name: dpdk
+              protocol: TCP
+            {{ end }}
+            resources:
+              requests:
+                cpu: {{ .Resources.CPU }}
+                memory: {{ .Resources.Memory }}
+                {{ if .Performance.Hugepages }}
+                hugepages-2Mi: 1Gi
+                {{ end }}
+                {{ if .Performance.SrIov }}
+                intel.com/sriov_netdevice: 1
+                {{ end }}
+              limits:
+                cpu: {{ .Resources.CPU }}
+                memory: {{ .Resources.Memory }}
+                {{ if .Performance.Hugepages }}
+                hugepages-2Mi: 1Gi
+                {{ end }}
+                {{ if .Performance.SrIov }}
+                intel.com/sriov_netdevice: 1
+                {{ end }}
+            securityContext:
+              capabilities:
+                add:
+                - NET_ADMIN
+                - SYS_NICE  # For CPU affinity
+                - IPC_LOCK  # For hugepages
+                {{ if .Performance.Dpdk }}
+                - SYS_RAWIO
+                {{ end }}
+            volumeMounts:
+            - name: sys
+              mountPath: /sys
+              readOnly: false
+            - name: dev
+              mountPath: /dev
+            - name: hugepages
+              mountPath: /dev/hugepages
+            livenessProbe:
+              httpGet:
+                path: /health
+                port: 8080
+              initialDelaySeconds: 30
+              periodSeconds: 10
+              timeoutSeconds: 5
+            readinessProbe:
+              httpGet:
+                path: /ready
+                port: 8080
+              initialDelaySeconds: 10
+              periodSeconds: 5
+              timeoutSeconds: 3
+          volumes:
+          - name: sys
+            hostPath:
+              path: /sys
+          - name: dev
+            hostPath:
+              path: /dev
+          - name: hugepages
+            emptyDir:
+              medium: HugePages
+      volumeClaimTemplates:
+      - metadata:
+          name: data
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          storageClassName: fast-nvme
+          resources:
+            requests:
+              storage: 100Gi
+---
+# Monitoring ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: bitactor-metrics
+  namespace: bitactor-system
+spec:
+  selector:
+    matchLabels:
+      app: bitactor
+  endpoints:
+  - port: metrics
+    interval: 1s  # Ultra-high frequency monitoring
+    path: /metrics
+    relabelings:
+    - sourceLabels: [__meta_kubernetes_pod_label_workload]
+      targetLabel: workload
+    - sourceLabels: [__meta_kubernetes_pod_label_cluster]
+      targetLabel: cluster
+    - sourceLabels: [__meta_kubernetes_pod_node_name]
+      targetLabel: node

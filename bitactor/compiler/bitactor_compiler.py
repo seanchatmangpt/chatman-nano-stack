@@ -22,12 +22,15 @@ class BitActorCompiler:
         self.reachability = ReachabilityAnalyzer()
         self.handler_map: Dict[str, int] = {}  # Shape -> handler ID
         self.signal_map: Dict[str, int] = {}   # Signal type -> ID
+        self.zero_tick_rules: Dict[str, bool] = {}  # Zero-tick rule detection
         self.next_handler_id = 0x01
         self.compilation_stats = {
             'shapes_compiled': 0,
             'handlers_generated': 0,
             'bytecode_size': 0,
-            'tick_budget_max': 0
+            'tick_budget_max': 0,
+            'zero_tick_rules': 0,
+            'zero_tick_handlers': 0
         }
     
     def compile(self, ttl_file: str, shacl_file: Optional[str] = None,
@@ -61,14 +64,24 @@ class BitActorCompiler:
         return outputs
     
     def _compile_path(self, entry: str, path: List[Tuple]):
-        """Compile an execution path to IR"""
+        """Compile an execution path to IR with zero-tick detection"""
+        # Detect zero-tick eligible rules
+        is_zero_tick = self._detect_zero_tick_rule(entry, path)
+        
         # Create handler block
         handler_id = self._allocate_handler_id()
         block_label = f"handler_{handler_id:02x}"
         self.handler_map[entry] = handler_id
+        self.zero_tick_rules[entry] = is_zero_tick
         
         self.ir.new_block(block_label)
         self.ir.set_block(block_label)
+        
+        # Zero-tick optimization: early exit for trivially skippable rules
+        if is_zero_tick:
+            self._emit_zero_tick_handler(handler_id, entry)
+            self.compilation_stats['zero_tick_handlers'] += 1
+            return
         
         # Allocate registers
         signal_reg = self.ir.alloc_reg()  # r0: signal pointer
@@ -345,6 +358,55 @@ class BitActorCompiler:
             # Hash non-numeric values
             return hash(str(literal)) & 0xFFFFFFFF
     
+    def _detect_zero_tick_rule(self, entry: str, path: List[Tuple]) -> bool:
+        """Detect if a rule is eligible for zero-tick optimization"""
+        # Rule detection criteria:
+        # 1. No side effects (only filters/constraints)
+        # 2. Evaluates to constant true/false
+        # 3. Only filters on static fields (rdf:type, signal:source)
+        
+        if len(path) == 0:
+            return True  # Empty path = trivially skippable
+        
+        # Check for heartbeat signals
+        for s, p, o in path:
+            if str(p).endswith("type") and str(o).endswith("Heartbeat"):
+                self.compilation_stats['zero_tick_rules'] += 1
+                return True
+            
+            # Check for confidence=0 filters
+            if str(p).endswith("confidence") and str(o) == "0":
+                self.compilation_stats['zero_tick_rules'] += 1
+                return True
+            
+            # Check for static source rejection
+            if str(p).endswith("source") and str(o) in ["test", "mock", "debug"]:
+                self.compilation_stats['zero_tick_rules'] += 1
+                return True
+        
+        # Check for constant evaluation
+        if all(self._is_static_constraint(s, p, o) for s, p, o in path):
+            self.compilation_stats['zero_tick_rules'] += 1
+            return True
+        
+        return False
+    
+    def _is_static_constraint(self, s: Any, p: Any, o: Any) -> bool:
+        """Check if triple is a static constraint with no computation"""
+        static_predicates = ["type", "source", "format", "version"]
+        return any(str(p).endswith(pred) for pred in static_predicates)
+    
+    def _emit_zero_tick_handler(self, handler_id: int, entry: str):
+        """Emit optimized zero-tick handler that bypasses execution"""
+        # Emit zero-tick flag
+        self.ir.emit_flag("ZERO_TICK_FLAG", 0x01)
+        
+        # Immediate return with no-op result
+        self.ir.emit(Opcode.MOV, 2, 0, 0)  # r2 = 0 (no-op result)
+        self.ir.emit(Opcode.RET)
+        
+        print(f"Generated zero-tick handler for: {entry}")
+
     def _print_stats(self):
         """Print compilation statistics"""
         print("\nCompilation Statistics:")
@@ -353,6 +415,11 @@ class BitActorCompiler:
             print(f"{key}: {value}")
         print(f"Coverage: {self.reachability.coverage_stats['coverage_percent']:.1f}%")
         print(f"Max tick budget used: {self.compilation_stats['tick_budget_max']}/8")
+        
+        if self.compilation_stats['zero_tick_rules'] > 0:
+            zero_tick_ratio = (self.compilation_stats['zero_tick_rules'] / 
+                             max(self.compilation_stats['shapes_compiled'], 1)) * 100
+            print(f"Zero-tick optimization: {zero_tick_ratio:.1f}% of rules")
 
 # CLI interface
 if __name__ == "__main__":

@@ -11,6 +11,13 @@
 #define TELEMETRY_RING_SIZE 4096
 #define TRACE_OPS_SIZE 16
 
+/* Trace operation codes */
+#define TRACE_OP_ZERO_TICK 0x00
+#define TRACE_OP_DISPATCH 0x01
+#define TRACE_OP_EXECUTE 0x02
+#define TRACE_OP_COMPLETE 0x03
+#define TRACE_OP_ERROR 0x04
+
 /* Forward declarations */
 typedef struct telemetry_ring telemetry_ring_t;
 typedef struct telemetry_frame telemetry_frame_t;

@@ -1,12 +1,11 @@
 {application, bitactor,
  [{description, "BitActor - Production Financial Computing Engine"},
   {vsn, "1.0.0"},
-  {registered, [bitactor_sup, bitactor_server]},
+  {registered, [bitactor_sup, bitactor_server, bitactor_telemetry]},
   {applications, [
       kernel,
       stdlib,
       sasl,
-      lager,
       runtime_tools
   ]},
   {mod, {bitactor_app, []}},

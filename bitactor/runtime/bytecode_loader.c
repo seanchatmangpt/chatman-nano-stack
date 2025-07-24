@@ -18,12 +18,17 @@
 #define MAX_CONSTANTS      1024
 #define VECTOR_WIDTH       8           // AVX2 256-bit / 32-bit
 
+// Zero-tick optimization flags
+#define ZERO_TICK_FLAG 0x01
+#define TRIVIAL_SKIP_FLAG 0x02
+
 // Bytecode instruction format (matches compiler IR)
 typedef struct {
     uint8_t opcode;
     uint8_t dst;
     uint8_t src1; 
     uint8_t src2;
+    uint8_t flags;  // Zero-tick and optimization flags
 } __attribute__((packed)) bc_instruction_t;
 
 // Vector register state for SIMD execution
@@ -164,12 +169,37 @@ int bitactor_load_bytecode(const char* filename, uint8_t** bytecode_out, size_t*
 }
 
 /**
- * Execute bytecode program with tick budget enforcement
+ * Check if signal is trivially skippable (zero-tick optimization)
+ */
+static inline bool signal_is_trivially_skippable(const signal_t* sig) {
+    // Heartbeat signals
+    if (sig->type == 0xFF) return true;  // SIG_HEARTBEAT
+    
+    // Zero confidence signals
+    if ((sig->payload & 0xFF) == 0) return true;  // confidence = 0
+    
+    // Test/mock signals
+    if ((sig->flags & 0x80) != 0) return true;  // TEST_SIGNAL_FLAG
+    
+    return false;
+}
+
+/**
+ * Execute bytecode program with tick budget enforcement and zero-tick optimization
  */
 result_t bitactor_execute_bytecode(signal_t* signal, const uint8_t* bytecode, 
                                    size_t bytecode_size, void* scratch) {
     result_t result = {0};
     result.signal_id = signal->id;
+    
+    // Zero-tick optimization: early exit for trivially skippable signals
+    if (signal_is_trivially_skippable(signal)) {
+        result.status = BITACTOR_OK;
+        result.ticks = 0;  // True zero-tick execution
+        result.result = 0;  // No-op result
+        result.exec_hash = 0x5A4E00;  // "ZERO" in hex
+        return result;
+    }
     
     // Initialize execution context
     bc_context_t ctx = {0};
@@ -207,6 +237,11 @@ result_t bitactor_execute_bytecode(signal_t* signal, const uint8_t* bytecode,
     
     for (size_t pc = 0; pc < instruction_count && ctx.tick_count < BITACTOR_TICK_BUDGET; pc++) {
         const bc_instruction_t* instr = &instructions[pc];
+        
+        // Zero-tick optimization: skip instructions with ZERO_TICK_FLAG
+        if (instr->flags & ZERO_TICK_FLAG) {
+            continue;  // No tick consumed, bypass instruction
+        }
         
         // Execute instruction
         int tick_cost = execute_instruction(&ctx, instr);

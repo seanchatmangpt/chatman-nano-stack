@@ -1,0 +1,83 @@
+# BitActor Real Implementation Test Makefile
+# Builds production-ready BDD tests with actual BitActor implementation
+
+CC = gcc
+CFLAGS = -O2 -std=c11 -Wall -Wextra -DBITACTOR_PRODUCTION
+INCLUDES = -I../bitactor/include -I../bitactor/tests
+LIBDIR = -L../bitactor/lib
+LIBS = -lbitactor -lpthread -lm
+
+# Source directories
+BITACTOR_SRC = ../bitactor/src
+TEST_SRC = .
+
+# BitActor source files needed for linking
+BITACTOR_SOURCES = \
+	$(BITACTOR_SRC)/bitactor.c \
+	$(BITACTOR_SRC)/bitactor_telemetry.c \
+	$(BITACTOR_SRC)/bitactor_dispatch.c \
+	$(BITACTOR_SRC)/bitfiber.c
+
+# Test source
+TEST_SOURCE = test_bitactor_core_real_bdd.c
+
+# Object files
+BITACTOR_OBJECTS = $(BITACTOR_SOURCES:.c=.o)
+TEST_OBJECT = test_bitactor_core_real_bdd.o
+
+# Target executable
+TARGET = test_bitactor_core_real_bdd
+
+.PHONY: all clean test run
+
+all: $(TARGET)
+
+# Compile BitActor sources
+$(BITACTOR_SRC)/%.o: $(BITACTOR_SRC)/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Compile test source
+$(TEST_OBJECT): $(TEST_SOURCE)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Link everything together
+$(TARGET): $(TEST_OBJECT) $(BITACTOR_OBJECTS)
+	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
+
+# Run the test
+test: $(TARGET)
+	./$(TARGET)
+
+# Run with performance monitoring
+run-stress: $(TARGET)
+	@echo "Running BitActor stress test with hardware performance monitoring..."
+	time ./$(TARGET)
+
+# Clean build artifacts
+clean:
+	rm -f $(TARGET) $(TEST_OBJECT) $(BITACTOR_OBJECTS)
+	rm -f *.dSYM
+
+# Check compilation without linking
+check:
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(TEST_SOURCE) -o $(TEST_OBJECT)
+	@echo "Compilation check passed ✓"
+
+# Help target
+help:
+	@echo "BitActor Real Implementation Test Makefile"
+	@echo "==========================================="
+	@echo "Targets:"
+	@echo "  all         - Build the test executable"
+	@echo "  test        - Build and run the BDD tests"
+	@echo "  run-stress  - Run with performance monitoring"
+	@echo "  check       - Check compilation only"
+	@echo "  clean       - Remove build artifacts"
+	@echo "  help        - Show this help"
+	@echo ""
+	@echo "Features tested:"
+	@echo "  ✓ 1M+ operations per second stress tests"
+	@echo "  ✓ Hardware counter verification (8-tick constraint)"
+	@echo "  ✓ Real telemetry system validation"
+	@echo "  ✓ Memory stability under load"
+	@echo "  ✓ Production-level scenarios"

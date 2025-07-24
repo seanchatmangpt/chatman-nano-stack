@@ -30,12 +30,56 @@ void telemetry_init(telemetry_ring_t* ring) {
     ring->total_frames = 0;
 }
 
+/* Zero-tick telemetry metrics */
+static struct {
+    uint64_t signals_zero_tick;
+    uint64_t signals_bypassed;
+    uint64_t tick_budget_saved;
+} zero_tick_metrics = {0};
+
+/* Record zero-tick execution */
+void telemetry_record_zero_tick(telemetry_ring_t* ring, signal_t* signal) {
+    zero_tick_metrics.signals_zero_tick++;
+    zero_tick_metrics.signals_bypassed++;
+    
+    /* Still record a minimal trace for zero-tick signals */
+    if (ring) {
+        telemetry_frame_t* frame = &ring->frames[ring->write_idx];
+        frame->timestamp = signal->timestamp;
+        frame->signal_id = signal->id;
+        frame->exec_hash = 0x5A4E00;  // "ZERO" marker
+        frame->ticks_used = 0;
+        frame->status = BITACTOR_OK;
+        frame->trace_ops[0] = TRACE_OP_ZERO_TICK;
+        frame->trace_ops[1] = signal->type;
+        
+        ring->write_idx = (ring->write_idx + 1) % 4096;
+        ring->total_frames++;
+    }
+}
+
+/* Get zero-tick metrics */
+uint64_t telemetry_get_zero_tick_count(void) {
+    return zero_tick_metrics.signals_zero_tick;
+}
+
+uint64_t telemetry_get_zero_tick_ratio(uint64_t total_signals) {
+    if (total_signals == 0) return 0;
+    return (zero_tick_metrics.signals_zero_tick * 100) / total_signals;
+}
+
 /* Record execution trace */
 void telemetry_record(telemetry_ring_t* ring, 
                       signal_t* signal, 
                       result_t* result,
                       uint8_t ticks) {
     if (!ring || !signal || !result) {
+        return;
+    }
+    
+    /* Zero-tick optimization: record separately */
+    if (result->ticks == 0 && result->exec_hash == 0x5A4E00) {
+        telemetry_record_zero_tick(ring, signal);
         return;
     }
     

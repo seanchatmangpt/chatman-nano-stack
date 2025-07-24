@@ -4,8 +4,16 @@
 CC = clang
 CFLAGS = -O3 -march=native -mtune=native -fPIC -Wall -Wextra
 CFLAGS += -I/usr/local/opt/erlang/lib/erlang/erts-*/include
-CFLAGS += -mavx2 -mfma  # Enable SIMD instructions
 LDFLAGS = -shared -undefined dynamic_lookup
+
+# Platform-specific optimizations
+UNAME_M := $(shell uname -m)
+ifeq ($(UNAME_M),x86_64)
+	CFLAGS += -mavx2 -mfma
+endif
+ifeq ($(UNAME_M),arm64)
+	CFLAGS += -mcpu=native
+endif
 
 # Directories
 SRC_DIR = c_src
@@ -13,7 +21,7 @@ PRIV_DIR = priv
 BUILD_DIR = _build
 
 # Files
-C_SRC = $(SRC_DIR)/bitactor_nif.c
+C_SRC = $(SRC_DIR)/bitactor_nif_portable.c
 NIF_SO = $(PRIV_DIR)/bitactor_nif.so
 
 # Find Erlang include directory

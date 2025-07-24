@@ -1,0 +1,353 @@
+# BitActor UHFT Helm Chart Values
+# Global ultra-high-frequency trading deployment
+
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: "fast-nvme"
+  
+  # Multi-region deployment
+  region: us-east-1
+  availabilityZones:
+  - us-east-1a
+  - us-east-1c
+  - us-east-1d
+  
+  # Network optimization
+  networking:
+    mtu: 9000  # Jumbo frames
+    enableSRIOV: true
+    enableDPDK: true
+    enableRDMA: false
+    
+  # Security
+  security:
+    enableNetworkPolicies: true
+    enablePodSecurityPolicies: true
+    tlsEnabled: true
+
+# Market Data Handler Component
+marketData:
+  enabled: true
+  replicaCount: 5
+  
+  image:
+    repository: bitactor/market-data
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  
+  # Performance tuning
+  performance:
+    targetLatencyNs: 500
+    cpuPinning: true
+    numaNode: 0
+    hugepages: true
+    
+  resources:
+    requests:
+      cpu: 16
+      memory: 32Gi
+      hugepages-2Mi: 2Gi
+    limits:
+      cpu: 16
+      memory: 32Gi
+      hugepages-2Mi: 2Gi
+      
+  # Exchange connections
+  exchanges:
+  - name: NYSE
+    type: direct-connect
+    bandwidth: 10Gbps
+    redundancy: true
+  - name: NASDAQ
+    type: direct-connect
+    bandwidth: 10Gbps
+    redundancy: true
+  - name: ARCA
+    type: cross-connect
+    bandwidth: 10Gbps
+    
+  # Autoscaling based on message rate
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 20
+    metrics:
+    - type: Custom
+      custom:
+        name: message_rate
+        targetValue: 1000000  # 1M messages/sec per pod
+    - type: Custom
+      custom:
+        name: p99_latency_ns
+        targetValue: 500
+        
+  nodeSelector:
+    workload: market-data
+    instance-family: c7gn  # Network optimized
+    
+  tolerations:
+  - key: workload
+    operator: Equal
+    value: market-data
+    effect: NoSchedule
+
+# Order Engine Component  
+orderEngine:
+  enabled: true
+  replicaCount: 3
+  
+  image:
+    repository: bitactor/order-engine
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+    
+  performance:
+    targetLatencyNs: 1000
+    cpuPinning: true
+    numaNode: 0
+    hugepages: true
+    
+  resources:
+    requests:
+      cpu: 24
+      memory: 96Gi
+      hugepages-2Mi: 4Gi
+    limits:
+      cpu: 24
+      memory: 96Gi
+      hugepages-2Mi: 4Gi
+      
+  # Persistent state
+  persistence:
+    enabled: true
+    size: 100Gi
+    storageClass: fast-nvme
+    
+  # Order routing rules
+  routing:
+    smartOrderRouter: true
+    darkPoolAccess: true
+    algorithms:
+    - VWAP
+    - TWAP
+    - Implementation Shortfall
+    - Iceberg
+    
+  nodeSelector:
+    workload: order-engine
+    instance-family: m7i  # Balanced compute/memory
+    instance-type: metal  # Bare metal for consistency
+
+# Risk Engine Component
+riskEngine:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    repository: bitactor/risk-engine
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+    
+  performance:
+    targetLatencyNs: 5000
+    cpuPinning: true
+    numaNode: 1
+    hugepages: true
+    
+  resources:
+    requests:
+      cpu: 32
+      memory: 256Gi
+      hugepages-2Mi: 8Gi
+    limits:
+      cpu: 32
+      memory: 256Gi
+      hugepages-2Mi: 8Gi
+      
+  # Risk parameters
+  riskLimits:
+    maxPositionSize: 1000000
+    maxDailyLoss: 10000000
+    maxOrderSize: 100000
+    concentrationLimit: 0.20
+    
+  # Pre-trade checks
+  checks:
+    enabled: true
+    types:
+    - position-limits
+    - buying-power
+    - short-locate
+    - regulatory-halts
+    - market-hours
+    
+  nodeSelector:
+    workload: risk-engine
+    instance-family: r7iz  # Memory optimized
+    instance-type: metal
+
+# Alpha Calculator Component
+alphaCalculator:
+  enabled: true
+  replicaCount: 4
+  
+  image:
+    repository: bitactor/alpha-calculator
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+    
+  performance:
+    targetLatencyNs: 10000
+    cpuPinning: true
+    gpuAcceleration: true  # For ML models
+    
+  resources:
+    requests:
+      cpu: 16
+      memory: 64Gi
+      nvidia.com/gpu: 1  # For ML inference
+    limits:
+      cpu: 16
+      memory: 64Gi
+      nvidia.com/gpu: 1
+      
+  # Alpha models
+  models:
+  - name: momentum
+    type: statistical
+    updateFrequency: 1ms
+  - name: mean-reversion  
+    type: statistical
+    updateFrequency: 5ms
+  - name: ml-predictor
+    type: neural-network
+    updateFrequency: 10ms
+    
+  nodeSelector:
+    workload: alpha-calculator
+    accelerator: nvidia-tesla-a100
+
+# Execution Gateway Component
+executionGateway:
+  enabled: true
+  replicaCount: 6
+  
+  image:
+    repository: bitactor/execution-gateway
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+    
+  performance:
+    targetLatencyNs: 2000
+    cpuPinning: true
+    numaNode: 0
+    
+  resources:
+    requests:
+      cpu: 8
+      memory: 16Gi
+    limits:
+      cpu: 8
+      memory: 16Gi
+      
+  # FIX protocol settings
+  fix:
+    enabled: true
+    version: "4.4"
+    heartbeatInterval: 30
+    encryption: true
+    
+  # Venue connections
+  venues:
+  - name: NYSE
+    protocol: FIX
+    sessions: 5
+  - name: NASDAQ
+    protocol: OUCH
+    sessions: 5
+  - name: BATS
+    protocol: FIX
+    sessions: 3
+    
+  nodeSelector:
+    workload: execution-gateway
+    network: enhanced
+
+# Monitoring and Observability
+monitoring:
+  prometheus:
+    enabled: true
+    retention: 30d
+    scrapeInterval: 1s  # High frequency metrics
+    
+  grafana:
+    enabled: true
+    dashboards:
+    - latency-heatmap
+    - order-flow
+    - risk-metrics
+    - pnl-realtime
+    
+  opentelemetry:
+    enabled: true
+    sampling: 0.1  # 10% sampling for performance
+    
+  alerts:
+  - name: high-latency
+    threshold: 1000  # 1 microsecond
+    severity: critical
+  - name: order-reject-rate
+    threshold: 0.01  # 1%
+    severity: warning
+  - name: risk-breach
+    threshold: 0
+    severity: critical
+
+# Security settings
+security:
+  tls:
+    enabled: true
+    certManager: true
+    
+  networkPolicies:
+    enabled: true
+    allowedCIDRs:
+    - 10.0.0.0/8  # Internal only
+    
+  secrets:
+    erlangCookie:
+      create: true
+      value: ""  # Auto-generated if empty
+      
+  rbac:
+    create: true
+    
+# Backup and disaster recovery
+backup:
+  enabled: true
+  schedule: "*/15 * * * *"  # Every 15 minutes
+  retention: 7d
+  destination: s3://bitactor-backups/
+  
+disasterRecovery:
+  enabled: true
+  primaryRegion: us-east-1
+  drRegion: us-west-2
+  rpo: 1m  # Recovery point objective
+  rto: 5m  # Recovery time objective
+
+# Cost optimization
+costOptimization:
+  spotInstances:
+    enabled: false  # Not for UHFT
+  
+  reservedInstances:
+    enabled: true
+    term: 3-year
+    paymentOption: all-upfront
+    
+  savingsPlans:
+    enabled: true
+    term: 3-year
+    type: compute

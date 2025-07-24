@@ -1,0 +1,279 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: bitactor-uhft-global
+  namespace: argocd
+spec:
+  generators:
+  # Multi-region generator
+  - matrix:
+      generators:
+      - git:
+          repoURL: https://github.com/bitactor/infrastructure
+          revision: HEAD
+          files:
+          - path: "regions/*.yaml"
+      - list:
+          elements:
+          - env: production
+            wave: 1
+          - env: staging
+            wave: 2
+  
+  template:
+    metadata:
+      name: 'bitactor-{{region}}-{{env}}'
+      namespace: argocd
+      annotations:
+        argocd.argoproj.io/sync-wave: "{{wave}}"
+      finalizers:
+      - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: bitactor-uhft
+      
+      source:
+        repoURL: https://github.com/bitactor/infrastructure
+        targetRevision: HEAD
+        path: infrastructure/kubernetes/helm/bitactor
+        helm:
+          valueFiles:
+          - values.yaml
+          - values-{{region}}.yaml
+          - values-{{env}}.yaml
+          parameters:
+          - name: global.region
+            value: '{{region}}'
+          - name: global.environment
+            value: '{{env}}'
+          - name: global.exchanges
+            value: '{{exchanges}}'
+            
+      destination:
+        server: '{{cluster}}'
+        namespace: bitactor-{{env}}
+        
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+          allowEmpty: false
+        syncOptions:
+        - CreateNamespace=true
+        - PrunePropagationPolicy=foreground
+        - PruneLast=true
+        - RespectIgnoreDifferences=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+            
+      revisionHistoryLimit: 10
+      
+      # Progressive rollout
+      strategy:
+        type: BlueGreen
+        blueGreen:
+          activeService: bitactor-{{region}}-active
+          previewService: bitactor-{{region}}-preview
+          autoPromotionEnabled: false
+          scaleDownDelaySeconds: 30
+          prePromotionAnalysis:
+            templates:
+            - templateName: latency-analysis
+            args:
+            - name: region
+              value: '{{region}}'
+            - name: threshold
+              value: "1000"  # 1 microsecond
+          postPromotionAnalysis:
+            templates:
+            - templateName: error-rate-analysis
+            args:
+            - name: region
+              value: '{{region}}'
+            - name: threshold
+              value: "0.01"  # 1% error rate
+              
+      # Health checks
+      health:
+        - name: bitactor-health
+          namespace: bitactor-{{env}}
+          resource:
+            group: uhft.bitactor.io
+            version: v1
+            kind: BitActorCluster
+          consideredHealthy:
+            status:
+              phase: Running
+              metrics:
+                p99LatencyNs: "<1000"
+                errorRate: "<0.01"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: bitactor-uhft
+  namespace: argocd
+spec:
+  description: BitActor Ultra-High-Frequency Trading Platform
+  
+  sourceRepos:
+  - https://github.com/bitactor/*
+  
+  destinations:
+  - namespace: 'bitactor-*'
+    server: '*'
+  - namespace: 'monitoring'
+    server: '*'
+  - namespace: 'security'
+    server: '*'
+    
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+    
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
+    
+  roles:
+  - name: admin
+    policies:
+    - p, proj:bitactor-uhft:admin, applications, *, bitactor-uhft/*, allow
+    - p, proj:bitactor-uhft:admin, applicationsets, *, bitactor-uhft/*, allow
+    groups:
+    - bitactor:admins
+    
+  - name: developer
+    policies:
+    - p, proj:bitactor-uhft:developer, applications, get, bitactor-uhft/*, allow
+    - p, proj:bitactor-uhft:developer, applications, sync, bitactor-uhft/*, allow
+    groups:
+    - bitactor:developers
+    
+  - name: readonly
+    policies:
+    - p, proj:bitactor-uhft:readonly, applications, get, bitactor-uhft/*, allow
+    groups:
+    - bitactor:readonly
+---
+# Analysis template for latency validation
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: latency-analysis
+  namespace: argocd
+spec:
+  args:
+  - name: region
+  - name: threshold
+  metrics:
+  - name: p99-latency
+    interval: 30s
+    count: 10
+    successCondition: result < {{args.threshold}}
+    provider:
+      prometheus:
+        address: http://prometheus:9090
+        query: |
+          histogram_quantile(0.99,
+            sum(rate(bitactor_message_latency_nanoseconds_bucket{
+              region="{{args.region}}",
+              workload="market-data"
+            }[1m])) by (le)
+          )
+  - name: p999-latency
+    interval: 30s
+    count: 10
+    successCondition: result < ({{args.threshold}} * 2)
+    provider:
+      prometheus:
+        address: http://prometheus:9090
+        query: |
+          histogram_quantile(0.999,
+            sum(rate(bitactor_message_latency_nanoseconds_bucket{
+              region="{{args.region}}",
+              workload="market-data"
+            }[1m])) by (le)
+          )
+---
+# Analysis template for error rate validation
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: error-rate-analysis
+  namespace: argocd
+spec:
+  args:
+  - name: region
+  - name: threshold
+  metrics:
+  - name: error-rate
+    interval: 30s
+    count: 10
+    successCondition: result < {{args.threshold}}
+    provider:
+      prometheus:
+        address: http://prometheus:9090
+        query: |
+          sum(rate(bitactor_errors_total{region="{{args.region}}"}[5m])) /
+          sum(rate(bitactor_requests_total{region="{{args.region}}"}[5m]))
+---
+# Multi-region traffic management
+apiVersion: flagger.app/v1beta1
+kind: Canary
+metadata:
+  name: bitactor-market-data
+  namespace: bitactor-production
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: market-data
+  service:
+    port: 9100
+    targetPort: 9100
+    gateways:
+    - public-gateway.istio-system.svc.cluster.local
+    hosts:
+    - market-data.bitactor.io
+  analysis:
+    interval: 30s
+    threshold: 10
+    maxWeight: 100
+    stepWeight: 10
+    metrics:
+    - name: request-success-rate
+      thresholdRange:
+        min: 99.9
+      interval: 30s
+    - name: latency
+      templateRef:
+        name: latency
+        namespace: flagger-system
+      thresholdRange:
+        max: 0.001  # 1ms
+      interval: 30s
+    webhooks:
+    - name: load-test
+      type: rollout
+      url: http://flagger-loadtester.test/
+      metadata:
+        cmd: "hey -z 1m -q 100 -c 10 http://market-data.bitactor.io"
+---
+# Secret management with Sealed Secrets
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: bitactor-erlang-cookie
+  namespace: bitactor-production
+spec:
+  encryptedData:
+    cookie: AgBvKqR5N3Blc3J5cHRlZCBjb29raWUgdmFsdWUgaGVyZQ==
+  template:
+    metadata:
+      name: bitactor-erlang-cookie
+      namespace: bitactor-production
+    type: Opaque

@@ -139,10 +139,31 @@ int32_t fiber_create(fiber_scheduler_t* sched, fiber_fn fn, void* arg) {
     return fiber_id;
 }
 
-/* Execute one scheduler tick */
+/* Check if fiber has pending signals (zero-tick optimization) */
+static inline bool fiber_has_signals(const fiber_t* fiber) {
+    /* Simple check - in real implementation would check signal queues */
+    return fiber->context.status == FIBER_READY || 
+           fiber->context.status == FIBER_RUNNING;
+}
+
+/* Execute one scheduler tick with zero-tick idle optimization */
 uint32_t fiber_tick(fiber_scheduler_t* sched) {
     if (!sched || sched->active_count <= 1) {
         return 0;
+    }
+    
+    /* Zero-tick optimization: check if any fibers have work */
+    bool any_work = false;
+    for (uint32_t i = 0; i < BITACTOR_MAX_FIBERS; i++) {
+        if (fiber_has_signals(&sched->fibers[i])) {
+            any_work = true;
+            break;
+        }
+    }
+    
+    /* If no work, return without consuming a tick */
+    if (!any_work) {
+        return 0;  // Zero-tick idle optimization
     }
     
     uint32_t executed = 0;

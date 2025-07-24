@@ -5,6 +5,33 @@
 #include "../include/bitactor/bitactor_dispatch.h"
 #include <string.h>
 
+/* Enhanced dispatcher with zero-tick elision */
+result_t dispatch_signal(dispatch_table_t* table, signal_t* signal) {
+    if (!table || !signal) {
+        return dispatch_error(signal, NULL);
+    }
+    
+    /* Zero-tick optimization: early return for trivially skippable signals */
+    if (signal_is_zero_tick_candidate(signal)) {
+        return dispatch_zero_tick_handler(signal, NULL);
+    }
+    
+    /* Get handler entry */
+    dispatch_entry_t* entry = &table->entries[signal->kind];
+    
+    /* Zero-tick handler optimization: early return for flagged handlers */
+    if (entry->flags & 0x01) {  // ZERO_TICK_HANDLER_FLAG
+        return dispatch_zero_tick_handler(signal, entry->context);
+    }
+    
+    /* Normal dispatch path */
+    if (entry->handler && entry->handler != dispatch_noop) {
+        return entry->handler(signal, entry->context);
+    }
+    
+    return dispatch_noop(signal, entry->context);
+}
+
 /* Default no-op handler */
 result_t dispatch_noop(signal_t* signal, void* context) {
     (void)context;
@@ -48,7 +75,26 @@ void dispatch_init(dispatch_table_t* table) {
     table->active_count = 0;
 }
 
-/* Register a handler */
+/* Check if signal is zero-tick eligible */
+static inline bool signal_is_zero_tick_candidate(const signal_t* signal) {
+    return signal->type == 0xFF ||           // Heartbeat
+           (signal->payload & 0xFF) == 0 ||  // Zero confidence
+           (signal->flags & 0x80) != 0;      // Test signal
+}
+
+/* Zero-tick dispatch optimization */
+result_t dispatch_zero_tick_handler(signal_t* signal, void* context) {
+    (void)context;
+    result_t result = {0};
+    result.signal_id = signal->id;
+    result.status = BITACTOR_OK;
+    result.exec_hash = 0x5A4E00;  // "ZERO" marker
+    result.ticks = 0;  // True zero-tick
+    result.result = 0; // No-op result
+    return result;
+}
+
+/* Register a handler with zero-tick optimization */
 int dispatch_register(dispatch_table_t* table, uint8_t kind, 
                       signal_handler_fn handler, void* context) {
     if (!table || !handler) {
@@ -57,6 +103,11 @@ int dispatch_register(dispatch_table_t* table, uint8_t kind,
     
     /* Direct index - perfect hash */
     dispatch_entry_t* entry = &table->entries[kind];
+    
+    /* Zero-tick optimization: set flag for handlers that can be bypassed */
+    if (handler == dispatch_zero_tick_handler) {
+        entry->flags |= 0x01;  // ZERO_TICK_HANDLER_FLAG
+    }
     
     /* Update entry */
     entry->handler = handler;

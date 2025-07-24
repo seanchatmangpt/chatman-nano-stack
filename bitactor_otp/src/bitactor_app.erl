@@ -58,10 +58,10 @@ get_env(Key, Default) ->
 
 -spec init_telemetry() -> ok.
 init_telemetry() ->
-    case get_env(enable_telemetry, true) of
+    case get_env(enable_telemetry, false) of
         true ->
-            %% Initialize telemetry collectors
-            ok = telemetry:attach_many(
+            %% Initialize telemetry collectors (requires telemetry dependency)
+            case catch telemetry:attach_many(
                 bitactor_metrics,
                 [
                     [bitactor, actor, spawn],
@@ -71,8 +71,12 @@ init_telemetry() ->
                 ],
                 fun bitactor_telemetry:handle_event/4,
                 #{}
-            ),
-            error_logger:info_msg("BitActor telemetry initialized");
+            ) of
+                ok -> 
+                    error_logger:info_msg("BitActor telemetry initialized");
+                Error ->
+                    error_logger:warning_msg("Failed to initialize telemetry: ~p", [Error])
+            end;
         false ->
             error_logger:info_msg("BitActor telemetry disabled")
     end,
