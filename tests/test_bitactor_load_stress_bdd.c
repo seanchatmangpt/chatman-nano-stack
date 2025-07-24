@@ -4,7 +4,7 @@
  * 100K+ signals, queue overflow, batch processing limits
  */
 #include "../bitactor/tests/bdd_framework.h"
-#include "../bitactor/include/bitactor_public.h"
+#include "../bitactor/include/bitactor.h"
 #include "../bitactor/src/bitactor.h"
 #include <string.h>
 #include <stdlib.h>

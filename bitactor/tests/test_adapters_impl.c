@@ -120,7 +120,7 @@ void telemetry_record(telemetry_ring_t* ring, signal_t* signal, result_t* result
         return;
     }
     
-    uint32_t idx = ring->write_index;
+    uint32_t idx = ring->write_idx;
     telemetry_frame_t* frame = &ring->frames[idx];
     
     frame->timestamp = signal->timestamp;
@@ -130,7 +130,7 @@ void telemetry_record(telemetry_ring_t* ring, signal_t* signal, result_t* result
     frame->ticks_used = ticks;
     frame->result_payload = result->result;
     
-    ring->write_index = (idx + 1) % TELEMETRY_RING_SIZE;
+    ring->write_idx = (idx + 1) % TELEMETRY_RING_SIZE;
 }
 
 /* telemetry_enable is already defined in test_adapters.c */

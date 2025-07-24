@@ -5,7 +5,7 @@
  * NO MOCKS - Complete real system testing
  */
 #include "../bitactor/tests/bdd_framework.h"
-#include "../bitactor/include/bitactor_public.h"
+#include "../bitactor/include/bitactor.h"
 #include "../bitactor/integration/cns_integration.h"
 #include "../src/sparql/sparql_to_bitactor.h"
 #include "../src/news/news_validator.h"

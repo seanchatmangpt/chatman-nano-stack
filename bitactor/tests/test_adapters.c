@@ -140,11 +140,11 @@ telemetry_frame_t* telemetry_get_frame(telemetry_ring_t* telemetry, uint32_t ind
 
 /* Override the mock's telemetry_get_last_frame to use real implementation */
 telemetry_frame_t* telemetry_get_last_frame(telemetry_ring_t* telemetry) {
-    if (!telemetry || telemetry->write_index == 0) {
+    if (!telemetry || telemetry->write_idx == 0) {
         return NULL;
     }
     
-    uint32_t last_index = (telemetry->write_index - 1 + TELEMETRY_RING_SIZE) % TELEMETRY_RING_SIZE;
+    uint32_t last_index = (telemetry->write_idx - 1 + TELEMETRY_RING_SIZE) % TELEMETRY_RING_SIZE;
     return (telemetry_frame_t*)&telemetry->frames[last_index];
 }
 

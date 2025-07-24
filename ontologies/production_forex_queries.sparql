@@ -1,0 +1,188 @@
+# Production Forex Trading SPARQL Queries
+# Optimized for BitActor 8-tick processing
+# Pre-compiled to constants for nanosecond execution
+
+PREFIX : <http://cns.io/forex#>
+PREFIX cns: <http://cns.io/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Query 1: Market Access Validation (1 tick)
+# name: MARKET_ACCESS_VALIDATION
+SELECT ?trader ?access WHERE {
+    ?trader a :ForexTrader .
+    ?trader :hasAccess ?access .
+    ?access a :MarketAccess .
+    ?access :status :Active .
+}
+
+# Query 2: Risk Profile Check (2 ticks)
+# name: RISK_PROFILE_CHECK
+SELECT ?trader ?risk ?leverage WHERE {
+    ?trader a :ForexTrader .
+    ?trader :hasRisk ?risk .
+    ?risk :maxLeverage ?leverage .
+    FILTER(?leverage <= 50)
+}
+
+# Query 3: Compliance Verification (1 tick)
+# name: COMPLIANCE_VERIFICATION
+SELECT ?trader ?compliance WHERE {
+    ?trader a :ForexTrader .
+    ?trader :hasCompliance ?compliance .
+    ?compliance :status :Verified .
+}
+
+# Query 4: Position Validation (3 ticks)
+# name: POSITION_VALIDATION
+SELECT ?position ?size ?leverage ?price WHERE {
+    ?position a :Position .
+    ?position :hasSize ?size .
+    ?position :hasLeverage ?leverage .
+    ?position :hasPrice ?price .
+    FILTER(?size > 0 && ?leverage <= 50 && ?price > 0)
+}
+
+# Query 5: News Impact Assessment (1 tick)
+# name: NEWS_IMPACT_ASSESSMENT
+SELECT ?news ?impact ?pair WHERE {
+    ?news a :NewsEvent .
+    ?news :hasImpact ?impact .
+    ?news :affectsPair ?pair .
+    ?impact a :HighImpact .
+}
+
+# Query 6: Liquidity Check (1 tick)
+# name: LIQUIDITY_CHECK
+SELECT ?pair ?liquidity WHERE {
+    ?pair a :CurrencyPair .
+    ?pair :hasLiquidity ?liquidity .
+    ?liquidity a :HighLiquidity .
+}
+
+# Query 7: Complete Trading Authorization (8 ticks total)
+# name: COMPLETE_TRADING_AUTHORIZATION
+SELECT ?trader WHERE {
+    ?trader a :ForexTrader .
+    ?trader :hasAccess ?access .
+    ?trader :hasRisk ?risk .
+    ?trader :hasCompliance ?compliance .
+    ?access :status :Active .
+    ?risk :maxLeverage ?leverage .
+    ?compliance :status :Verified .
+    FILTER(?leverage <= 50)
+}
+
+# Query 8: Real-time Position Risk (2 ticks)
+# name: REALTIME_POSITION_RISK
+SELECT ?trader ?position ?currentRisk WHERE {
+    ?trader :hasPosition ?position .
+    ?position :hasLeverage ?leverage .
+    ?position :hasSize ?size .
+    BIND(?leverage * ?size AS ?currentRisk)
+    FILTER(?currentRisk < 1000000)
+}
+
+# Query 9: Market Pair Selection (1 tick)
+# name: MARKET_PAIR_SELECTION
+SELECT ?pair WHERE {
+    ?pair a :CurrencyPair .
+    ?pair :hasLiquidity :HighLiquidity .
+    VALUES ?pair { :EURUSD :GBPUSD :USDJPY }
+}
+
+# Query 10: News-Driven Trade Opportunity (2 ticks)
+# name: NEWS_TRADE_OPPORTUNITY
+SELECT ?news ?pair ?impact WHERE {
+    ?news a :NewsEvent .
+    ?news :hasImpact :HighImpact .
+    ?news :affectsPair ?pair .
+    ?pair :hasLiquidity :HighLiquidity .
+}
+
+# Query 11: Risk Limit Validation (1 tick)  
+# name: RISK_LIMIT_VALIDATION
+SELECT ?trader ?currentExposure WHERE {
+    ?trader :hasPosition ?position .
+    ?position :hasSize ?size .
+    ?position :hasLeverage ?leverage .
+    BIND(?size * ?leverage AS ?currentExposure)
+    FILTER(?currentExposure <= 5000000)
+}
+
+# Query 12: Compliance Jurisdiction Check (1 tick)
+# name: COMPLIANCE_JURISDICTION_CHECK
+SELECT ?trader ?jurisdiction WHERE {
+    ?trader :hasCompliance ?compliance .
+    ?compliance :status :Verified .
+    ?compliance :jurisdiction ?jurisdiction .
+    VALUES ?jurisdiction { "US" "EU" "UK" }
+}
+
+# Query 13: Processing Tick Budget (1 tick)
+# name: PROCESSING_TICK_BUDGET
+SELECT ?class ?ticks WHERE {
+    ?class :processingTicks ?ticks .
+    FILTER(?ticks <= 8)
+}
+
+# Query 14: Active Market Hours (1 tick)
+# name: ACTIVE_MARKET_HOURS
+SELECT ?pair ?liquidity WHERE {
+    ?pair a :CurrencyPair .
+    ?pair :hasLiquidity ?liquidity .
+    FILTER(?liquidity IN (:HighLiquidity, :MediumLiquidity))
+}
+
+# Query 15: Emergency Position Close (1 tick)
+# name: EMERGENCY_POSITION_CLOSE
+SELECT ?position WHERE {
+    ?position a :Position .
+    ?position :hasLeverage ?leverage .
+    FILTER(?leverage > 50)
+}
+
+# Aggregated queries for batch processing
+# Query 16: Complete System Health Check (8 ticks)
+# name: SYSTEM_HEALTH_CHECK
+SELECT ?trader ?status WHERE {
+    ?trader a :ForexTrader .
+    ?trader :hasAccess ?access .
+    ?trader :hasRisk ?risk .
+    ?trader :hasCompliance ?compliance .
+    ?access :status ?accessStatus .
+    ?risk :maxLeverage ?leverage .
+    ?compliance :status ?complianceStatus .
+    BIND(
+        IF(?accessStatus = :Active && 
+           ?leverage <= 50 && 
+           ?complianceStatus = :Verified, 
+           "HEALTHY", "DEGRADED") AS ?status
+    )
+}
+
+# Query 17: Performance Metrics (2 ticks)
+# name: PERFORMANCE_METRICS
+SELECT (COUNT(?trader) AS ?totalTraders) 
+       (COUNT(?position) AS ?totalPositions)
+       (AVG(?leverage) AS ?avgLeverage) WHERE {
+    ?trader a :ForexTrader .
+    OPTIONAL { ?trader :hasPosition ?position }
+    OPTIONAL { ?position :hasLeverage ?leverage }
+}
+
+# Query 18: News Event Pipeline (3 ticks)
+# name: NEWS_EVENT_PIPELINE
+SELECT ?news ?impact ?affectedPairs WHERE {
+    ?news a :NewsEvent .
+    ?news :hasImpact ?impact .
+    ?news :affectsPair ?pair .
+    GROUP_CONCAT(?pair; separator=",") AS ?affectedPairs
+}
+GROUP BY ?news ?impact
+
+# BitActor Integration Notes:
+# - Each query designed for specific tick budget
+# - Pre-compilation to constants reduces runtime overhead
+# - Memory-mapped triple access for zero-parse performance
+# - SIMD-optimized pattern matching where applicable
+# - Total system processing budget: 8 ticks maximum

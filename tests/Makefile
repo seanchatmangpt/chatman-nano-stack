@@ -35,9 +35,9 @@ endif
 
 all: $(BDD_TESTS) $(PERF_TESTS)
 
-# BDD Tests for existing C code
-test_cns_pipeline_bdd: test_cns_pipeline_bdd.c $(CNS_SRCS) $(TEST_SOURCES)
-	$(CC) $(CFLAGS) -o $@ $^
+# BDD Tests for existing C code - Use only test adapters to avoid symbol conflicts
+test_cns_pipeline_bdd: test_cns_pipeline_bdd.c $(CNS_SRCS)
+	$(CC) $(CFLAGS) -o $@ $^ ../bitactor/tests/test_adapters.c ../bitactor/tests/test_adapters_impl.c -lpthread -DMOCK_NEWS_VALIDATOR
 
 test_tick_parallel_bdd: test_tick_parallel_bdd.c ../src/cns/tick_parallel.c
 	$(CC) $(CFLAGS) -o $@ $^
@@ -73,7 +73,7 @@ test_benchmarks_validation_bdd: test_benchmarks_validation_bdd.c
 
 # Real implementation tests
 test_bitactor_core_real_bdd: test_bitactor_core_real_bdd.c
-	$(CC) $(CFLAGS) -o $@ $< ../bitactor/src/bitactor.c ../bitactor/src/bitactor_dispatch.c ../bitactor/src/bitactor_telemetry.c -DUSE_REAL_IMPLEMENTATIONS -I../bitactor/src -I../bitactor/include -lpthread
+	$(CC) $(CFLAGS) -o $@ $< ../bitactor/src/bitactor.c ../bitactor/src/bitactor_dispatch.c ../bitactor/src/bitactor_telemetry.c ../bitactor/src/bitfiber.c -DUSE_REAL_IMPLEMENTATIONS -I../bitactor/src -I../bitactor/include -lpthread
 
 test_bitactor_integration_real_bdd: test_bitactor_integration_real_bdd.c
 	$(CC) $(CFLAGS) -o $@ $< -DUSE_REAL_IMPLEMENTATIONS -I../bitactor/integration -I../bitactor/src
@@ -93,7 +93,7 @@ test_cns_integration_real_bdd: test_cns_integration_real_bdd.c
 
 # Chaos engineering test - include all required source files
 test_bitactor_chaos_bdd: test_bitactor_chaos_bdd.c
-	$(CC) $(CFLAGS) -o $@ $< ../bitactor/src/bitactor.c ../bitactor/src/bitactor_dispatch.c ../bitactor/src/bitactor_telemetry.c ../src/cns/bitfiber.c -DUSE_REAL_IMPLEMENTATIONS -I../bitactor/src -I../bitactor/include -I../src/cns -lpthread
+	$(CC) $(CFLAGS) -o $@ $< ../bitactor/src/bitactor.c ../bitactor/src/bitactor_dispatch.c ../bitactor/src/bitactor_telemetry.c ../bitactor/src/bitfiber.c -DUSE_REAL_IMPLEMENTATIONS -I../bitactor/src -I../bitactor/include -lpthread
 
 # Complete system integration test - Available subsystems (BitActor core + telemetry + fiber)
 test_cns_system_integration_complete: test_cns_system_integration_complete.c
@@ -157,6 +157,10 @@ test-coverage: clean $(BDD_TESTS)
 	@gcov *.c
 	@echo "\n✅ Coverage report generated!"
 
+# Benchmark test
+test_bitactor_benchmarks: test_bitactor_benchmarks.c
+	$(CC) $(CFLAGS) -o $@ $< ../bitactor/src/bitactor.c ../bitactor/src/bitactor_dispatch.c ../bitactor/src/bitactor_telemetry.c ../bitactor/src/bitfiber.c -DUSE_REAL_IMPLEMENTATIONS -I../bitactor/src -I../bitactor/include -lpthread -lm
+
 # Clean build artifacts
 clean:
-	rm -f $(BDD_TESTS) $(PERF_TESTS) $(REAL_TESTS) $(MOCK_TESTS) *.o *.gcno *.gcda *.gcov
+	rm -f $(BDD_TESTS) $(PERF_TESTS) $(REAL_TESTS) $(MOCK_TESTS) test_bitactor_benchmarks *.o *.gcno *.gcda *.gcov

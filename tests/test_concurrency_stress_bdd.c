@@ -4,7 +4,7 @@
  * Context switch storms, priority inversion, deadlock detection, race conditions
  */
 #include "../bitactor/tests/bdd_framework.h"
-#include "../bitactor/include/bitactor_public.h"
+#include "../bitactor/include/bitactor.h"
 #include "../bitactor/src/bitactor.h"
 #include "../bitactor/src/bitfiber.h"
 #include <pthread.h>

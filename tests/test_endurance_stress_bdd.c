@@ -4,7 +4,7 @@
  * Resource leak detection, performance degradation analysis, continuous operation
  */
 #include "../bitactor/tests/bdd_framework.h"
-#include "../bitactor/include/bitactor_public.h"
+#include "../bitactor/include/bitactor.h"
 #include "../bitactor/src/bitactor.h"
 #include "../bitactor/src/bitfiber.h"
 #include <string.h>

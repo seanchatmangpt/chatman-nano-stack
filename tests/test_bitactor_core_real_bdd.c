@@ -77,6 +77,7 @@ static result_t stress_test_handler(signal_t* signal, void* scratch) {
 }
 
 static result_t latency_critical_handler(signal_t* signal, void* scratch) {
+    (void)scratch; /* Suppress unused parameter warning */
     result_t result = {0};
     result.signal_id = signal->id;
     result.status = BITACTOR_OK;

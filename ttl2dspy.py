@@ -94,7 +94,7 @@ class TTL2DSPyTranspiler:
                 return "dtype=float"
 
         # Check for sh:class (object properties)
-        class_constraint = g.value(prop_shape, SH.class_)
+        class_constraint = g.value(prop_shape, SH['class'])
         if class_constraint:
             return "dtype=str"  # Objects referenced as strings
 

@@ -5,7 +5,7 @@
  */
 #include "../bitactor/tests/bdd_framework.h"
 #include "../bitactor/src/bitfiber.h"
-#include "../bitactor/include/bitactor_public.h"
+#include "../bitactor/include/bitactor.h"
 #include <string.h>
 #include <stdlib.h>
 

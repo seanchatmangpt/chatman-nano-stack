@@ -7,7 +7,7 @@
 #include "../src/sparql/sparql_compiler.h"
 #include "../src/sparql/sparql_codegen.h"
 #include "../src/sparql/sparql_to_bitactor.h"
-#include "../bitactor/include/bitactor_public.h"
+#include "../bitactor/include/bitactor.h"
 #include <string.h>
 #include <stdlib.h>
 

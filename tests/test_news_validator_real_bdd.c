@@ -5,7 +5,7 @@
  */
 #include "../bitactor/tests/bdd_framework.h"
 #include "../src/news/news_validator.h"
-#include "../bitactor/include/bitactor_public.h"
+#include "../bitactor/include/bitactor.h"
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>

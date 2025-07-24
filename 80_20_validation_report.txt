@@ -1,0 +1,72 @@
+================================================================================
+🚀 CNS COMPREHENSIVE TEST REPORT
+================================================================================
+Generated: 2025-07-23 20:46:25
+Total Execution Time: 3.10s
+
+📊 OVERALL STATISTICS:
+   Total Tests: 10
+   ✅ Passed: 2
+   ❌ Failed: 6
+   ⏭️  Skipped: 2
+   🎯 Success Rate: 20.0%
+
+🧪 BDD TESTS: Behavior-driven development validation
+------------------------------------------------------------
+   Duration: 0.07s
+   Tests: 1
+   Status: ✅ 0 passed, ❌ 1 failed, ⏭️ 0 skipped
+   ❌ test-real: 0.07s
+      🔴 test_bitactor_integration_real_bdd.c:7:10: fatal error: '../bitactor/include/bitactor_public.h' file not found
+      🔴 7 | #include "../bitactor/include/bitactor_public.h"
+      🔴 |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+🧪 UNIT TESTS: Individual component validation
+------------------------------------------------------------
+   Duration: 0.12s
+   Tests: 3
+   Status: ✅ 0 passed, ❌ 1 failed, ⏭️ 2 skipped
+   ❌ ./test_bitactor_core_real_bdd: 0.12s
+   ⏭️ test_news_validator_real_bdd: 0.00s
+   ⏭️ test_sparql_real_bdd: 0.00s
+
+🧪 SELF-CHECKS: System health and integration validation
+------------------------------------------------------------
+   Duration: 0.33s
+   Tests: 1
+   Status: ✅ 0 passed, ❌ 1 failed, ⏭️ 0 skipped
+   ❌ all: 0.33s
+      🔴 test_bitactor_core_real_bdd.c:79:66: warning: unused parameter 'scratch' [-Wunused-parameter]
+      🔴 79 | static result_t latency_critical_handler(signal_t* signal, void* scratch) {
+      🔴 |                                                                  ^
+
+🧪 BENCHMARKS: Performance and coverage analysis
+------------------------------------------------------------
+   Duration: 0.48s
+   Tests: 2
+   Status: ✅ 0 passed, ❌ 2 failed, ⏭️ 0 skipped
+   ❌ test-performance: 0.13s
+      🔴 ../bitactor/tests/test_adapters.c:143:34: error: no member named 'write_index' in 'struct telemetry_ring'; did you mean 'write_idx'?
+      🔴 143 |     if (!telemetry || telemetry->write_index == 0) {
+      🔴 |                                  ^~~~~~~~~~~
+   ❌ test-coverage: 0.35s
+      🔴 test_bitactor_core_real_bdd.c:79:66: warning: unused parameter 'scratch' [-Wunused-parameter]
+      🔴 79 | static result_t latency_critical_handler(signal_t* signal, void* scratch) {
+      🔴 |                                                                  ^
+
+🧪 STRESS TESTS: High-load and chaos engineering validation
+------------------------------------------------------------
+   Duration: 3.09s
+   Tests: 3
+   Status: ✅ 2 passed, ❌ 1 failed, ⏭️ 0 skipped
+   ✅ ./test_cns_system_integration_complete: 0.01s
+      🔄 Execution cycles: 167
+      ⚡ Zero-tick optimized: 938
+      📈 Optimization ratio: 93.8%
+      🟢 System health: operational
+   ✅ ./test_bitactor_chaos_bdd: 2.01s
+   ❌ ./test_bitactor_core_real_bdd: 1.07s
+
+🎯 FINAL STATUS:
+🔴 CRITICAL FAILURES - SYSTEM NOT READY FOR PRODUCTION
+================================================================================

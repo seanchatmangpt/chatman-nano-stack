@@ -1,0 +1,86 @@
+## BitActor UHFT VM Configuration
+## Ultra-High-Frequency Trading Optimizations
+
+## Node name
+-name bitactor@127.0.0.1
+
+## Cookie for distributed Erlang (disabled for UHFT)
+-setcookie bitactor_uhft_secret
+
+## Disable SMP auto-detection and bind schedulers
++S 16:16
++sbwt very_long
++sbwtdcpu very_long
++sbwtdio very_long
+
+## Scheduler binding for cache locality
++sbt tnnps
+
+## Dirty schedulers for NIF operations
++SDcpu 16:16
++SDio 4:4
+
+## Process priority and flags
++P 10000000
++Q 65536
+
+## Aggressive garbage collection settings
++hms 8192
++hmbs 32768
++hmax 0
++hmaxk false
++hmaxel false
+
+## Disable features that impact latency
+-heart
+-kernel inet_dist_use_interface {127,0,0,1}
++W w
++zdbbl 32768
+
+## Memory allocators optimized for UHFT
++MBas aobf
++MRas aobf
++MBacul 0
++MMscs 2048
++MHas aobf
++MHacul 0
+
+## Carrier pool settings
++Mcpu true
++Muacul 0
++Mulmbcs 32768
++Mumbcgs 1
+
+## Large heap settings
++Mlpm all
+
+## Time correction disabled for lowest latency
++c false
+
+## Disable break handler
++Bi
+
+## Async thread pool
++A 128
++K true
+
+## Port parallelism
++spp true
+
+## Distribution buffer settings (even though distribution is disabled)
++zdbbl 32768
+
+## Kernel poll
++K true
+
+## Multi-time warp mode off for consistency
++C no_time_warp
+
+## Load balancing off for predictable latency
++sub true
+
+## Microstate accounting disabled
++Muacul 0
+
+## Force all schedulers online
++SP 100:100

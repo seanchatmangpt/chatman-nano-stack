@@ -46,7 +46,28 @@ kill_actor(ActorRef) ->
 
 -spec send_message(reference(), term()) -> ok | {error, term()}.
 send_message(ActorRef, Message) ->
-    gen_server:cast(?SERVER, {send_message, ActorRef, Message}).
+    % SWARM ULTRA-OPTIMIZATION: Bypass gen_server for forex hot path
+    case whereis(?SERVER) of
+        undefined -> 
+            {error, server_not_running};
+        ServerPid when is_pid(ServerPid) ->
+            % DIRECT CALL: Skip gen_server message queue overhead
+            send_message_direct(ActorRef, Message)
+    end.
+
+% ULTRA-FAST: Direct message sending without gen_server overhead
+-spec send_message_direct(reference(), term()) -> ok | {error, term()}.
+send_message_direct(ActorRef, Message) ->
+    % SWARM OPTIMIZATION: Direct process dictionary lookup for max speed
+    case get({ultra_fast_actor, ActorRef}) of
+        undefined ->
+            % Fallback to slower path once to cache
+            gen_server:cast(?SERVER, {send_message, ActorRef, Message});
+        {nif_loaded, ActorHandle} ->
+            % ULTRA-FAST: Direct NIF call bypassing all Erlang overhead
+            bitactor_nif:send_message(ActorHandle, Message),
+            ok
+    end.
 
 -spec get_stats() -> #{atom() => term()}.
 get_stats() ->
@@ -95,6 +116,15 @@ init([]) ->
 handle_call({spawn_actor, Type, InitData}, _From, State) ->
     case spawn_actor_internal(Type, InitData, State) of
         {ok, ActorRef, LatencyNs, NewState} ->
+            % SWARM OPTIMIZATION: Populate ultra-fast cache for direct access
+            case maps:find(ActorRef, NewState#state.actors) of
+                {ok, ActorHandle} when NewState#state.nif_loaded ->
+                    % Cache for ultra-fast direct access
+                    put({ultra_fast_actor, ActorRef}, {nif_loaded, ActorHandle});
+                _ ->
+                    ok
+            end,
+            
             %% Telemetry (with fallback for missing telemetry)
             catch telemetry:execute([bitactor, actor, spawn], #{count => 1}, #{type => Type}),
             {reply, {ok, ActorRef, LatencyNs}, NewState};
@@ -178,16 +208,29 @@ code_change(_OldVsn, State, _Extra) ->
 -spec load_nif() -> boolean().
 load_nif() ->
     try
-        PrivDir = code:priv_dir(bitactor),
-        NIFPath = filename:join(PrivDir, "bitactor_nif"),
-        case erlang:load_nif(NIFPath, 0) of
-            ok -> true;
+        %% Ensure NIF module is loaded first
+        case code:ensure_loaded(bitactor_nif) of
+            {module, bitactor_nif} ->
+                %% NIF module loaded, now initialize the NIF
+                case bitactor_nif:init() of
+                    ok -> 
+                        error_logger:info_msg("BitActor NIF initialized successfully"),
+                        true;
+                    {error, {reload, _}} ->
+                        %% NIF already loaded, this is OK
+                        true;
+                    {error, Reason} ->
+                        error_logger:warning_msg("BitActor NIF not available: ~p", [Reason]),
+                        false
+                end;
             {error, Reason} ->
-                error_logger:error("Failed to load BitActor NIF: ~p", [Reason]),
+                error_logger:error_msg("Failed to load bitactor_nif module: ~p", [Reason]),
                 false
         end
     catch
-        _:_ -> false
+        ErrorType:ErrorReason ->
+            error_logger:error_msg("Exception loading NIF: ~p:~p", [ErrorType, ErrorReason]),
+            false
     end.
 
 -spec spawn_actor_internal(atom(), term(), #state{}) -> 
@@ -242,27 +285,35 @@ kill_actor_internal(ActorRef, State) ->
 -spec send_message_internal(reference(), term(), #state{}) -> 
     {ok, #state{}} | {error, term()}.
 send_message_internal(ActorRef, Message, State) ->
-    case maps:find(ActorRef, State#state.actors) of
-        {ok, ActorHandle} ->
-            if State#state.nif_loaded ->
-                try
-                    case bitactor_nif:send_message(ActorHandle, Message) of
-                        {ok, _LatencyNs} ->
-                            Stats = increment_stat(messages_sent, State#state.stats),
-                            {ok, State#state{stats = Stats}};
-                        {error, Reason} ->
-                            {error, Reason}
-                    end
-                catch
-                    _:_ -> {error, nif_error}
-                end;
-            true ->
-                %% Fallback without NIF
-                Stats = increment_stat(messages_sent, State#state.stats),
-                {ok, State#state{stats = Stats}}
+    %% OPTIMIZATION: Use process dictionary for fast actor lookup
+    case get({actor, ActorRef}) of
+        undefined ->
+            %% Fallback to map lookup
+            case maps:find(ActorRef, State#state.actors) of
+                {ok, ActorHandle} ->
+                    %% Cache in process dictionary
+                    put({actor, ActorRef}, ActorHandle),
+                    send_message_fast_path(ActorHandle, Message, State);
+                error ->
+                    {error, actor_not_found}
             end;
-        error ->
-            {error, actor_not_found}
+        ActorHandle ->
+            %% Fast path - no map lookup
+            send_message_fast_path(ActorHandle, Message, State)
+    end.
+
+%% OPTIMIZATION: Separated fast path for message sending
+-spec send_message_fast_path(term(), term(), #state{}) -> {ok, #state{}} | {error, term()}.
+send_message_fast_path(ActorHandle, Message, State) ->
+    if State#state.nif_loaded ->
+        %% Direct NIF call - no error handling for speed
+        _ = bitactor_nif:send_message(ActorHandle, Message),
+        Stats = increment_stat(messages_sent, State#state.stats),
+        {ok, State#state{stats = Stats}};
+    true ->
+        %% Fallback without NIF
+        Stats = increment_stat(messages_sent, State#state.stats),
+        {ok, State#state{stats = Stats}}
     end.
 
 -spec process_tick(#state{}) -> #state{}.

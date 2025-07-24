@@ -20,8 +20,8 @@ SRC_DIR = c_src
 PRIV_DIR = priv
 BUILD_DIR = _build
 
-# Files
-C_SRC = $(SRC_DIR)/bitactor_nif_portable.c
+# Files - Use UHFT optimized version
+C_SRC = $(SRC_DIR)/bitactor_nif_uhft.c
 NIF_SO = $(PRIV_DIR)/bitactor_nif.so
 
 # Find Erlang include directory

@@ -1,0 +1,33 @@
+{
+  "timestamp": "2025-07-23T21:26:18.825530",
+  "components": {
+    "bitactor_semantic_core.ttl": {
+      "status": "failed",
+      "error": "No SHACL shapes found in /Users/sac/cns/ontologies/bitactor_semantic_core.ttl\n"
+    },
+    "bitactor_semantic_shacl.ttl": {
+      "status": "success",
+      "output_file": "/Users/sac/cns/generated_semantic/signatures/bitactor_semantic_shacl_signatures.py",
+      "stdout": "Processing /Users/sac/cns/ontologies/bitactor_semantic_shacl.ttl...\nGenerated 13 signatures -> /Users/sac/cns/generated_semantic/signatures/bitactor_semantic_shacl_signatures.py\nProcessed: 1 success, 0 errors\n"
+    },
+    "merged_signatures": {
+      "status": "success",
+      "output_file": "/Users/sac/cns/generated_semantic/production_semantic_bitactors.py",
+      "stdout": "Processing /Users/sac/cns/ontologies/bitactor_semantic_core.ttl...\nProcessing /Users/sac/cns/ontologies/bitactor_semantic_shacl.ttl...\nGenerated 13 signatures -> /Users/sac/cns/generated_semantic/production_semantic_bitactors.py\nProcessed: 1 success, 0 errors\n"
+    },
+    "c_integration": {
+      "header_file": "/Users/sac/cns/generated_semantic/c_integration/semantic_bitactor_integration.h",
+      "status": "generated"
+    }
+  },
+  "performance": {
+    "status": "passed",
+    "output": "\ud83d\ude80 Semantic BitActor Integration Tests\n===========================================================\n\ud83e\uddea Testing Semantic Signal Generation...\n  \u2705 Semantic signal created: ID=12345, Subject=3978159721, Predicate=252620398\n\ud83e\uddea Testing Handler Signature Validation...\n  \u2705 Handler validated: Budget=8 ticks, Vectorizable=true, Batch=16\n\ud83e\uddea Testing Execution Result Validation...\n  \u2705 Execution result: 3 ticks, Status=SUCCESS, TraceID=1001\n\ud83e\uddea Testing Memory Pool Signature...\n  \u2705 Memory pool: 32768 bytes, 64-byte aligned\n\ud83e\uddea Testing SPARQL Query Complexity...\n  \u2705 SPARQL query: Complexity=4 ticks, Cached=true\n\ud83e\uddea Testing Engine Configuration...\n  \u2705 Engine: 1024 signals, 256 dispatch entries, Store ID=1\n\ud83e\uddea Testing 8-Tick Performance Guarantee...\n  \u2705 Performance: 1000 signals processed in 0.000009 seconds\n  \u2705 Average: 0.009000 microseconds per signal\n===========================================================\n\u2705 ALL INTEGRATION TESTS PASSED\n\ud83c\udfaf 13 DSPy signatures validated against C implementation\n\u26a1 8-tick performance guarantee maintained\n",
+    "8_tick_guarantee": "maintained"
+  },
+  "validation": {},
+  "documentation": {
+    "readme": "/Users/sac/cns/generated_semantic/README.md",
+    "status": "generated"
+  }
+}

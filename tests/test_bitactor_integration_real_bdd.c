@@ -4,7 +4,7 @@
  * NO MOCKS - Real integration testing
  */
 #include "../bitactor/tests/bdd_framework.h"
-#include "../bitactor/include/bitactor_public.h"
+#include "../bitactor/include/bitactor.h"
 #include "../bitactor/integration/cns_integration.h"
 #include "../src/cns/cns_pipeline.h"
 #include <string.h>

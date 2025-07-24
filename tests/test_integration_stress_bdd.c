@@ -4,7 +4,7 @@
  * Multi-component chaos testing, end-to-end validation, system-wide pressure
  */
 #include "../bitactor/tests/bdd_framework.h"
-#include "../bitactor/include/bitactor_public.h"
+#include "../bitactor/include/bitactor.h"
 #include "../bitactor/src/bitactor.h"
 #include "../bitactor/src/bitfiber.h"
 #include "../src/cns/cns_pipeline.h"

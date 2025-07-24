@@ -68,7 +68,7 @@ init() ->
             %% NIF already loaded
             ok;
         {error, Reason} ->
-            error_logger:warning("Failed to load BitActor NIF from ~s: ~p", [NIFPath, Reason]),
+            error_logger:warning_msg("Failed to load BitActor NIF from ~s: ~p", [NIFPath, Reason]),
             error_logger:info_msg("BitActor will run in fallback mode without C acceleration"),
             {error, Reason}
     end.
