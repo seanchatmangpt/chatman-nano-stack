@@ -1,0 +1,91 @@
+# Makefile for BitActor 80/20 Optimizations
+# Builds and tests all performance improvements
+
+CC = gcc
+CFLAGS = -O3 -march=native -mtune=native -Wall -Wextra -pthread
+CFLAGS += -I../bitactor/include -I../bitactor/src
+LDFLAGS = -lpthread -lm
+
+# Enable SIMD optimizations based on architecture
+UNAME_M := $(shell uname -m)
+ifeq ($(UNAME_M),x86_64)
+    CFLAGS += -mavx2 -mfma
+endif
+ifeq ($(UNAME_M),arm64)
+    # ARM64/Apple Silicon optimizations
+    CFLAGS += -mcpu=native
+endif
+
+# Source files
+SRCS = stress_test_80_20.c \
+       ../bitactor/src/bitactor_memory_pool.c \
+       ../bitactor/src/bitactor_fast_dispatch.c
+
+# Stub for missing network functions (for isolated testing)
+STUB_SRCS = network_stubs.c
+
+# Object files
+OBJS = $(SRCS:.c=.o) $(STUB_SRCS:.c=.o)
+
+# Target executable
+TARGET = stress_test_80_20
+
+# Default target
+all: $(TARGET)
+
+# Create network stubs
+network_stubs.c:
+	@echo "Creating network function stubs..."
+	@echo '/* Network function stubs for testing */' > $@
+	@echo '#include <stdio.h>' >> $@
+	@echo 'int network_engine_init(int port) { (void)port; return 0; }' >> $@
+	@echo 'void network_engine_shutdown(void) {}' >> $@
+	@echo 'void network_engine_print_stats(void) { printf("Network stats: (stubbed)\\n"); }' >> $@
+	@echo '' >> $@
+	@echo '/* Missing get_cpu_cycles if not defined */' >> $@
+	@echo '#ifndef __x86_64__' >> $@
+	@echo '#ifndef __aarch64__' >> $@
+	@echo '#include <time.h>' >> $@
+	@echo 'uint64_t get_cpu_cycles(void) {' >> $@
+	@echo '    struct timespec ts;' >> $@
+	@echo '    clock_gettime(CLOCK_MONOTONIC, &ts);' >> $@
+	@echo '    return ts.tv_sec * 1000000000ULL + ts.tv_nsec;' >> $@
+	@echo '}' >> $@
+	@echo '#endif' >> $@
+	@echo '#endif' >> $@
+
+# Build the stress test
+$(TARGET): network_stubs.c $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS)
+
+# Pattern rule for object files
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Run the stress test
+test: $(TARGET)
+	@echo "Running BitActor 80/20 Optimization Stress Test..."
+	@echo "=========================================="
+	./$(TARGET)
+
+# Quick benchmark
+benchmark: $(TARGET)
+	@echo "Quick Benchmark (reduced load)..."
+	@echo "=========================================="
+	./$(TARGET) --quick
+
+# Clean build artifacts
+clean:
+	rm -f $(TARGET) $(OBJS) network_stubs.c
+	rm -f ../bitactor/src/*.o
+
+# Memory leak check
+valgrind: $(TARGET)
+	valgrind --leak-check=full --show-leak-kinds=all ./$(TARGET)
+
+# Performance profiling
+perf: $(TARGET)
+	perf record -g ./$(TARGET)
+	perf report
+
+.PHONY: all test benchmark clean valgrind perf

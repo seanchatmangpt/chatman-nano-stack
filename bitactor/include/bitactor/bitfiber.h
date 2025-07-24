@@ -22,8 +22,7 @@ typedef struct {
 /* Fiber function prototype */
 typedef void (*fiber_fn)(void* arg);
 
-/* Fiber scheduler state */
-typedef struct fiber_scheduler fiber_scheduler_t;
+/* Fiber scheduler state - forward declared in bitactor.h */
 
 /* Fiber status codes */
 enum {

@@ -149,8 +149,8 @@ static ERL_NIF_TERM create_actor_nif(ErlNifEnv* env, int argc, const ERL_NIF_TER
         return enif_make_badarg(env);
     }
     
-    uint64_t type;
-    if (!enif_get_uint64(env, argv[0], &type)) {
+    unsigned long type;
+    if (!enif_get_ulong(env, argv[0], &type)) {
         return enif_make_badarg(env);
     }
     

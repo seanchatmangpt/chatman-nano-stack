@@ -19,7 +19,6 @@
 #define TRACE_OP_ERROR 0x04
 
 /* Forward declarations */
-typedef struct telemetry_ring telemetry_ring_t;
 typedef struct telemetry_frame telemetry_frame_t;
 
 /* Telemetry frame structure */

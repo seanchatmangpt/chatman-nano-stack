@@ -48,7 +48,7 @@ elif sys.platform == "darwin":  # macOS
         "-lomp"
     ])
 
-# Define extensions
+# Define extensions - only build existing files
 extensions = [
     Extension(
         "aot_lifecycle_optimized",
@@ -61,22 +61,6 @@ extensions = [
     Extension(
         "bitactor_compiler_optimized", 
         sources=["bitactor_compiler_optimized.pyx"],
-        include_dirs=[numpy.get_include()],
-        extra_compile_args=extra_compile_args,
-        extra_link_args=extra_link_args,
-        language="c++"
-    ),
-    Extension(
-        "owl_compiler_optimized",
-        sources=["owl_compiler_optimized.pyx"], 
-        include_dirs=[numpy.get_include()],
-        extra_compile_args=extra_compile_args,
-        extra_link_args=extra_link_args,
-        language="c++"
-    ),
-    Extension(
-        "performance_utils",
-        sources=["performance_utils.pyx"],
         include_dirs=[numpy.get_include()],
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
@@ -110,7 +94,7 @@ setup(
         extensions,
         compiler_directives=compiler_directives,
         annotate=True,  # Generate HTML annotation files
-        nthreads=os.cpu_count()  # Parallel compilation
+        nthreads=1  # Single-threaded compilation to avoid multiprocessing issues
     ),
     zip_safe=False,
     python_requires=">=3.8",

@@ -40,7 +40,9 @@ typedef struct signal {
     uint64_t payload;
     uint8_t flags;
     uint64_t timestamp;
-    uint8_t kind;  // For dispatch compatibility
+    uint8_t kind;      // For dispatch compatibility
+    uint8_t priority;  // Signal priority (0-255)
+    uint64_t context;  // Signal context data
 } signal_t;
 
 /* Result structure */

@@ -21,10 +21,10 @@ typedef struct {
 } dispatch_entry_t;
 
 /* Dispatch table - statically allocated */
-typedef struct dispatch_table {
+struct dispatch_table {
     dispatch_entry_t entries[BITACTOR_DISPATCH_SIZE];
     uint32_t active_count;
-} dispatch_table_t;
+};
 
 /* Initialize dispatch table */
 void dispatch_init(dispatch_table_t* table);

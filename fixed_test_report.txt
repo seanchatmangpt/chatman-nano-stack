@@ -1,0 +1,72 @@
+================================================================================
+🚀 CNS COMPREHENSIVE TEST REPORT
+================================================================================
+Generated: 2025-07-23 20:18:39
+Total Execution Time: 0.69s
+
+📊 OVERALL STATISTICS:
+   Total Tests: 10
+   ✅ Passed: 1
+   ❌ Failed: 4
+   ⏭️  Skipped: 5
+   🎯 Success Rate: 10.0%
+
+🧪 BDD TESTS: Behavior-driven development validation
+------------------------------------------------------------
+   Duration: 0.17s
+   Tests: 1
+   Status: ✅ 0 passed, ❌ 1 failed, ⏭️ 0 skipped
+   ❌ test-real: 0.17s
+      🔴 test_bitactor_core_real_bdd.c:79:66: warning: unused parameter 'scratch' [-Wunused-parameter]
+      🔴 79 | static result_t latency_critical_handler(signal_t* signal, void* scratch) {
+      🔴 |                                                                  ^
+
+🧪 SELF-CHECKS: System health and integration validation
+------------------------------------------------------------
+   Duration: 0.17s
+   Tests: 1
+   Status: ✅ 0 passed, ❌ 1 failed, ⏭️ 0 skipped
+   ❌ all: 0.17s
+      🔴 test_bitactor_core_real_bdd.c:79:66: warning: unused parameter 'scratch' [-Wunused-parameter]
+      🔴 79 | static result_t latency_critical_handler(signal_t* signal, void* scratch) {
+      🔴 |                                                                  ^
+
+🧪 BENCHMARKS: Performance and coverage analysis
+------------------------------------------------------------
+   Duration: 0.28s
+   Tests: 2
+   Status: ✅ 0 passed, ❌ 2 failed, ⏭️ 0 skipped
+   ❌ test-performance: 0.11s
+      🔴 test_real_vs_mock_performance.c:60:10: error: field designator 'context' does not refer to any field in type 'signal_t' (aka 'struct signal')
+      🔴 60 |         .context = 0
+      🔴 |         ~^~~~~~~~~~~
+   ❌ test-coverage: 0.18s
+      🔴 test_bitactor_core_real_bdd.c:79:66: warning: unused parameter 'scratch' [-Wunused-parameter]
+      🔴 79 | static result_t latency_critical_handler(signal_t* signal, void* scratch) {
+      🔴 |                                                                  ^
+
+🧪 UNIT TESTS: Individual component validation
+------------------------------------------------------------
+   Duration: 0.00s
+   Tests: 3
+   Status: ✅ 0 passed, ❌ 0 failed, ⏭️ 3 skipped
+   ⏭️ test_bitactor_core_real_bdd: 0.00s
+   ⏭️ test_news_validator_real_bdd: 0.00s
+   ⏭️ test_sparql_real_bdd: 0.00s
+
+🧪 STRESS TESTS: High-load and chaos engineering validation
+------------------------------------------------------------
+   Duration: 0.27s
+   Tests: 3
+   Status: ✅ 1 passed, ❌ 0 failed, ⏭️ 2 skipped
+   ✅ ./test_cns_system_integration_complete: 0.27s
+      🔄 Execution cycles: 84
+      ⚡ Zero-tick optimized: 917
+      📈 Optimization ratio: 91.7%
+      🟢 System health: operational
+   ⏭️ test_bitactor_chaos_bdd: 0.00s
+   ⏭️ test_bitactor_core_real_bdd: 0.00s
+
+🎯 FINAL STATUS:
+🔴 CRITICAL FAILURES - SYSTEM NOT READY FOR PRODUCTION
+================================================================================
