@@ -205,14 +205,14 @@ test_edge_case(CaseType, Description) ->
         }
     catch
         Type:Error ->
-            EndTime = erlang:monotonic_time(microsecond),
+            EndTime2 = erlang:monotonic_time(microsecond),
             
             #{
                 case_type => CaseType,
                 description => Description,
                 status => failed,
                 error => {Type, Error},
-                test_time_us => EndTime - StartTime
+                test_time_us => EndTime2 - StartTime
             }
     end.
 
@@ -307,7 +307,7 @@ run_single_coverage_benchmark(SuiteType, Size) ->
         coverage_result => CoverageResult
     }.
 
-simulate_coverage_analysis(SuiteType, Size) ->
+simulate_coverage_analysis(_SuiteType, Size) ->
     %% Simulate realistic coverage analysis time based on codebase size
     BaseTime = Size div 100, % Base processing time
     RandomVariance = rand:uniform(BaseTime div 10 + 1),
@@ -456,7 +456,7 @@ audit_report_accuracy() ->
         {module_aggregation, verify_module_rollups()}
     ],
     
-    PassedChecks = length([C || {_, true} <- AccuracyChecks]),
+    PassedChecks = length([Check || {_, true} = Check <- AccuracyChecks]),
     TotalChecks = length(AccuracyChecks),
     
     #{
@@ -479,7 +479,7 @@ audit_report_formatting() ->
         {mermaid_syntax, validate_mermaid_syntax()}
     ],
     
-    PassedChecks = length([C || {_, true} <- FormattingChecks]),
+    PassedChecks = length([Check || {_, true} = Check <- FormattingChecks]),
     TotalChecks = length(FormattingChecks),
     
     #{
@@ -502,7 +502,7 @@ audit_report_metadata() ->
         {execution_context, true}
     ],
     
-    PassedChecks = length([C || {_, true} <- MetadataChecks]),
+    PassedChecks = length([Check || {_, true} = Check <- MetadataChecks]),
     TotalChecks = length(MetadataChecks),
     
     #{
@@ -543,7 +543,7 @@ calculate_pattern_accuracy(Results) ->
     }.
 
 calculate_robustness_score(Results) ->
-    PassedCount = length([R || #{status := passed} <- Results]),
+    PassedCount = length([Result || Result = #{status := passed} <- Results]),
     TotalCount = length(Results),
     PassedCount / TotalCount.
 
@@ -585,7 +585,7 @@ calculate_scalability_rating(Size, Times) ->
     end.
 
 calculate_overall_consistency(Results) ->
-    ConsistentCount = length([R || #{consistent := true} <- Results]),
+    ConsistentCount = length([Result || Result = #{consistent := true} <- Results]),
     TotalCount = length(Results),
     
     #{

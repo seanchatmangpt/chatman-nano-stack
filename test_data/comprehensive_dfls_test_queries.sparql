@@ -1,0 +1,376 @@
+# ============================================================================
+# COMPREHENSIVE DFLS TEST SPARQL QUERIES
+# Real queries for semantic code generation and quality validation testing
+# ============================================================================
+
+# Query 1: Extract GenServer specifications for code generation
+PREFIX dfls: <http://cns.bitactor.io/ontology/dfls#>
+PREFIX otp: <http://cns.bitactor.io/ontology/otp#>
+PREFIX bitactor: <http://cns.bitactor.io/ontology/bitactor#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX test: <http://test.cns.bitactor.io/>
+
+# extract_genserver_specifications_for_code_generation
+SELECT ?genServer ?module ?label ?comment ?messageLatency ?qualityTarget ?defectRate
+WHERE {
+    ?genServer a otp:GenServer ;
+               otp:hasModule ?module ;
+               rdfs:label ?label .
+    OPTIONAL { ?genServer rdfs:comment ?comment }
+    OPTIONAL { ?genServer bitactor:messageLatency ?messageLatency }
+    OPTIONAL { 
+        ?genServer dfls:hasQualityTarget ?target .
+        ?target dfls:defectRate ?defectRate .
+        BIND(?target AS ?qualityTarget)
+    }
+}
+ORDER BY ?module
+
+# Query 2: Extract Supervisor specifications with child details
+# extract_supervisor_specifications_for_code_generation
+SELECT ?supervisor ?module ?label ?restartStrategy ?maxRestarts ?maxSeconds ?childSpecs
+WHERE {
+    ?supervisor a otp:Supervisor ;
+                otp:hasModule ?module ;
+                rdfs:label ?label ;
+                otp:hasRestartStrategy ?restartStrategy .
+    OPTIONAL { ?supervisor otp:maxRestarts ?maxRestarts }
+    OPTIONAL { ?supervisor otp:maxSeconds ?maxSeconds }
+    OPTIONAL {
+        SELECT ?supervisor (GROUP_CONCAT(?childId; separator=",") AS ?childSpecs)
+        WHERE {
+            ?supervisor otp:hasChildSpec ?childSpec .
+            ?childSpec otp:childId ?childId .
+        }
+        GROUP BY ?supervisor
+    }
+}
+ORDER BY ?module
+
+# Query 3: Extract GenServer state definitions for code generation
+# extract_genserver_state_definitions
+SELECT ?genServer ?module ?stateField ?fieldName ?fieldType ?defaultValue ?comment
+WHERE {
+    ?genServer a otp:GenServer ;
+               otp:hasModule ?module ;
+               otp:hasState ?state .
+    ?state otp:hasStateField ?stateField .
+    ?stateField otp:fieldName ?fieldName ;
+                otp:fieldType ?fieldType .
+    OPTIONAL { ?stateField otp:defaultValue ?defaultValue }
+    OPTIONAL { ?stateField rdfs:comment ?comment }
+}
+ORDER BY ?module ?fieldName
+
+# Query 4: Extract GenServer callbacks for implementation generation
+# extract_genserver_callbacks
+SELECT ?genServer ?module ?callback ?callbackName ?callbackType ?comment
+WHERE {
+    ?genServer a otp:GenServer ;
+               otp:hasModule ?module ;
+               otp:hasCallback ?callback .
+    ?callback otp:callbackName ?callbackName ;
+              otp:callbackType ?callbackType .
+    OPTIONAL { ?callback rdfs:comment ?comment }
+}
+ORDER BY ?module ?callbackType ?callbackName
+
+# Query 5: Extract child specifications for supervisor generation
+# extract_child_specifications
+SELECT ?supervisor ?childSpec ?childId ?startFunc ?restartType ?shutdownTimeout ?childType ?modules
+WHERE {
+    ?supervisor otp:hasChildSpec ?childSpec .
+    ?childSpec otp:childId ?childId ;
+               otp:startFunc ?startFunc ;
+               otp:restartType ?restartType ;
+               otp:shutdownTimeout ?shutdownTimeout ;
+               otp:childType ?childType ;
+               otp:modules ?modules .
+}
+ORDER BY ?supervisor ?childId
+
+# Query 6: Extract ultra-fast GenServer specifications with NIF details
+# extract_ultrafast_genserver_specifications
+SELECT ?genServer ?module ?label ?messageLatency ?cpuUsage ?memoryUsage ?nifModule ?sourceFile ?functions
+WHERE {
+    ?genServer a bitactor:UltraFastGenServer ;
+               otp:hasModule ?module ;
+               rdfs:label ?label ;
+               bitactor:messageLatency ?messageLatency .
+    OPTIONAL { ?genServer bitactor:cpuUsage ?cpuUsage }
+    OPTIONAL { ?genServer bitactor:memoryUsage ?memoryUsage }
+    OPTIONAL { 
+        ?genServer bitactor:hasNIFModule ?nifModule .
+        ?nifModule bitactor:hasSourceFile ?sourceFile .
+        OPTIONAL {
+            SELECT ?nifModule (GROUP_CONCAT(CONCAT(?funcName, "/", ?arity); separator=",") AS ?functions)
+            WHERE {
+                ?nifModule bitactor:hasFunction ?func .
+                ?func bitactor:functionName ?funcName ;
+                      bitactor:arity ?arity .
+            }
+            GROUP BY ?nifModule
+        }
+    }
+}
+ORDER BY ?messageLatency
+
+# Query 7: Quality targets and metrics for code generation
+# extract_quality_targets_and_metrics
+SELECT ?system ?target ?defectRate ?qualityCheck ?checkName ?checkType ?threshold
+WHERE {
+    ?system dfls:hasQualityTarget ?target .
+    ?target dfls:defectRate ?defectRate .
+    OPTIONAL {
+        ?target dfls:hasQualityCheck ?qualityCheck .
+        ?qualityCheck dfls:checkName ?checkName ;
+                      dfls:checkType ?checkType ;
+                      dfls:threshold ?threshold .
+    }
+}
+ORDER BY ?defectRate
+
+# Query 8: Memory pool configurations for performance optimization
+# extract_memory_pool_configurations
+SELECT ?system ?memoryPool ?allocationEfficiency ?fragmentation ?poolSize ?blockSize
+WHERE {
+    ?system bitactor:hasMemoryPool ?memoryPool .
+    ?memoryPool bitactor:allocationEfficiency ?allocationEfficiency ;
+                bitactor:fragmentation ?fragmentation .
+    OPTIONAL { ?memoryPool bitactor:poolSize ?poolSize }
+    OPTIONAL { ?memoryPool bitactor:blockSize ?blockSize }
+}
+ORDER BY ?allocationEfficiency DESC
+
+# Query 9: Control chart configurations for quality monitoring
+# extract_control_chart_configurations
+SELECT ?system ?controlChart ?label ?upperLimit ?lowerLimit ?targetValue
+WHERE {
+    ?system dfls:hasControlChart ?controlChart .
+    ?controlChart rdfs:label ?label ;
+                  dfls:upperControlLimit ?upperLimit ;
+                  dfls:lowerControlLimit ?lowerLimit .
+    OPTIONAL { ?controlChart dfls:targetValue ?targetValue }
+}
+ORDER BY ?label
+
+# Query 10: FMEA analysis data for risk assessment code generation
+# extract_fmea_analysis_data
+SELECT ?system ?fmea ?label ?severity ?occurrence ?detection ?rpn ?failureMode ?effects ?causes ?controls
+WHERE {
+    ?system dfls:hasFMEA ?fmea .
+    ?fmea rdfs:label ?label ;
+          dfls:severity ?severity ;
+          dfls:occurrence ?occurrence ;
+          dfls:detection ?detection ;
+          dfls:riskPriorityNumber ?rpn .
+    OPTIONAL { ?fmea dfls:failureMode ?failureMode }
+    OPTIONAL { ?fmea dfls:effects ?effects }
+    OPTIONAL { ?fmea dfls:causes ?causes }
+    OPTIONAL { ?fmea dfls:controls ?controls }
+}
+ORDER BY ?rpn DESC
+
+# Query 11: Production workflow configurations
+# extract_production_workflow_configurations  
+SELECT ?workflow ?label ?inputOntology ?outputCode ?qualityScore ?generationTime ?template ?templateType
+WHERE {
+    ?workflow a dfls:ProductionWorkflow ;
+              rdfs:label ?label ;
+              dfls:hasInputOntology ?inputOntology ;
+              dfls:hasOutputCode ?outputCode .
+    OPTIONAL { ?workflow dfls:codeQualityScore ?qualityScore }
+    OPTIONAL { ?workflow dfls:generationTime ?generationTime }
+    OPTIONAL {
+        ?template dfls:templateType ?templateType .
+    }
+}
+ORDER BY ?generationTime
+
+# Query 12: System performance budget analysis
+# extract_system_performance_budget
+SELECT ?component ?messageLatency ?cpuUsage ?memoryUsage 
+       ((?messageLatency * 1000 + ?cpuUsage + ?memoryUsage) AS ?performanceBudget)
+WHERE {
+    ?component bitactor:messageLatency ?messageLatency ;
+              bitactor:cpuUsage ?cpuUsage ;
+              bitactor:memoryUsage ?memoryUsage .
+}
+ORDER BY ?performanceBudget DESC
+
+# Query 13: Continuous improvement tracking
+# extract_continuous_improvement_metrics
+SELECT ?system ?currentTarget ?currentDefectRate ?previousTarget ?previousDefectRate 
+       ((?previousDefectRate - ?currentDefectRate) AS ?improvement)
+WHERE {
+    ?system dfls:hasQualityTarget ?currentTarget ;
+            dfls:hasPreviousQualityTarget ?previousTarget .
+    ?currentTarget dfls:defectRate ?currentDefectRate .
+    ?previousTarget dfls:defectRate ?previousDefectRate .
+}
+ORDER BY ?improvement DESC
+
+# Query 14: Template configurations for code generation
+# extract_template_configurations
+SELECT ?template ?label ?templateType ?templateFile ?templateVersion
+WHERE {
+    ?template a dfls:JinjaTemplate ;
+              rdfs:label ?label ;
+              dfls:templateType ?templateType .
+    OPTIONAL { ?template dfls:templateFile ?templateFile }
+    OPTIONAL { ?template dfls:templateVersion ?templateVersion }
+}
+ORDER BY ?templateType ?templateVersion
+
+# Query 15: Complete system integration validation
+# validate_complete_system_integration
+SELECT ?system ?label ?supervisor ?qualityGate ?memoryPool ?controlCharts ?fmeaCount
+WHERE {
+    ?system a dfls:DFLSSystem ;
+            rdfs:label ?label ;
+            dfls:hasSupervisionTree ?supervisor ;
+            dfls:hasQualityGate ?qualityGate ;
+            bitactor:hasMemoryPool ?memoryPool .
+    OPTIONAL {
+        SELECT ?system (COUNT(?chart) AS ?controlCharts)
+        WHERE {
+            ?system dfls:hasControlChart ?chart .
+        }
+        GROUP BY ?system
+    }
+    OPTIONAL {
+        SELECT ?system (COUNT(?fmea) AS ?fmeaCount)  
+        WHERE {
+            ?system dfls:hasFMEA ?fmea .
+        }
+        GROUP BY ?system
+    }
+}
+
+# Query 16: Timeout handler configurations for GenServers
+# extract_timeout_handler_configurations
+SELECT ?genServer ?module ?timeoutHandler ?timeoutValue ?comment
+WHERE {
+    ?genServer a otp:GenServer ;
+               otp:hasModule ?module ;
+               otp:hasTimeoutHandler ?timeoutHandler .
+    ?timeoutHandler otp:timeoutValue ?timeoutValue .
+    OPTIONAL { ?timeoutHandler rdfs:comment ?comment }
+}
+ORDER BY ?timeoutValue
+
+# Query 17: NIF function specifications for C code generation
+# extract_nif_function_specifications
+SELECT ?nifModule ?sourceFile ?function ?functionName ?arity ?comment ?memorySafety
+WHERE {
+    ?nifModule a bitactor:NIFModule ;
+               bitactor:hasSourceFile ?sourceFile ;
+               bitactor:hasFunction ?function .
+    ?function bitactor:functionName ?functionName ;
+              bitactor:arity ?arity .
+    OPTIONAL { ?function rdfs:comment ?comment }
+    OPTIONAL { ?nifModule bitactor:hasMemorySafetyCheck ?memorySafety }
+}
+ORDER BY ?sourceFile ?functionName
+
+# Query 18: Quality gate validation criteria
+# extract_quality_gate_criteria
+SELECT ?qualityGate ?label ?qualityCheck ?passCriteria ?threshold ?metric
+WHERE {
+    ?qualityGate a dfls:QualityGate ;
+                 rdfs:label ?label ;
+                 dfls:hasQualityCheck ?qualityCheck ;
+                 dfls:hasPassCriteria ?passCriteria .
+    ?passCriteria dfls:threshold ?threshold ;
+                  dfls:metric ?metric .
+}
+ORDER BY ?threshold DESC
+
+# Query 19: System components with their performance characteristics
+# extract_system_component_performance
+SELECT ?system ?component ?componentType ?module ?messageLatency ?qualityScore
+WHERE {
+    ?system a dfls:DFLSSystem .
+    {
+        ?system dfls:hasSupervisionTree ?supervisor .
+        ?supervisor otp:hasChildSpec ?childSpec .
+        ?childSpec otp:childId ?component .
+        BIND("child_process" AS ?componentType)
+        OPTIONAL { ?childSpec otp:modules ?module }
+    }
+    UNION
+    {
+        ?component a otp:GenServer ;
+                   otp:hasModule ?module .
+        BIND("genserver" AS ?componentType)
+        OPTIONAL { ?component bitactor:messageLatency ?messageLatency }
+    }
+    UNION
+    {
+        ?component a bitactor:UltraFastGenServer ;
+                   otp:hasModule ?module ;
+                   bitactor:messageLatency ?messageLatency .
+        BIND("ultrafast_genserver" AS ?componentType)
+    }
+}
+ORDER BY ?system ?componentType ?messageLatency
+
+# Query 20: Comprehensive system validation report
+# generate_comprehensive_system_validation_report
+SELECT ?system ?systemLabel ?supervisorCount ?genServerCount ?qualityTargets ?avgLatency ?totalCPU ?totalMemory
+WHERE {
+    ?system a dfls:DFLSSystem ;
+            rdfs:label ?systemLabel .
+    
+    OPTIONAL {
+        SELECT ?system (COUNT(DISTINCT ?supervisor) AS ?supervisorCount)
+        WHERE {
+            ?system dfls:hasSupervisionTree ?supervisor .
+        }
+        GROUP BY ?system
+    }
+    
+    OPTIONAL {
+        SELECT ?system (COUNT(DISTINCT ?genserver) AS ?genServerCount)
+        WHERE {
+            ?genserver a otp:GenServer .
+        }
+        GROUP BY ?system
+    }
+    
+    OPTIONAL {
+        SELECT ?system (COUNT(DISTINCT ?target) AS ?qualityTargets)
+        WHERE {
+            ?system dfls:hasQualityTarget ?target .
+        }
+        GROUP BY ?system
+    }
+    
+    OPTIONAL {
+        SELECT ?system (AVG(?latency) AS ?avgLatency)
+        WHERE {
+            ?component bitactor:messageLatency ?latency .
+        }
+        GROUP BY ?system
+    }
+    
+    OPTIONAL {
+        SELECT ?system (SUM(?cpu) AS ?totalCPU)
+        WHERE {
+            ?component bitactor:cpuUsage ?cpu .
+        }
+        GROUP BY ?system
+    }
+    
+    OPTIONAL {
+        SELECT ?system (SUM(?memory) AS ?totalMemory)
+        WHERE {
+            ?component bitactor:memoryUsage ?memory .
+        }
+        GROUP BY ?system
+    }
+}
+
+# ============================================================================
+# END OF COMPREHENSIVE DFLS TEST QUERIES
+# ============================================================================

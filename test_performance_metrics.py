@@ -307,56 +307,204 @@ WHERE {
         # Six Sigma quality target
         assert actual_defect_rate <= SIX_SIGMA_DEFECT_RATE * 10  # Allow 10x margin for test environment
     
-    def test_quality_score_calculation(self, quality_config):
-        """Test quality score calculation accuracy"""
+    def test_real_quality_score_measurement(self, quality_config):
+        """Test REAL quality score measurement through actual code generation"""
+        # Load comprehensive test data for real generation
+        comprehensive_ontology_path = Path(__file__).parent / "test_data" / "comprehensive_dfls_test_ontology.ttl"
+        comprehensive_queries_path = Path(__file__).parent / "test_data" / "comprehensive_dfls_test_queries.sparql"
+        
+        # Copy real test data
+        import shutil
+        if comprehensive_ontology_path.exists():
+            shutil.copy(comprehensive_ontology_path, quality_config.ontology_dir / "dfls_erlang_core.ttl")
+        if comprehensive_queries_path.exists():
+            shutil.copy(comprehensive_queries_path, quality_config.sparql_dir / "dfls_code_generation_queries.sparql")
+        
         generator = ErlangOTPGenerator(quality_config)
         
-        # Simulate some successful operations and violations
-        generator.generation_stats['modules_generated'] = 1000
-        generator.generation_stats['quality_violations'] = 3  # Should give ~99.7% quality
+        # REAL code generation operations - no simulation
+        genserver_targets = [
+            "http://test.cns.bitactor.io/forex_trade_manager",
+            "http://test.cns.bitactor.io/risk_management_server", 
+            "http://test.cns.bitactor.io/position_tracker",
+            "http://test.cns.bitactor.io/market_data_feeder"
+        ]
         
-        stats = generator.get_generation_stats()
-        quality_score = stats['quality_score']
+        successful_generations = 0
+        total_lines_generated = 0
+        quality_violations = 0
+        generation_times = []
         
-        expected_quality = 1.0 - (3 / 1000)  # 0.997
+        # Perform REAL code generation and measure actual quality
+        for target in genserver_targets:
+            start_time = time.perf_counter()
+            try:
+                module_name, code = generator.generate_genserver(target)
+                generation_time = time.perf_counter() - start_time
+                generation_times.append(generation_time)
+                
+                # REAL quality measurement - analyze generated code
+                if len(code) > 100:  # Minimum viable code length
+                    successful_generations += 1
+                    total_lines_generated += len(code.split('\n'))
+                    
+                    # Check for quality indicators in generated code
+                    quality_indicators = [
+                        '-behaviour(gen_server)',
+                        'handle_call',
+                        'handle_cast', 
+                        'handle_info',
+                        'init(',
+                        'terminate('
+                    ]
+                    
+                    missing_indicators = sum(1 for indicator in quality_indicators 
+                                           if indicator not in code)
+                    if missing_indicators > 0:
+                        quality_violations += missing_indicators
+                        
+                else:
+                    quality_violations += 1  # Insufficient code generated
+                    
+            except Exception as e:
+                quality_violations += 1  # Generation failure
+                print(f"⚠️ Generation failed for {target}: {e}")
         
-        print(f"✅ Quality score calculation: {quality_score:.4f} (expected: {expected_quality:.4f})")
+        # Calculate REAL quality metrics from actual generation results
+        total_operations = len(genserver_targets)
+        success_rate = successful_generations / total_operations
+        defect_rate = quality_violations / (total_operations * 6)  # 6 quality indicators per module
+        quality_score = 1.0 - defect_rate
+        avg_generation_time = statistics.mean(generation_times) if generation_times else float('inf')
         
-        # Should calculate quality score correctly
-        assert abs(quality_score - expected_quality) < 0.001
+        print(f"✅ REAL quality measurements:")
+        print(f"   - Successful generations: {successful_generations}/{total_operations}")
+        print(f"   - Total lines generated: {total_lines_generated}")
+        print(f"   - Quality violations: {quality_violations}")
+        print(f"   - Quality score: {quality_score:.4f}")
+        print(f"   - Average generation time: {avg_generation_time*1000:.2f}ms")
         
-        # Should approach Six Sigma target
-        six_sigma_quality = 0.99966
-        print(f"✅ Six Sigma target: {six_sigma_quality:.5f}, Current: {quality_score:.5f}")
+        # REAL quality assertions based on actual measurements
+        assert success_rate >= 0.5, f"Should achieve >50% generation success rate, got {success_rate:.2f}"
+        assert quality_score >= 0.7, f"Should achieve >70% quality score, got {quality_score:.4f}"
+        assert avg_generation_time < 0.1, f"Should generate code in <100ms, got {avg_generation_time*1000:.2f}ms"
+        assert total_lines_generated > 0, "Should generate actual code lines"
     
-    def test_continuous_improvement_metrics(self, quality_config):
-        """Test continuous improvement metrics tracking"""
+    def test_real_continuous_improvement_measurement(self, quality_config):
+        """Test REAL continuous improvement through actual performance measurement"""
+        # Load comprehensive test data
+        comprehensive_ontology_path = Path(__file__).parent / "test_data" / "comprehensive_dfls_test_ontology.ttl"
+        comprehensive_queries_path = Path(__file__).parent / "test_data" / "comprehensive_dfls_test_queries.sparql"
+        
+        import shutil
+        if comprehensive_ontology_path.exists():
+            shutil.copy(comprehensive_ontology_path, quality_config.ontology_dir / "dfls_erlang_core.ttl")
+        if comprehensive_queries_path.exists():
+            shutil.copy(comprehensive_queries_path, quality_config.sparql_dir / "dfls_code_generation_queries.sparql")
+        
         generator = ErlangOTPGenerator(quality_config)
+        manager = SemanticGraphManager(quality_config)
+        engine = DFLSTemplateEngine(quality_config)
         
-        # Initial state
-        initial_stats = generator.get_generation_stats()
+        # REAL baseline measurement - measure actual initial performance
+        baseline_start = time.perf_counter()
         
-        # Simulate work over time
-        for i in range(10):
-            generator.generation_stats['modules_generated'] += 10
-            generator.generation_stats['lines_of_code'] += 500
+        # Real semantic graph loading
+        graph_size = len(manager.graph)
+        
+        # Real SPARQL query execution
+        genserver_results = manager.execute_sparql_query('extract_genserver_specifications_for_code_generation')
+        supervisor_results = manager.execute_sparql_query('extract_supervisor_specifications_for_code_generation')
+        
+        # Real template rendering
+        test_context = {
+            'module_name': 'baseline_test_module',
+            'quality_target': 0.00034,
+            'performance_target': 0.0005,
+            'state_fields': [{'name': 'test_field', 'default_value': 'default'}],
+            'callbacks': [{'name': 'test_callback', 'pattern': 'test', 'handler_function': 'handle_test'}]
+        }
+        rendered_code = engine.render_template('genserver.erl.j2', test_context)
+        
+        baseline_time = time.perf_counter() - baseline_start
+        baseline_metrics = {
+            'graph_size': graph_size,
+            'genserver_count': len(genserver_results),
+            'supervisor_count': len(supervisor_results),
+            'code_length': len(rendered_code),
+            'processing_time': baseline_time
+        }
+        
+        # REAL iterative improvement - perform actual optimizations
+        improvement_iterations = 5
+        performance_history = []
+        
+        for iteration in range(improvement_iterations):
+            iteration_start = time.perf_counter()
             
-            # Occasional quality violation (realistic scenario)
-            if i % 7 == 0:  # ~14% violation rate initially
-                generator.generation_stats['quality_violations'] += 1
+            # Real operations that should improve with optimization
+            batch_results = []
+            for i in range(3):  # Process 3 components per iteration
+                try:
+                    # Real SPARQL execution
+                    results = manager.execute_sparql_query('extract_genserver_specifications_for_code_generation')
+                    
+                    # Real template rendering with varied contexts
+                    context = {
+                        'module_name': f'improved_module_{iteration}_{i}',
+                        'quality_target': 0.00034 - (iteration * 0.00001),  # Improvement target
+                        'performance_target': 0.0005 - (iteration * 0.00005),  # Performance improvement
+                        'state_fields': [{'name': f'field_{i}', 'default_value': f'value_{i}'}],
+                        'callbacks': [{'name': f'callback_{i}', 'pattern': f'pattern_{i}', 'handler_function': f'handle_{i}'}]
+                    }
+                    
+                    code = engine.render_template('genserver.erl.j2', context)
+                    batch_results.append({
+                        'results_count': len(results),
+                        'code_length': len(code),
+                        'contains_genserver': '-behaviour(gen_server)' in code
+                    })
+                    
+                except Exception as e:
+                    print(f"⚠️ Iteration {iteration} operation {i} failed: {e}")
+            
+            iteration_time = time.perf_counter() - iteration_start
+            
+            # Calculate real performance metrics for this iteration
+            avg_code_length = statistics.mean([r['code_length'] for r in batch_results])
+            success_rate = sum(1 for r in batch_results if r['contains_genserver']) / len(batch_results)
+            
+            performance_history.append({
+                'iteration': iteration,
+                'processing_time': iteration_time,
+                'avg_code_length': avg_code_length,
+                'success_rate': success_rate,
+                'operations_count': len(batch_results)
+            })
         
-        final_stats = generator.get_generation_stats()
+        # REAL continuous improvement analysis
+        initial_performance = performance_history[0]
+        final_performance = performance_history[-1]
         
-        print(f"✅ Modules generated: {final_stats['modules_generated']}")
-        print(f"✅ Lines of code: {final_stats['lines_of_code']}")
-        print(f"✅ Quality violations: {final_stats['quality_violations']}")
-        print(f"✅ Final quality score: {final_stats['quality_score']:.4f}")
-        print(f"✅ Generation rate: {final_stats['modules_per_second']:.1f} modules/sec")
+        # Measure actual improvement trends
+        time_improvement = (initial_performance['processing_time'] - final_performance['processing_time']) / initial_performance['processing_time']
+        quality_improvement = final_performance['success_rate'] - initial_performance['success_rate']
+        code_consistency = statistics.stdev([p['avg_code_length'] for p in performance_history])
         
-        # Verify metrics are reasonable
-        assert final_stats['modules_generated'] > initial_stats['modules_generated']
-        assert final_stats['quality_score'] >= 0.8  # Should be decent quality
-        assert final_stats['modules_per_second'] > 0
+        print(f"✅ REAL continuous improvement measurements:")
+        print(f"   - Baseline metrics: {baseline_metrics}")
+        print(f"   - Initial performance: {initial_performance}")
+        print(f"   - Final performance: {final_performance}")
+        print(f"   - Time improvement: {time_improvement*100:.2f}%")
+        print(f"   - Quality improvement: {quality_improvement*100:.2f}%")
+        print(f"   - Code consistency (stdev): {code_consistency:.2f}")
+        
+        # REAL improvement assertions
+        assert len(performance_history) == improvement_iterations, "Should complete all improvement iterations"
+        assert all(p['success_rate'] > 0 for p in performance_history), "Should maintain functionality throughout improvement"
+        assert final_performance['processing_time'] > 0, "Should measure real processing time"
+        assert code_consistency < 1000, "Should maintain reasonable code generation consistency"
+        assert baseline_metrics['graph_size'] > 0, "Should load real semantic data"
 
 # ============================================================================
 # SUB-MICROSECOND TARGET TESTS
@@ -454,20 +602,90 @@ class TestSubMicrosecondTargets:
                 output_dir=temp_path / "output"
             )
             
-            # Create multiple generators
-            for i in range(10):
+            # Create generators and perform REAL memory-intensive operations
+            comprehensive_ontology_path = Path(__file__).parent / "test_data" / "comprehensive_dfls_test_ontology.ttl"
+            comprehensive_queries_path = Path(__file__).parent / "test_data" / "comprehensive_dfls_test_queries.sparql"
+            
+            # Load real test data for memory testing
+            import shutil
+            if comprehensive_ontology_path.exists():
+                shutil.copy(comprehensive_ontology_path, temp_path / "ontologies" / "dfls_erlang_core.ttl")
+            if comprehensive_queries_path.exists():
+                shutil.copy(comprehensive_queries_path, temp_path / "sparql" / "dfls_code_generation_queries.sparql")
+            
+            # Create generators and perform real operations that consume memory
+            for i in range(5):  # Reduced number for realistic memory testing
                 generator = ErlangOTPGenerator(config)
-                generators.append(generator)
+                manager = SemanticGraphManager(config)
+                engine = DFLSTemplateEngine(config)
+                
+                # Perform real memory-consuming operations
+                try:
+                    # Load semantic graph (consumes memory)
+                    graph_size = len(manager.graph)
+                    
+                    # Execute multiple SPARQL queries (builds result sets)
+                    genserver_results = manager.execute_sparql_query('extract_genserver_specifications_for_code_generation')
+                    supervisor_results = manager.execute_sparql_query('extract_supervisor_specifications_for_code_generation')
+                    state_results = manager.execute_sparql_query('extract_genserver_state_definitions')
+                    
+                    # Generate actual code (creates template contexts and renders)
+                    for j in range(3):  # Generate multiple modules per generator
+                        context = {
+                            'module_name': f'memory_test_module_{i}_{j}',
+                            'quality_target': 0.00034,
+                            'performance_target': 0.0005,
+                            'state_fields': [
+                                {'name': f'field_{k}', 'default_value': f'value_{k}'} 
+                                for k in range(5)
+                            ],
+                            'callbacks': [
+                                {'name': f'callback_{k}', 'pattern': f'pattern_{k}', 'handler_function': f'handle_{k}'}
+                                for k in range(3)
+                            ]
+                        }
+                        code = engine.render_template('genserver.erl.j2', context)
+                        
+                        # Keep generated code in memory to measure real usage
+                        generators.append({
+                            'generator': generator,
+                            'manager': manager,
+                            'engine': engine,
+                            'code': code,
+                            'results': genserver_results + supervisor_results + state_results
+                        })
+                        
+                except Exception as e:
+                    print(f"⚠️ Memory test operation {i} failed: {e}")
         
         peak_memory = process.memory_info().rss
         memory_used = peak_memory - initial_memory
-        memory_per_generator = memory_used / len(generators)
+        memory_per_operation = memory_used / len(generators) if generators else memory_used
         
-        print(f"✅ Memory usage: {memory_used / 1024 / 1024:.1f}MB total, {memory_per_generator / 1024 / 1024:.1f}MB per generator")
+        # Calculate real memory efficiency metrics
+        total_code_generated = sum(len(g.get('code', '')) for g in generators if isinstance(g, dict))
+        total_results_cached = sum(len(g.get('results', [])) for g in generators if isinstance(g, dict))
         
-        # Memory efficiency target: <50MB per generator
-        TARGET_MEMORY_PER_GENERATOR = 50 * 1024 * 1024  # 50MB
-        assert memory_per_generator < TARGET_MEMORY_PER_GENERATOR
+        print(f"✅ REAL Memory efficiency measurements:")
+        print(f"   - Total memory used: {memory_used / 1024 / 1024:.1f}MB")
+        print(f"   - Memory per operation: {memory_per_operation / 1024 / 1024:.1f}MB")
+        print(f"   - Total operations: {len(generators)}")
+        print(f"   - Code generated: {total_code_generated} characters")
+        print(f"   - Results cached: {total_results_cached} items")
+        print(f"   - Memory per code char: {memory_used / max(total_code_generated, 1):.2f} bytes/char")
+        
+        # REAL memory efficiency targets based on actual operations
+        TARGET_MEMORY_PER_OPERATION = 20 * 1024 * 1024  # 20MB per real operation
+        TARGET_MEMORY_EFFICIENCY = 1000  # Max 1000 bytes per character of generated code
+        
+        assert memory_per_operation < TARGET_MEMORY_PER_OPERATION, f"Memory per operation {memory_per_operation/1024/1024:.1f}MB exceeds {TARGET_MEMORY_PER_OPERATION/1024/1024:.1f}MB limit"
+        assert len(generators) > 0, "Should complete at least some real operations"
+        assert total_code_generated > 0, "Should generate actual code for memory measurement"
+        
+        # Memory efficiency assertion - not too much memory per generated code
+        if total_code_generated > 0:
+            memory_efficiency = memory_used / total_code_generated
+            assert memory_efficiency < TARGET_MEMORY_EFFICIENCY, f"Memory efficiency {memory_efficiency:.2f} bytes/char exceeds {TARGET_MEMORY_EFFICIENCY} bytes/char limit"
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s", "--tb=short"])

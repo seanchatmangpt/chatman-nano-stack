@@ -1,0 +1,27 @@
+{
+  "timestamp": "2025-07-24T10:33:26.696410",
+  "target": 80.0,
+  "achieved": 84.04558404558404,
+  "target_met": true,
+  "modules": {
+    "bitactor_cli.py": {
+      "statements": 212,
+      "missing": 35,
+      "covered": 177,
+      "coverage": 83.49056603773585
+    },
+    "bitactor_ttl_generator.py": {
+      "statements": 139,
+      "missing": 21,
+      "covered": 118,
+      "coverage": 84.89208633093526
+    }
+  },
+  "totals": {
+    "statements": 351,
+    "missing": 56,
+    "covered": 295,
+    "coverage": 84.04558404558404
+  },
+  "verification_status": "SUCCESS"
+}

@@ -1,0 +1,122 @@
+{
+  "vulnerabilities": [
+    {
+      "id": "CVE-QSC-2025-001",
+      "severity": "CRITICAL",
+      "category": "Code Injection",
+      "title": "Unsafe C Code Generation in Quantum Compiler",
+      "description": "The quantum semantic compiler generates C code using unsafe string formatting that allows arbitrary code injection",
+      "affected_component": "quantum_semantic_compiler.py lines 208-220",
+      "technical_details": {
+        "vulnerable_code": "\n                c_code_blocks.append(f\"\"\"\n                // Quantum-Semantic Optimized Code for {sig_name}\n                // Performance Target: {performance_target}\n                // Generated: {datetime.now().isoformat()}\n                \n                {quantum_struct}\n                \n                {predictive_validation}\n                \"\"\")",
+        "attack_vector": "Malicious signature names or performance targets can inject C code",
+        "exploitation": "Attacker can execute arbitrary C code during compilation"
+      },
+      "proof_of_concept": "\n            # Malicious signature name:\n            sig_name = 'test\"; system(\"rm -rf /\"); //'\n            \n            # Results in generated C code:\n            // Quantum-Semantic Optimized Code for test\"; system(\"rm -rf /\"); //\n            "
+    },
+    {
+      "id": "CVE-QSC-2025-002",
+      "severity": "CRITICAL",
+      "category": "Command Injection",
+      "title": "Widespread Subprocess Injection Vulnerabilities",
+      "description": "Multiple files use subprocess without proper input sanitization",
+      "affected_component": "Multiple files across the codebase",
+      "technical_details": {
+        "high_risk_files": [
+          {
+            "file": "/Users/sac/cns/ontology_forge_cli.py",
+            "lines": [
+              286,
+              289
+            ],
+            "risk": "CRITICAL",
+            "details": "Direct subprocess.run with user-controlled compile commands"
+          },
+          {
+            "file": "/Users/sac/cns/setup.py",
+            "lines": [
+              15
+            ],
+            "risk": "CRITICAL",
+            "details": "Uses shell=True with subprocess.run - direct shell injection"
+          },
+          {
+            "file": "/Users/sac/cns/owl_compiler_lifecycle.py",
+            "lines": [
+              479,
+              521,
+              773,
+              787
+            ],
+            "risk": "HIGH",
+            "details": "Multiple subprocess calls in compiler lifecycle"
+          }
+        ],
+        "attack_vectors": [
+          "Malicious file paths containing shell metacharacters",
+          "Command injection through compiler arguments",
+          "Environment variable manipulation"
+        ]
+      },
+      "proof_of_concept": "\n            # Malicious filename injection:\n            filename = \"test.ttl; rm -rf /tmp/*; echo\"\n            \n            # In setup.py line 15:\n            subprocess.run(cmd, shell=True, ...)  # Executes injected commands\n            "
+    },
+    {
+      "id": "CVE-QSC-2025-003",
+      "severity": "HIGH",
+      "category": "Path Traversal",
+      "title": "Insufficient Path Validation in File Operations",
+      "description": "System accepts path traversal sequences allowing access to arbitrary files",
+      "affected_component": "File handling throughout codebase",
+      "technical_details": {
+        "vulnerable_paths": [
+          "../../../etc/passwd - resolves to /private/etc/passwd",
+          "../../../../usr/bin/python - resolves to /usr/bin/python"
+        ],
+        "impact": "Attackers can read/write arbitrary files on the system"
+      },
+      "proof_of_concept": "\n            # Malicious TTL file path:\n            ontology_path = \"../../../etc/passwd\"\n            \n            # System processes this without validation\n            # Could lead to sensitive file disclosure\n            "
+    },
+    {
+      "id": "CVE-QSC-2025-004",
+      "severity": "HIGH",
+      "category": "Unsafe Deserialization",
+      "title": "Unsafe Deserialization in Dependencies",
+      "description": "Multiple dependencies use unsafe deserialization methods",
+      "affected_component": "Third-party dependencies and internal code",
+      "technical_details": {
+        "dangerous_patterns": [
+          "pickle.loads usage without validation",
+          "marshal.loads for code deserialization",
+          "yaml.load without safe loader"
+        ],
+        "dependency_count": 60,
+        "internal_usage": "Present in adversarial testing code"
+      }
+    },
+    {
+      "id": "CVE-QSC-2025-005",
+      "severity": "MEDIUM",
+      "category": "Input Validation",
+      "title": "Insufficient TTL Content Validation",
+      "description": "TTL parser accepts arbitrary strings that could contain malicious content",
+      "affected_component": "ttl2dspy.py and quantum_semantic_compiler.py",
+      "technical_details": {
+        "issue": "RDF literals can contain executable code patterns",
+        "impact": "Potential for template injection or code execution"
+      }
+    }
+  ],
+  "metrics": {
+    "timestamp": 1753380475.366229,
+    "total_vulnerabilities": 5,
+    "severity_breakdown": {
+      "critical": 2,
+      "high": 2,
+      "medium": 1
+    },
+    "risk_score": 38,
+    "exploitability_score": 8.5,
+    "affected_components": 5
+  },
+  "mermaid_chart": "\n```mermaid\ngraph TD\n    A[Quantum Semantic Compiler Security Assessment] --> B[Critical Vulnerabilities: 2]\n    A --> C[High Risk Vulnerabilities: 2]\n    A --> D[Medium Risk Vulnerabilities: 1]\n    \n    B --> E[CVE-QSC-2025-001: C Code Injection]\n    B --> F[CVE-QSC-2025-002: Subprocess Injection]\n    \n    C --> G[CVE-QSC-2025-003: Path Traversal]\n    C --> H[CVE-QSC-2025-004: Unsafe Deserialization]\n    \n    D --> I[CVE-QSC-2025-005: TTL Content Injection]\n    \n    E --> J[Risk Score: 38/100]\n    F --> J\n    G --> J\n    H --> J\n    I --> J\n    \n    J --> K[Exploitability: HIGH]\n    J --> L[Impact: CRITICAL]\n    \n    style B fill:#ff4444\n    style C fill:#ff8800\n    style D fill:#ffaa00\n    style J fill:#cc0000\n    style K fill:#ff6666\n    style L fill:#ff0000\n```\n        "
+}

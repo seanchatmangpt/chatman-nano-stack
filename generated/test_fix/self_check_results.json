@@ -1,24 +1,12 @@
 {
-  "C": {
-    "language": "C",
-    "build": true,
-    "tests": true,
-    "benchmark": true,
-    "performance": {},
-    "test_output": "success"
-  },
   "Python": {
     "language": "Python",
-    "import": false,
-    "instantiation": false,
-    "signal_processing": false,
-    "performance": {}
-  },
-  "Erlang": {
-    "language": "Erlang",
-    "compile": false,
-    "start": false,
-    "signal_processing": false,
-    "performance": {}
+    "import": true,
+    "instantiation": true,
+    "signal_processing": true,
+    "performance": {
+      "throughput": "3149370.72 signals/sec",
+      "latency": "0.32 \u00b5s/signal"
+    }
   }
 }

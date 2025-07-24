@@ -156,56 +156,68 @@ WHERE {
                 assert "sample_genserver" in code
             
         except ValueError as e:
-            # Expected if no GenServer found in test ontology
-            print(f"⚠️ GenServer generation skipped: {e}")
+            # If generation fails, try with comprehensive test data instead of hardcoded fallback
+            print(f"⚠️ GenServer generation failed with minimal data: {e}")
+            print("🔄 Attempting generation with comprehensive test ontology...")
             
-            # Generate a simple test GenServer manually to verify compilation
-            test_genserver_code = '''%% Generated Test GenServer
--module(test_genserver).
--behaviour(gen_server).
-
-%% API
--export([start_link/0]).
-
-%% gen_server callbacks
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
-
--define(SERVER, ?MODULE).
-
-start_link() ->
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
-
-init([]) ->
-    {ok, #{}}.
-
-handle_call(_Request, _From, State) ->
-    {reply, ok, State}.
-
-handle_cast(_Msg, State) ->
-    {noreply, State}.
-
-handle_info(_Info, State) ->
-    {noreply, State}.
-
-terminate(_Reason, _State) ->
-    ok.
-
-code_change(_OldVsn, State, _Extra) ->
-    {ok, State}.
-'''
+            # Load comprehensive test ontology for REAL generation testing
+            comprehensive_ontology_path = Path(__file__).parent / "test_data" / "comprehensive_dfls_test_ontology.ttl"
+            comprehensive_queries_path = Path(__file__).parent / "test_data" / "comprehensive_dfls_test_queries.sparql"
             
-            # Write and compile test module
-            erl_file = temp_path / "erl_src" / "test_genserver.erl"
-            with open(erl_file, 'w') as f:
-                f.write(test_genserver_code)
-            
-            result = subprocess.run([
-                'erlc', '-o', str(temp_path / "erl_src"),
-                str(erl_file)
-            ], capture_output=True, text=True)
-            
-            assert result.returncode == 0, f"Test GenServer compilation failed: {result.stderr}"
-            print("✅ Manual test GenServer compilation successful")
+            if comprehensive_ontology_path.exists() and comprehensive_queries_path.exists():
+                import shutil
+                shutil.copy(comprehensive_ontology_path, temp_path / "ontologies" / "dfls_erlang_core.ttl")
+                shutil.copy(comprehensive_queries_path, temp_path / "sparql" / "dfls_code_generation_queries.sparql")
+                
+                # Retry generation with real data
+                generator = ErlangOTPGenerator(config)
+                
+                # Test generation with actual GenServer instances from comprehensive ontology
+                test_targets = [
+                    "http://test.cns.bitactor.io/forex_trade_manager",
+                    "http://test.cns.bitactor.io/risk_management_server",
+                    "http://test.cns.bitactor.io/position_tracker"
+                ]
+                
+                generation_successful = False
+                for target in test_targets:
+                    try:
+                        module_name, code = generator.generate_genserver(target)
+                        
+                        # Verify REAL generated code contains essential GenServer elements
+                        assert len(code) > 200, f"Generated code too short: {len(code)} chars"
+                        assert "-behaviour(gen_server)" in code, "Missing gen_server behaviour"
+                        assert "handle_call" in code, "Missing handle_call callback"
+                        assert "handle_cast" in code, "Missing handle_cast callback"
+                        assert "init(" in code, "Missing init function"
+                        
+                        # Write and compile REAL generated code
+                        erl_file = temp_path / "erl_src" / f"{module_name}.erl"
+                        with open(erl_file, 'w') as f:
+                            f.write(code)
+                        
+                        # Test compilation of REAL generated code
+                        result = subprocess.run([
+                            'erlc', '-o', str(temp_path / "erl_src"),
+                            str(erl_file)
+                        ], capture_output=True, text=True)
+                        
+                        if result.returncode == 0:
+                            beam_file = temp_path / "erl_src" / f"{module_name}.beam"
+                            assert beam_file.exists(), f"BEAM file not created for {module_name}"
+                            print(f"✅ REAL GenServer generation and compilation successful: {module_name}")
+                            generation_successful = True
+                            break
+                        else:
+                            print(f"⚠️ Compilation failed for {target}: {result.stderr}")
+                            
+                    except Exception as gen_error:
+                        print(f"⚠️ Generation failed for {target}: {gen_error}")
+                
+                assert generation_successful, "Failed to generate and compile any real GenServer from comprehensive test data"
+                
+            else:
+                pytest.skip("Comprehensive test ontology not available and minimal generation failed")
     
     def test_generate_compilable_supervisor(self, erlang_test_config):
         """Test generating and compiling a Supervisor module"""
@@ -244,41 +256,67 @@ code_change(_OldVsn, State, _Extra) ->
                 assert "supervisor:start_link" in code
                 
         except ValueError as e:
-            print(f"⚠️ Supervisor generation skipped: {e}")
+            # If generation fails, try with comprehensive test data instead of hardcoded fallback
+            print(f"⚠️ Supervisor generation failed with minimal data: {e}")
+            print("🔄 Attempting supervisor generation with comprehensive test ontology...")
             
-            # Generate test supervisor manually
-            test_supervisor_code = '''%% Generated Test Supervisor
--module(test_supervisor).
--behaviour(supervisor).
-
-%% API
--export([start_link/0]).
-
-%% Supervisor callbacks
--export([init/1]).
-
--define(SERVER, ?MODULE).
-
-start_link() ->
-    supervisor:start_link({local, ?SERVER}, ?MODULE, []).
-
-init([]) ->
-    RestartStrategy = {one_for_one, 3, 10},
-    Children = [],
-    {ok, {RestartStrategy, Children}}.
-'''
+            # Load comprehensive test ontology for REAL generation testing
+            comprehensive_ontology_path = Path(__file__).parent / "test_data" / "comprehensive_dfls_test_ontology.ttl"
+            comprehensive_queries_path = Path(__file__).parent / "test_data" / "comprehensive_dfls_test_queries.sparql"
             
-            erl_file = temp_path / "erl_src" / "test_supervisor.erl"
-            with open(erl_file, 'w') as f:
-                f.write(test_supervisor_code)
-            
-            result = subprocess.run([
-                'erlc', '-o', str(temp_path / "erl_src"),
-                str(erl_file)
-            ], capture_output=True, text=True)
-            
-            assert result.returncode == 0, f"Test Supervisor compilation failed: {result.stderr}"
-            print("✅ Manual test Supervisor compilation successful")
+            if comprehensive_ontology_path.exists() and comprehensive_queries_path.exists():
+                import shutil
+                shutil.copy(comprehensive_ontology_path, temp_path / "ontologies" / "dfls_erlang_core.ttl")
+                shutil.copy(comprehensive_queries_path, temp_path / "sparql" / "dfls_code_generation_queries.sparql")
+                
+                # Retry generation with real data
+                generator = ErlangOTPGenerator(config)
+                
+                # Test generation with actual Supervisor instances from comprehensive ontology
+                supervisor_targets = [
+                    "http://test.cns.bitactor.io/trading_supervisor",
+                    "http://test.cns.bitactor.io/market_data_supervisor"
+                ]
+                
+                generation_successful = False
+                for target in supervisor_targets:
+                    try:
+                        module_name, code = generator.generate_supervisor(target)
+                        
+                        # Verify REAL generated supervisor code contains essential elements
+                        assert len(code) > 150, f"Generated supervisor code too short: {len(code)} chars"
+                        assert "-behaviour(supervisor)" in code, "Missing supervisor behaviour"
+                        assert "supervisor:start_link" in code, "Missing supervisor:start_link call"
+                        assert "init(" in code, "Missing init function"
+                        assert "RestartStrategy" in code or "restart_strategy" in code, "Missing restart strategy"
+                        
+                        # Write and compile REAL generated supervisor code
+                        erl_file = temp_path / "erl_src" / f"{module_name}.erl"
+                        with open(erl_file, 'w') as f:
+                            f.write(code)
+                        
+                        # Test compilation of REAL generated supervisor code
+                        result = subprocess.run([
+                            'erlc', '-o', str(temp_path / "erl_src"),
+                            str(erl_file)
+                        ], capture_output=True, text=True)
+                        
+                        if result.returncode == 0:
+                            beam_file = temp_path / "erl_src" / f"{module_name}.beam"
+                            assert beam_file.exists(), f"BEAM file not created for {module_name}"
+                            print(f"✅ REAL Supervisor generation and compilation successful: {module_name}")
+                            generation_successful = True
+                            break
+                        else:
+                            print(f"⚠️ Supervisor compilation failed for {target}: {result.stderr}")
+                            
+                    except Exception as gen_error:
+                        print(f"⚠️ Supervisor generation failed for {target}: {gen_error}")
+                
+                assert generation_successful, "Failed to generate and compile any real Supervisor from comprehensive test data"
+                
+            else:
+                pytest.skip("Comprehensive test ontology not available and minimal supervisor generation failed")
     
     def test_complete_workflow_compilation(self, erlang_test_config):
         """Test complete TTL→SPARQL→Jinja→Erlang→Compilation workflow"""
@@ -302,82 +340,138 @@ init([]) ->
         # Step 4: Generate Erlang code
         generator = ErlangOTPGenerator(config)
         
-        # Create a complete working example
-        working_genserver = '''%% Complete Working GenServer Example
--module(workflow_test_genserver).
+        # Step 4: Generate REAL Erlang code using the comprehensive test ontology
+        # Load comprehensive test data for REAL end-to-end workflow testing
+        comprehensive_ontology_path = Path(__file__).parent / "test_data" / "comprehensive_dfls_test_ontology.ttl"
+        comprehensive_queries_path = Path(__file__).parent / "test_data" / "comprehensive_dfls_test_queries.sparql"
+        
+        if comprehensive_ontology_path.exists() and comprehensive_queries_path.exists():
+            import shutil
+            shutil.copy(comprehensive_ontology_path, temp_path / "ontologies" / "dfls_erlang_core.ttl")
+            shutil.copy(comprehensive_queries_path, temp_path / "sparql" / "dfls_code_generation_queries.sparql")
+            
+            # Reload the manager and generator with comprehensive data
+            manager = SemanticGraphManager(config)
+            generator = ErlangOTPGenerator(config)
+            
+            # Test REAL end-to-end generation workflow
+            workflow_targets = [
+                ("http://test.cns.bitactor.io/forex_trade_manager", "genserver"),
+                ("http://test.cns.bitactor.io/trading_supervisor", "supervisor")
+            ]
+            
+            successful_generations = []
+            
+            for target, target_type in workflow_targets:
+                try:
+                    print(f"🔄 Generating {target_type} for {target}")
+                    
+                    if target_type == "genserver":
+                        module_name, code = generator.generate_genserver(target)
+                        expected_patterns = ["-behaviour(gen_server)", "handle_call", "handle_cast", "init("]
+                    else:  # supervisor
+                        module_name, code = generator.generate_supervisor(target)
+                        expected_patterns = ["-behaviour(supervisor)", "supervisor:start_link", "init("]
+                    
+                    # Verify REAL generated code quality
+                    assert len(code) > 200, f"Generated {target_type} code too short: {len(code)} chars"
+                    for pattern in expected_patterns:
+                        assert pattern in code, f"Missing essential {target_type} pattern: {pattern}"
+                    
+                    # Write REAL generated code
+                    erl_file = temp_path / "erl_src" / f"{module_name}.erl"
+                    with open(erl_file, 'w') as f:
+                        f.write(code)
+                    
+                    successful_generations.append({
+                        'target': target,
+                        'type': target_type,
+                        'module': module_name,
+                        'code_length': len(code),
+                        'file': erl_file
+                    })
+                    
+                    print(f"✅ Generated {target_type} {module_name}: {len(code)} characters")
+                    
+                except Exception as gen_error:
+                    print(f"⚠️ Failed to generate {target_type} for {target}: {gen_error}")
+            
+            # Ensure we generated at least one module for workflow testing
+            assert len(successful_generations) > 0, "Failed to generate any real modules for workflow testing"
+            
+            # Use the first successfully generated module for compilation testing
+            test_generation = successful_generations[0]
+            erl_file = test_generation['file']
+            module_name = test_generation['module']
+            
+        else:
+            # Fallback to minimal test data if comprehensive ontology not available
+            print("⚠️ Comprehensive test ontology not found, using minimal test data")
+            minimal_genserver = '''%% Minimal Test GenServer for Workflow
+-module(workflow_minimal_genserver).
 -behaviour(gen_server).
-
-%% API
--export([start_link/0, get_status/0, set_status/1]).
-
-%% gen_server callbacks
+-export([start_link/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
--define(SERVER, ?MODULE).
--record(state, {status = active}).
-
-%% API Functions
-start_link() ->
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
-
-get_status() ->
-    gen_server:call(?SERVER, get_status).
-
-set_status(Status) ->
-    gen_server:cast(?SERVER, {set_status, Status}).
-
-%% gen_server callbacks
-init([]) ->
-    {ok, #state{}}.
-
-handle_call(get_status, _From, #state{status = Status} = State) ->
-    {reply, Status, State}.
-
-handle_cast({set_status, Status}, State) ->
-    {noreply, State#state{status = Status}}.
-
-handle_info(_Info, State) ->
-    {noreply, State}.
-
-terminate(_Reason, _State) ->
-    ok.
-
-code_change(_OldVsn, State, _Extra) ->
-    {ok, State}.
+start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+init([]) -> {ok, #{}}.
+handle_call(_Request, _From, State) -> {reply, ok, State}.
+handle_cast(_Msg, State) -> {noreply, State}.
+handle_info(_Info, State) -> {noreply, State}.
+terminate(_Reason, _State) -> ok.
+code_change(_OldVsn, State, _Extra) -> {ok, State}.
 '''
-        
-        # Step 5: Write and compile complete example
-        erl_file = temp_path / "erl_src" / "workflow_test_genserver.erl"
-        with open(erl_file, 'w') as f:
-            f.write(working_genserver)
+            erl_file = temp_path / "erl_src" / "workflow_minimal_genserver.erl"
+            module_name = "workflow_minimal_genserver"
+            with open(erl_file, 'w') as f:
+                f.write(minimal_genserver)
         
         print("✅ Step 4: Erlang code generated and written")
         
-        # Step 6: Compile with Erlang
+        # Step 5: Compile REAL generated Erlang code
         result = subprocess.run([
             'erlc', '-o', str(temp_path / "erl_src"),
             str(erl_file)
         ], capture_output=True, text=True)
         
-        assert result.returncode == 0, f"Workflow compilation failed: {result.stderr}"
+        assert result.returncode == 0, f"REAL code compilation failed: {result.stderr}"
         
-        beam_file = temp_path / "erl_src" / "workflow_test_genserver.beam"
-        assert beam_file.exists()
+        beam_file = temp_path / "erl_src" / f"{module_name}.beam"
+        assert beam_file.exists(), f"BEAM file not created: {beam_file}"
         
-        print("✅ Step 5: Erlang compilation successful")
+        print("✅ Step 5: REAL generated Erlang code compilation successful")
         
-        # Step 6: Test module loading
+        # Step 6: Test REAL module loading and functionality
         load_result = subprocess.run([
             'erl', '-noshell', '-pa', str(temp_path / "erl_src"),
-            '-eval', 'code:load_file(workflow_test_genserver), io:format("Module loaded successfully~n"), halt().'
+            '-eval', f'code:load_file({module_name}), io:format("Module {module_name} loaded successfully~n"), halt().'
         ], capture_output=True, text=True)
         
-        print(f"✅ Step 6: Module loading test completed")
-        print("🎯 COMPLETE WORKFLOW VERIFICATION: SUCCESS")
+        print(f"✅ Step 6: REAL module loading test completed for {module_name}")
         
-        # Verify all steps completed
-        assert beam_file.exists()
-        assert beam_file.stat().st_size > 0
+        # Step 7: Verify complete workflow with actual generation metrics
+        if comprehensive_ontology_path.exists() and len(successful_generations) > 0:
+            print("🎯 COMPLETE REAL WORKFLOW VERIFICATION:")
+            print(f"   - Ontology loaded: {len(manager.graph)} triples")
+            print(f"   - SPARQL queries executed: {len(genserver_results) + len(supervisor_results)}")
+            print(f"   - Modules generated: {len(successful_generations)}")
+            print(f"   - Code compiled successfully: {module_name}.beam")
+            
+            # Verify real workflow completion
+            assert len(manager.graph) > 0, "Should load real semantic data"
+            assert len(successful_generations) > 0, "Should generate real modules"
+            for gen in successful_generations:
+                gen_beam_file = temp_path / "erl_src" / f"{gen['module']}.beam"
+                assert gen_beam_file.exists(), f"BEAM file missing for {gen['module']}"
+                assert gen_beam_file.stat().st_size > 0, f"Empty BEAM file for {gen['module']}"
+                
+            print("🎯 REAL WORKFLOW SUCCESS: All generated modules compile and load")
+        else:
+            print("🎯 MINIMAL WORKFLOW VERIFICATION: Basic compilation successful")
+        
+        # Final verification of compilation artifacts
+        assert beam_file.exists(), f"Primary BEAM file missing: {beam_file}"
+        assert beam_file.stat().st_size > 0, f"Empty BEAM file: {beam_file}"
 
 # ============================================================================
 # ERLANG ENVIRONMENT TESTS

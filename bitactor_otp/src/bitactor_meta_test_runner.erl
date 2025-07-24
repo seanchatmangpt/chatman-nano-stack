@@ -100,13 +100,13 @@ test_module_runner(Module) ->
         }
     catch
         Type:Error:Stacktrace ->
-            EndTime = erlang:monotonic_time(millisecond),
+            EndTime2 = erlang:monotonic_time(millisecond),
             #{
                 module => Module,
                 status => failed,
                 error => {Type, Error},
                 stacktrace => Stacktrace,
-                validation_time_ms => EndTime - StartTime
+                validation_time_ms => EndTime2 - StartTime
             }
     end.
 
@@ -358,7 +358,7 @@ generate_test_mutations() ->
 
 test_against_mutations(Mutations) ->
     lists:map(fun(Mutation) ->
-        #{id := Id, type := Type} = Mutation,
+        #{id := _Id, type := Type} = Mutation,
         
         %% Simulate running tests against mutated code
         TestResult = simulate_mutation_test(Type),
@@ -388,7 +388,7 @@ simulate_mutation_test(MutationType) ->
     }.
 
 calculate_mutation_kill_rate(MutationResults) ->
-    KilledCount = length([M || #{killed := true} <- MutationResults]),
+    KilledCount = length([MResult || MResult = #{killed := true} <- MutationResults]),
     TotalCount = length(MutationResults),
     KilledCount / TotalCount.
 
@@ -548,7 +548,7 @@ analyze_module_meta_coverage(Module) ->
 %%%===================================================================
 
 analyze_runner_health(Results) ->
-    PassedCount = length([R || #{status := passed} <- Results]),
+    PassedCount = length([Result || Result = #{status := passed} <- Results]),
     TotalCount = length(Results),
     
     #{
@@ -567,7 +567,7 @@ calculate_variance(Values, Mean) ->
     SumOfSquares / length(Values).
 
 analyze_error_handling(FailureResults) ->
-    GracefulCount = length([FR || #{handled_gracefully := true} <- FailureResults]),
+    GracefulCount = length([FResult || FResult = #{handled_gracefully := true} <- FailureResults]),
     TotalCount = length(FailureResults),
     GracefulCount / TotalCount > 0.8.
 
