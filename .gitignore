@@ -192,4 +192,4 @@ yarn-error.log*
 # But ignore generated intermediate files
 v8/generated/
 v8/cache/
-v8/temp/
+v8/temp/*.dump
