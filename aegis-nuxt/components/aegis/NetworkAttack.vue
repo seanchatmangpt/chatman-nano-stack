@@ -16,7 +16,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="js">
 // Generated from http://cns.ai/ontology/cybersecurity#NetworkAttack on 2025-07-24T20:14:10.013968
 import type { NetworkAttack } from '~/types/aegis'
 

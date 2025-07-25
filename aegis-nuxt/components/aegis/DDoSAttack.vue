@@ -6,7 +6,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="js">
 // Generated from http://cns.ai/ontology/cybersecurity#DDoSAttack on 2025-07-24T20:14:09.990303
 import type { DDoSAttack } from '~/types/aegis'
 

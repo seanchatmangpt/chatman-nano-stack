@@ -1,0 +1,37 @@
+apiVersion: v2
+name: cns-forge
+description: CNS Forge - Universal Business Logic Compiler
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+home: https://cnsforge.io
+sources:
+  - https://github.com/cnsforge/cns-forge
+maintainers:
+  - name: CNS Forge Team
+    email: team@cnsforge.io
+dependencies:
+  - name: postgresql
+    version: "12.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: redis
+    version: "18.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+  - name: prometheus
+    version: "19.x.x"
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: prometheus.enabled
+  - name: grafana
+    version: "6.x.x"
+    repository: https://grafana.github.io/helm-charts
+    condition: grafana.enabled
+keywords:
+  - elixir
+  - reactor
+  - bitactor
+  - semantic-web
+  - compiler
+annotations:
+  category: "Development"

@@ -20,7 +20,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="js">
 // Generated from http://cns.ai/ontology/cybersecurity#IOC on 2025-07-24T20:14:10.001560
 import type { IOC } from '~/types/aegis'
 

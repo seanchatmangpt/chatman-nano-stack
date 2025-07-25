@@ -1,0 +1,31 @@
+{
+  "dashboard": {
+    "title": "CNS Forge Service Dashboard",
+    "panels": [
+      {
+        "title": "Request Rate",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Error Rate",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~'5..'}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "P99 Latency",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.99, http_request_duration_seconds_bucket)"
+          }
+        ]
+      }
+    ]
+  }
+}

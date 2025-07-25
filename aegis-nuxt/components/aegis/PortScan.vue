@@ -6,7 +6,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="js">
 // Generated from http://cns.ai/ontology/cybersecurity#PortScan on 2025-07-24T20:14:10.021163
 import type { PortScan } from '~/types/aegis'
 

@@ -6,7 +6,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="js">
 // Generated from http://cns.ai/ontology/cybersecurity#Alert on 2025-07-24T20:14:09.973787
 import type { Alert } from '~/types/aegis'
 

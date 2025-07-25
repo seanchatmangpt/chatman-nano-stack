@@ -1,0 +1,70 @@
+{
+  "validation_type": "End-to-End Generation Validation",
+  "timestamp": "2025-07-25T18:08:29.051443",
+  "test_results": [
+    {
+      "test": "ontology_to_dspy",
+      "input": "/Users/sac/cns/generated/e2e_test/test_ontology.ttl",
+      "success": false,
+      "transpiler_found": true,
+      "error": "Error processing /Users/sac/cns/generated/e2e_test/test_ontology.ttl: at line 8 of <>:\nBad syntax (Prefix \"rdfs:\" not bound) at ^ in:\n\"...b'wl:Class .\\n:hasProperty rdf:type owl:DatatypeProperty ;\\n    '^b'rdfs:domain :TestEntity ;\\n    rdfs:range xsd:string .'\"\nNo SHACL shapes found in input files\nTransient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 1.07s.\nCannot call collect on a MetricReader until it is registered on a MeterProvider\nTransient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 2.33s.\nCannot call collect on a MetricReader until it is registered on a MeterProvider\nCannot call collect on a MetricReader until it is registered on a MeterProvider\nTransient error StatusCode.UNAVAILABLE encountered while exporting traces to localhost:4317, retrying in 4.23s.\nCannot call collect on a MetricReader until it is registered on a MeterProvider\nCannot call collect on a MetricReader until it is registered on a MeterProvider\nCannot call collect on a MetricReader until it is registered on a MeterProvider\nCannot call collect on a MetricReader until it is registered on a MeterProvider\nFailed to export traces to localhost:4317, error code: StatusCode.UNAVAILABLE\n"
+    },
+    {
+      "test": "bitactor_generation",
+      "success": true,
+      "compilation": "success",
+      "execution": "success"
+    },
+    {
+      "test": "ash_reactor_generation",
+      "success": true,
+      "file_created": true,
+      "syntax_valid": true,
+      "output": "/Users/sac/cns/generated/e2e_test/test_reactor.ex"
+    },
+    {
+      "test": "kubernetes_generation",
+      "success": true,
+      "yaml_valid": true,
+      "resources": [
+        "Deployment",
+        "Service"
+      ],
+      "output": "/Users/sac/cns/generated/e2e_test/test_deployment.yaml"
+    },
+    {
+      "test": "terraform_generation",
+      "success": true,
+      "file_created": true,
+      "syntax_valid": true,
+      "output": "/Users/sac/cns/generated/e2e_test/test_infra.tf"
+    },
+    {
+      "test": "otel_integration",
+      "success": true,
+      "file_created": true,
+      "config_valid": true,
+      "output": "/Users/sac/cns/generated/e2e_test/otel_config.yaml"
+    },
+    {
+      "test": "adversarial_resilience",
+      "success": false,
+      "attacks_survived": 1,
+      "total_attacks": 5,
+      "survival_rate": 20.0
+    },
+    {
+      "test": "performance_compliance",
+      "success": true,
+      "output": "8-tick compliance: 97.54%",
+      "compliance_rate": 97.54
+    }
+  ],
+  "summary": {
+    "total_tests": 8,
+    "passed": 6,
+    "failed": 2,
+    "success_rate": 75.0,
+    "overall_status": "PARTIAL"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "standard"
+  ],
+  "rules": {
+    "no-unused-vars": "error",
+    "complexity": [
+      "error",
+      8
+    ],
+    "max-depth": [
+      "error",
+      3
+    ]
+  }
+}

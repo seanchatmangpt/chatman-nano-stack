@@ -1,0 +1,308 @@
+{
+  "validation_type": "Deep Backwards Generation Validation",
+  "timestamp": "2025-07-25T18:31:05.753128",
+  "test_results": [
+    {
+      "test": "k8s_to_service_regeneration",
+      "success": true,
+      "validations": [
+        {
+          "k8s_file": "/Users/sac/cns/generated/k8s/cns_clinician.yaml",
+          "service": "cns-clinician",
+          "regenerated": true
+        },
+        {
+          "k8s_file": "/Users/sac/cns/generated/k8s/deployment.yaml",
+          "service": "aegis-bitactor-bitactor_production",
+          "regenerated": true
+        },
+        {
+          "k8s_file": "/Users/sac/cns/generated/k8s/cns_litigator.yaml",
+          "service": "cns-litigator",
+          "regenerated": true
+        },
+        {
+          "k8s_file": "/Users/sac/cns/generated/k8s/service.yaml",
+          "service": "aegis-bitactor-service",
+          "regenerated": true
+        },
+        {
+          "k8s_file": "/Users/sac/cns/generated/k8s/cns_quant.yaml",
+          "service": "cns-quant",
+          "regenerated": true
+        },
+        {
+          "k8s_file": "/Users/sac/cns/generated/k8s/configmap.yaml",
+          "service": "aegis-threat-signatures",
+          "regenerated": true
+        },
+        {
+          "k8s_file": "/Users/sac/cns/generated/k8s/cns_fabricator.yaml",
+          "service": "cns-fabricator",
+          "regenerated": true
+        }
+      ]
+    },
+    {
+      "test": "terraform_to_template_regeneration",
+      "success": true,
+      "validations": [
+        {
+          "component": "vpc",
+          "found": true,
+          "template_generated": true
+        },
+        {
+          "component": "eks",
+          "found": true,
+          "template_generated": true
+        },
+        {
+          "component": "rds",
+          "found": true,
+          "template_generated": true
+        },
+        {
+          "component": "security_group",
+          "found": true,
+          "template_generated": true
+        }
+      ]
+    },
+    {
+      "test": "service_to_ontology_regeneration",
+      "success": true,
+      "validations": [
+        {
+          "service": "cns_litigator",
+          "ontology_regenerated": true,
+          "file": "/Users/sac/.cache/tmp/cns_validation_yf9d332y/cns_litigator_regenerated.ttl"
+        },
+        {
+          "service": "cns_quant",
+          "ontology_regenerated": true,
+          "file": "/Users/sac/.cache/tmp/cns_validation_yf9d332y/cns_quant_regenerated.ttl"
+        },
+        {
+          "service": "cns_clinician",
+          "ontology_regenerated": true,
+          "file": "/Users/sac/.cache/tmp/cns_validation_yf9d332y/cns_clinician_regenerated.ttl"
+        },
+        {
+          "service": "cns_fabricator",
+          "ontology_regenerated": true,
+          "file": "/Users/sac/.cache/tmp/cns_validation_yf9d332y/cns_fabricator_regenerated.ttl"
+        }
+      ]
+    },
+    {
+      "test": "test_implementation_coverage",
+      "success": true,
+      "coverage_analysis": [
+        {
+          "service": "cns_forge_ash",
+          "has_tests": true,
+          "has_implementation": true,
+          "test_files": [
+            "/Users/sac/cns/generated/cns_forge_ash/test/cns_forge_ash_web/controllers/error_json_test.exs",
+            "/Users/sac/cns/generated/cns_forge_ash/test/cns_forge_ash/reactors/user_registration_reactor_test.exs"
+          ],
+          "impl_files": [
+            "/Users/sac/cns/generated/cns_forge_ash/lib/cns_forge_ash.ex",
+            "/Users/sac/cns/generated/cns_forge_ash/lib/cns_forge_ash_web.ex",
+            "/Users/sac/cns/generated/cns_forge_ash/lib/cns_forge_ash/domain.ex",
+            "/Users/sac/cns/generated/cns_forge_ash/lib/cns_forge_ash/application.ex",
+            "/Users/sac/cns/generated/cns_forge_ash/lib/cns_forge_ash_web/telemetry.ex",
+            "/Users/sac/cns/generated/cns_forge_ash/lib/cns_forge_ash_web/router.ex",
+            "/Users/sac/cns/generated/cns_forge_ash/lib/cns_forge_ash_web/endpoint.ex",
+            "/Users/sac/cns/generated/cns_forge_ash/lib/cns_forge_ash_web/controllers/error_json.ex",
+            "/Users/sac/cns/generated/cns_forge_ash/lib/cns_forge_ash/reactors/user_registration_reactor.ex",
+            "/Users/sac/cns/generated/cns_forge_ash/lib/cns_forge_ash/resources/pulse_log.ex",
+            "/Users/sac/cns/generated/cns_forge_ash/lib/cns_forge_ash/resources/workflow.ex",
+            "/Users/sac/cns/generated/cns_forge_ash/lib/cns_forge_ash/resources/ttl_token.ex",
+            "/Users/sac/cns/generated/cns_forge_ash/lib/cns_forge_ash/resources/bit_actor.ex",
+            "/Users/sac/cns/generated/cns_forge_ash/lib/cns_forge_ash/controllers/cns_forge_controller.ex"
+          ],
+          "coverage_ratio": 0.14285714285714285
+        },
+        {
+          "service": "cns_litigator",
+          "has_tests": true,
+          "has_implementation": true,
+          "test_files": [
+            "/Users/sac/cns/generated/cns_litigator/test_cns_litigator.py",
+            "/Users/sac/cns/generated/cns_litigator/test_cns_litigator.py",
+            "/Users/sac/cns/generated/cns_litigator/cns_litigator_test"
+          ],
+          "impl_files": [
+            "/Users/sac/cns/generated/cns_litigator/cns_litigator.c",
+            "/Users/sac/cns/generated/cns_litigator/cns_litigator_server.erl"
+          ],
+          "coverage_ratio": 1.5
+        },
+        {
+          "service": "cns_forge_8020",
+          "has_tests": true,
+          "has_implementation": true,
+          "test_files": [
+            "/Users/sac/cns/generated/cns_forge_8020/test_cns_forge_8020.c",
+            "/Users/sac/cns/generated/cns_forge_8020/test_cns_forge_8020.c",
+            "/Users/sac/cns/generated/cns_forge_8020/test_cns_forge_8020"
+          ],
+          "impl_files": [
+            "/Users/sac/cns/generated/cns_forge_8020/cns_forge_8020.c",
+            "/Users/sac/cns/generated/cns_forge_8020/cns_forge_bitactor.c",
+            "/Users/sac/cns/generated/cns_forge_8020/cns_forge_ash_reactor.c",
+            "/Users/sac/cns/generated/cns_forge_8020/cns_forge_bitactor.py",
+            "/Users/sac/cns/generated/cns_forge_8020/cns_forge_8020_bitactor.erl",
+            "/Users/sac/cns/generated/cns_forge_8020/cns_forge_bitactor.erl"
+          ],
+          "coverage_ratio": 0.5
+        },
+        {
+          "service": "cns_fabricator",
+          "has_tests": true,
+          "has_implementation": true,
+          "test_files": [
+            "/Users/sac/cns/generated/cns_fabricator/test_cns_fabricator.py",
+            "/Users/sac/cns/generated/cns_fabricator/cns_fabricator_test",
+            "/Users/sac/cns/generated/cns_fabricator/test_cns_fabricator.py"
+          ],
+          "impl_files": [
+            "/Users/sac/cns/generated/cns_fabricator/cns_fabricator.c",
+            "/Users/sac/cns/generated/cns_fabricator/cns_fabricator_server.erl"
+          ],
+          "coverage_ratio": 1.5
+        },
+        {
+          "service": "cns_quant",
+          "has_tests": true,
+          "has_implementation": true,
+          "test_files": [
+            "/Users/sac/cns/generated/cns_quant/test_cns_quant.py",
+            "/Users/sac/cns/generated/cns_quant/cns_quant_test",
+            "/Users/sac/cns/generated/cns_quant/test_cns_quant.py"
+          ],
+          "impl_files": [
+            "/Users/sac/cns/generated/cns_quant/cns_quant.c",
+            "/Users/sac/cns/generated/cns_quant/cns_quant_server.erl"
+          ],
+          "coverage_ratio": 1.5
+        },
+        {
+          "service": "cns_clinician",
+          "has_tests": true,
+          "has_implementation": true,
+          "test_files": [
+            "/Users/sac/cns/generated/cns_clinician/test_cns_clinician.py",
+            "/Users/sac/cns/generated/cns_clinician/test_cns_clinician.py",
+            "/Users/sac/cns/generated/cns_clinician/cns_clinician_test"
+          ],
+          "impl_files": [
+            "/Users/sac/cns/generated/cns_clinician/cns_clinician.c",
+            "/Users/sac/cns/generated/cns_clinician/cns_clinician_server.erl"
+          ],
+          "coverage_ratio": 1.5
+        }
+      ]
+    },
+    {
+      "test": "otel_to_metrics_regeneration",
+      "success": true,
+      "metrics_generated": [
+        {
+          "type": "prometheus",
+          "file": "/Users/sac/.cache/tmp/cns_validation_yf9d332y/regenerated_metrics.yaml"
+        },
+        {
+          "type": "otlp",
+          "file": "/Users/sac/.cache/tmp/cns_validation_yf9d332y/regenerated_otlp.yaml"
+        }
+      ]
+    },
+    {
+      "test": "full_generation_chain",
+      "success": true,
+      "chain_steps": [
+        {
+          "step": "ontology_created",
+          "success": true
+        },
+        {
+          "step": "service_generated",
+          "success": true
+        },
+        {
+          "step": "tests_generated",
+          "success": true
+        },
+        {
+          "step": "k8s_generated",
+          "success": true
+        },
+        {
+          "step": "terraform_generated",
+          "success": true
+        }
+      ]
+    },
+    {
+      "test": "maturity_dimensions_generation",
+      "success": true,
+      "dimensions": {
+        "technical": {
+          "generated": [
+            "eslint_config",
+            "architecture_diagram",
+            "performance_test"
+          ],
+          "success": true
+        },
+        "operational": {
+          "generated": [
+            "deployment_script",
+            "monitoring_config",
+            "backup_script"
+          ],
+          "success": true
+        },
+        "security": {
+          "generated": [
+            "security_policy",
+            "rbac_config",
+            "vulnerability_scan"
+          ],
+          "success": true
+        },
+        "process": {
+          "generated": [
+            "cicd_pipeline",
+            "test_coverage",
+            "documentation"
+          ],
+          "success": true
+        },
+        "business": {
+          "generated": [
+            "roi_analysis",
+            "sla_document",
+            "cost_analysis"
+          ],
+          "success": true
+        }
+      }
+    }
+  ],
+  "generation_tests": [],
+  "summary": {
+    "total_tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "success_rate": 100.0,
+    "overall_status": "PASS"
+  },
+  "artifacts_generated": {
+    "temporary_path": "/Users/sac/.cache/tmp/cns_validation_yf9d332y",
+    "files_created": 60
+  }
+}

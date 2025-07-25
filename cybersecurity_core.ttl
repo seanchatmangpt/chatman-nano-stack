@@ -123,3 +123,246 @@ aegis:PerformanceTarget a owl:Class ;
     aegis:propagationLatency "100ms" ;
     aegis:lookupLatency "10ms" ;
     aegis:throughput "100000" .
+
+# 80/20 EXPANSION: Add all cybersecurity concepts referenced in workflows
+
+# Assets (from workflow step names)
+aegis:Asset a owl:Class ;
+    rdfs:label "Cybersecurity Asset" ;
+    rdfs:comment "Any resource that has value and needs protection" .
+
+aegis:NetworkAsset rdfs:subClassOf aegis:Asset ;
+    rdfs:label "Network Asset" .
+
+aegis:ComputeAsset rdfs:subClassOf aegis:Asset ;
+    rdfs:label "Compute Asset" .
+
+aegis:DataAsset rdfs:subClassOf aegis:Asset ;
+    rdfs:label "Data Asset" .
+
+aegis:UserAsset rdfs:subClassOf aegis:Asset ;
+    rdfs:label "User Asset" .
+
+aegis:ApplicationAsset rdfs:subClassOf aegis:Asset ;
+    rdfs:label "Application Asset" .
+
+# Network Devices
+aegis:NetworkDevice a owl:Class ;
+    rdfs:label "Network Device" .
+
+aegis:Router rdfs:subClassOf aegis:NetworkDevice ;
+    rdfs:label "Router" .
+
+aegis:Switch rdfs:subClassOf aegis:NetworkDevice ;
+    rdfs:label "Switch" .
+
+aegis:Firewall rdfs:subClassOf aegis:NetworkDevice ;
+    rdfs:label "Firewall" .
+
+aegis:LoadBalancer rdfs:subClassOf aegis:NetworkDevice ;
+    rdfs:label "Load Balancer" .
+
+aegis:VPN rdfs:subClassOf aegis:NetworkDevice ;
+    rdfs:label "VPN" .
+
+# Network Segments
+aegis:NetworkSegment a owl:Class ;
+    rdfs:label "Network Segment" .
+
+aegis:DMZ rdfs:subClassOf aegis:NetworkSegment ;
+    rdfs:label "DMZ" .
+
+aegis:InternalNetwork rdfs:subClassOf aegis:NetworkSegment ;
+    rdfs:label "Internal Network" .
+
+aegis:PublicNetwork rdfs:subClassOf aegis:NetworkSegment ;
+    rdfs:label "Public Network" .
+
+# Threats and Attacks
+aegis:Threat a owl:Class ;
+    rdfs:label "Cybersecurity Threat" .
+
+aegis:Malware rdfs:subClassOf aegis:Threat ;
+    rdfs:label "Malware" .
+
+aegis:Virus rdfs:subClassOf aegis:Malware ;
+    rdfs:label "Virus" .
+
+aegis:Worm rdfs:subClassOf aegis:Malware ;
+    rdfs:label "Worm" .
+
+aegis:Trojan rdfs:subClassOf aegis:Malware ;
+    rdfs:label "Trojan" .
+
+aegis:Ransomware rdfs:subClassOf aegis:Malware ;
+    rdfs:label "Ransomware" .
+
+aegis:Rootkit rdfs:subClassOf aegis:Malware ;
+    rdfs:label "Rootkit" .
+
+aegis:Spyware rdfs:subClassOf aegis:Malware ;
+    rdfs:label "Spyware" .
+
+aegis:Botnet rdfs:subClassOf aegis:Malware ;
+    rdfs:label "Botnet" .
+
+# Attack Types
+aegis:Attack a owl:Class ;
+    rdfs:label "Cyber Attack" .
+
+aegis:NetworkAttack rdfs:subClassOf aegis:Attack ;
+    rdfs:label "Network Attack" .
+
+aegis:DDoSAttack rdfs:subClassOf aegis:NetworkAttack ;
+    rdfs:label "DDoS Attack" .
+
+aegis:ManInTheMiddleAttack rdfs:subClassOf aegis:NetworkAttack ;
+    rdfs:label "Man in the Middle Attack" .
+
+aegis:PacketSniffing rdfs:subClassOf aegis:NetworkAttack ;
+    rdfs:label "Packet Sniffing" .
+
+aegis:PortScan rdfs:subClassOf aegis:NetworkAttack ;
+    rdfs:label "Port Scan" .
+
+aegis:WebAttack rdfs:subClassOf aegis:Attack ;
+    rdfs:label "Web Attack" .
+
+aegis:SQLInjection rdfs:subClassOf aegis:WebAttack ;
+    rdfs:label "SQL Injection" .
+
+aegis:XSS rdfs:subClassOf aegis:WebAttack ;
+    rdfs:label "Cross-Site Scripting" .
+
+aegis:CSRF rdfs:subClassOf aegis:WebAttack ;
+    rdfs:label "Cross-Site Request Forgery" .
+
+aegis:SocialEngineering rdfs:subClassOf aegis:Attack ;
+    rdfs:label "Social Engineering" .
+
+aegis:PhishingAttack rdfs:subClassOf aegis:SocialEngineering ;
+    rdfs:label "Phishing Attack" .
+
+aegis:SpearPhishing rdfs:subClassOf aegis:PhishingAttack ;
+    rdfs:label "Spear Phishing" .
+
+aegis:PrivilegeEscalation rdfs:subClassOf aegis:Attack ;
+    rdfs:label "Privilege Escalation" .
+
+aegis:LateralMovement rdfs:subClassOf aegis:Attack ;
+    rdfs:label "Lateral Movement" .
+
+aegis:DataExfiltration rdfs:subClassOf aegis:Attack ;
+    rdfs:label "Data Exfiltration" .
+
+# Security Events and Incidents
+aegis:SecurityEvent a owl:Class ;
+    rdfs:label "Security Event" .
+
+aegis:SecurityIncident rdfs:subClassOf aegis:SecurityEvent ;
+    rdfs:label "Security Incident" .
+
+aegis:Vulnerability a owl:Class ;
+    rdfs:label "Vulnerability" .
+
+aegis:ZeroDayVulnerability rdfs:subClassOf aegis:Vulnerability ;
+    rdfs:label "Zero Day Vulnerability" .
+
+aegis:Alert a owl:Class ;
+    rdfs:label "Security Alert" .
+
+aegis:ThreatIntelligence a owl:Class ;
+    rdfs:label "Threat Intelligence" .
+
+aegis:IOC a owl:Class ;
+    rdfs:label "Indicator of Compromise" .
+
+# Security Controls
+aegis:SecurityControl a owl:Class ;
+    rdfs:label "Security Control" .
+
+aegis:PreventiveControl rdfs:subClassOf aegis:SecurityControl ;
+    rdfs:label "Preventive Control" .
+
+aegis:DetectiveControl rdfs:subClassOf aegis:SecurityControl ;
+    rdfs:label "Detective Control" .
+
+aegis:CorrectiveControl rdfs:subClassOf aegis:SecurityControl ;
+    rdfs:label "Corrective Control" .
+
+# Security Tools
+aegis:SecurityTool a owl:Class ;
+    rdfs:label "Security Tool" .
+
+aegis:IDS rdfs:subClassOf aegis:SecurityTool ;
+    rdfs:label "Intrusion Detection System" .
+
+aegis:IPS rdfs:subClassOf aegis:SecurityTool ;
+    rdfs:label "Intrusion Prevention System" .
+
+aegis:SIEM rdfs:subClassOf aegis:SecurityTool ;
+    rdfs:label "Security Information and Event Management" .
+
+aegis:Antivirus rdfs:subClassOf aegis:SecurityTool ;
+    rdfs:label "Antivirus" .
+
+aegis:EDR rdfs:subClassOf aegis:SecurityTool ;
+    rdfs:label "Endpoint Detection and Response" .
+
+aegis:SOAR rdfs:subClassOf aegis:SecurityTool ;
+    rdfs:label "Security Orchestration, Automation and Response" .
+
+# Properties for relationships
+aegis:hasAsset a owl:ObjectProperty ;
+    rdfs:domain aegis:NetworkSegment ;
+    rdfs:range aegis:Asset .
+
+aegis:threatenedBy a owl:ObjectProperty ;
+    rdfs:domain aegis:Asset ;
+    rdfs:range aegis:Threat .
+
+aegis:protectedBy a owl:ObjectProperty ;
+    rdfs:domain aegis:Asset ;
+    rdfs:range aegis:SecurityControl .
+
+aegis:detectedBy a owl:ObjectProperty ;
+    rdfs:domain aegis:Threat ;
+    rdfs:range aegis:SecurityTool .
+
+aegis:mitigatedBy a owl:ObjectProperty ;
+    rdfs:domain aegis:Vulnerability ;
+    rdfs:range aegis:SecurityControl .
+
+# Data Properties
+aegis:severity a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+aegis:confidenceLevel a owl:DatatypeProperty ;
+    rdfs:range xsd:float .
+
+aegis:impactLevel a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+aegis:timestamp a owl:DatatypeProperty ;
+    rdfs:range xsd:dateTime .
+
+aegis:ipAddress a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+aegis:port a owl:DatatypeProperty ;
+    rdfs:range xsd:int .
+
+aegis:protocol a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+aegis:hash a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+aegis:fileSize a owl:DatatypeProperty ;
+    rdfs:range xsd:long .
+
+aegis:priority a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+aegis:status a owl:DatatypeProperty ;
+    rdfs:range xsd:string .

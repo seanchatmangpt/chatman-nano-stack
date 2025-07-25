@@ -1,0 +1,40 @@
+{
+  "name": "aegis-fabric-frontend",
+  "version": "1.0.0",
+  "description": "Real-time cybersecurity threat detection and response dashboard powered by Aegis Fabric",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "type-check": "nuxt typecheck"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@nuxtjs/eslint-config-typescript": "^12.1.0",
+    "@nuxtjs/tailwindcss": "^6.8.0",
+    "@types/node": "^20.4.5",
+    "@vue/eslint-config-typescript": "^11.0.3",
+    "eslint": "^8.45.0",
+    "eslint-plugin-nuxt": "^4.0.0",
+    "eslint-plugin-vue": "^9.15.1",
+    "nuxt": "^3.7.4",
+    "typescript": "^5.1.6",
+    "vue-tsc": "^3.0.4"
+  },
+  "dependencies": {
+    "@pinia/nuxt": "^0.4.11",
+    "@vueuse/nuxt": "^10.2.1",
+    "pinia": "^2.1.6",
+    "vue": "^3.3.4",
+    "vue-toastification": "^2.0.0-rc.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

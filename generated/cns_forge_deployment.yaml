@@ -1,17 +1,19 @@
 ---
 # CNS Aegis Fabric - Kubernetes Deployment
-# Generated from TTL: 
+# Generated from TTL: cybersecurity_core.ttl
+# Template: templates/k8s_deployment.yaml.j2
+# Generator: cns_forge_implementation.py
 # NO HANDCODING - This file is auto-generated
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: aegis-bitactor-
+  name: aegis-bitactor-deployment
   namespace: cns-system
   labels:
     app: aegis-fabric
     component: bitactor
-    version: ""
+    version: "v1.0.0"
   annotations:
     linkerd.io/inject: enabled
     aegis.cns.io/gossip-enabled: "true"
@@ -39,12 +41,12 @@ spec:
         fsGroup: 2000
       containers:
       - name: bitactor-engine
-        image: cns-aegis/bitactor:-latest
+        image: cns-aegis/bitactor:v1.0.0
         imagePullPolicy: Always
         command: ["/app/bitactor"]
         args:
-        - "--engine="
-        - "--protection-module="
+        - "--engine=bitactor"
+        - "--protection-module=aegis"
         - "--gossip-fanout=3"
         - "--gossip-interval=100ms"
         env:
@@ -77,11 +79,11 @@ spec:
         - name: SERVICE_MESH_ENABLED
           value: "true"
         - name: CIRCUIT_BREAKER_THRESHOLD
-          value: ""
+          value: "10"
         - name: RETRY_ATTEMPTS
-          value: ""
+          value: "3"
         - name: TIMEOUT_MS
-          value: ""
+          value: "5000"
         ports:
         - name: grpc
           containerPort: 8080
@@ -249,7 +251,7 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: aegis-bitactor-sa
+  name: aegis-bitactor-deploymentsa
   namespace: cns-system
   labels:
     app: aegis-fabric
@@ -260,7 +262,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: aegis-bitactor-role
+  name: aegis-bitactor-deploymentrole
   namespace: cns-system
 rules:
 - apiGroups: [""]
@@ -278,15 +280,15 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: aegis-bitactor-rolebinding
+  name: aegis-bitactor-deploymentrolebinding
   namespace: cns-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: aegis-bitactor-role
+  name: aegis-bitactor-deploymentrole
 subjects:
 - kind: ServiceAccount
-  name: aegis-bitactor-sa
+  name: aegis-bitactor-deploymentsa
   namespace: cns-system
 
 ---
@@ -294,7 +296,7 @@ subjects:
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: aegis-bitactor-pdb
+  name: aegis-bitactor-deploymentpdb
   namespace: cns-system
 spec:
   minAvailable: 2
@@ -308,13 +310,13 @@ spec:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: aegis-bitactor-hpa
+  name: aegis-bitactor-deploymenthpa
   namespace: cns-system
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: aegis-bitactor-
+    name: aegis-bitactor-deployment
   minReplicas: 3
   maxReplicas: 9
   metrics:

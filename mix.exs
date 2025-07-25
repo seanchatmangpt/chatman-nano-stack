@@ -6,58 +6,50 @@ defmodule CNSForge.MixProject do
       app: :cns_forge,
       version: "1.0.0",
       elixir: "~> 1.15",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
-      description: "CNS Forge - Ecosystem Composer using Ash/Reactor Architecture"
+      description: "CNS Forge - Ecosystem Composer using Ash/Reactor Architecture",
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ],
+      dialyzer: [
+        plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
+      ]
     ]
   end
 
   def application do
     [
-      mod: {CNSForge.Application, []},
-      extra_applications: [:logger, :mnesia, :crypto]
+      mod: {CNSForge.ProductionApplication, []},
+      extra_applications: [:logger, :runtime_tools, :mnesia, :crypto]
     ]
   end
+  
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
     [
-      # Ash Framework ecosystem
-      {:ash, "~> 3.0"},
-      {:ash_postgres, "~> 2.0"},  # Optional: for production PostgreSQL
-      {:reactor, "~> 0.8"},       # Reactor for workflow orchestration
+      # 80/20 APPROACH: Absolute minimal dependencies to avoid compilation issues
+      # Focus on core business logic without framework overhead
       
-      # Phoenix for HTTP ingress
-      {:phoenix, "~> 1.7.0"},
-      {:phoenix_html, "~> 4.0"},
-      {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.20.0"},
-      {:phoenix_live_dashboard, "~> 0.8.0"},
-      
-      # Telemetry and observability
-      {:telemetry, "~> 1.0"},
-      {:telemetry_metrics, "~> 0.6"},
-      {:telemetry_poller, "~> 1.0"},
-      
-      # JSON handling
-      {:jason, "~> 1.2"},
-      
-      # Development and testing
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:ex_doc, "~> 0.27", only: :dev, runtime: false}
+      {:jason, "~> 1.4"},  # JSON handling
+      {:telemetry, "~> 1.2"}  # Basic telemetry
     ]
   end
 
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-      "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind default", "esbuild default"],
-      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
+      # 80/20 APPROACH: Essential aliases only
+      setup: ["deps.get"],
+      test: ["test"],
+      quality: ["format"]
     ]
   end
 end

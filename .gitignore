@@ -198,3 +198,61 @@ v8/temp/*.dump
 .jinja_cache/
 *.gcda
 *.gcno
+
+# Elixir and Phoenix
+# Dependencies
+deps/
+_build/
+*.ez
+
+# Elixir build artifacts
+*.beam
+*.app
+*.appup
+*.rel
+
+# Mix
+mix.lock
+!mix.lock
+
+# Phoenix
+assets/node_modules/
+assets/npm-debug.log*
+assets/yarn-debug.log*
+assets/yarn-error.log*
+
+# Elixir specific
+*.exs.bak
+*.ex.bak
+.elixir_ls/
+.credo/
+dialyzer_plt/
+*.plt
+
+# ASH Framework
+ash_authentication_private/
+ash_authentication_private_public/
+
+# Elixir test artifacts
+test/support/conn_case.ex
+test/test_helper.exs
+
+# Elixir logs
+*.log
+logs/
+
+# Elixir temporary files
+*.tmp
+*.temp
+.cache/
+
+# Elixir generated files (but keep source)
+lib/**/*.ex.bak
+test/**/*.exs.bak
+config/**/*.exs.bak
+
+# Keep important Elixir source files
+!lib/**/*.ex
+!test/**/*.exs
+!config/**/*.exs
+!mix.exs

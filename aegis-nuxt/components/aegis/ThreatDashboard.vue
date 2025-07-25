@@ -1,30 +1,30 @@
 <template>
   <div class="threat-dashboard">
     <h2 class="text-2xl font-bold mb-4">🛡️ Threat Detection Dashboard</h2>
-    
+
     <!-- Real-time threat map -->
     <div class="threat-map mb-6">
       <ClientOnly>
-        <ThreatMap 
-          :threats="activethreats" 
+        <ThreatMap
+          :threats="activethreats"
           :update-interval="100"
-          @threat-selected="onThreatSelected" 
+          @threat-selected="onThreatSelected"
         />
       </ClientOnly>
     </div>
-    
+
     <!-- Threat statistics -->
     <div class="grid grid-cols-4 gap-4 mb-6">
+      <StatCard label="Total Threats" :value="threatStats.total" color="blue" />
+      <StatCard label="Critical" :value="threatStats.critical" color="red" />
+      <StatCard label="High" :value="threatStats.high" color="yellow" />
       <StatCard
-        v-for="stat in threatStats"
-        :key="stat.label"
-        :label="stat.label"
-        :value="stat.value"
-        :trend="stat.trend"
-        :color="stat.color"
+        label="Neutralized"
+        :value="threatStats.neutralized"
+        color="green"
       />
     </div>
-    
+
     <!-- Active threats list -->
     <div class="active-threats">
       <h3 class="text-xl font-semibold mb-3">Active Threats</h3>
@@ -82,17 +82,29 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="js">
 // Generated from TTL ontology on 2025-07-24T20:14:09.966068
-import { useAegisFabric } from '~/composables/useAegisFabric'
-import type { Threat, ThreatStats } from '~/types/aegis'
+import { useAegisFabric } from "~/composables/useAegisFabric";
+import type { Threat, ThreatStats } from "~/types/aegis";
 
-const { activethreats, threatStats, neutralizeThreat } = useAegisFabric()
+const {
+  activethreats,
+  threatStats,
+  neutralizeThreat,
+  attacks,
+  ddoSattacks,
+  manInTheMiddleAttacks,
+  networkAttacks,
+  phishingAttacks,
+  threats,
+  threatIntelligences,
+  webAttacks,
+} = useAegisFabric();
 
 const onThreatSelected = (threat: Threat) => {
-  console.log('Threat selected:', threat)
+  console.log("Threat selected:", threat);
   // Handle threat selection
-}
+};
 </script>
 
 <style scoped>

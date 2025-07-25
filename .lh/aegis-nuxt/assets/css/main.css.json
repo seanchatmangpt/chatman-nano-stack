@@ -1,0 +1,18 @@
+{
+    "sourceFile": "aegis-nuxt/assets/css/main.css",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1753419870701,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1753419870701,
+            "name": "Commit-0",
+            "content": "@tailwind base;\n@tailwind components;\n@tailwind utilities;\n\n/* Custom cybersecurity theme styles */\n@layer base {\n  html {\n    font-family: 'Inter', system-ui, sans-serif;\n  }\n  \n  body {\n    @apply bg-cyber-dark text-white;\n  }\n}\n\n@layer components {\n  /* Threat severity indicators */\n  .threat-critical {\n    @apply bg-cyber-red text-white border-cyber-red;\n  }\n  \n  .threat-high {\n    @apply bg-orange-600 text-white border-orange-600;\n  }\n  \n  .threat-medium {\n    @apply bg-cyber-yellow text-black border-cyber-yellow;\n  }\n  \n  .threat-low {\n    @apply bg-cyber-green text-black border-cyber-green;\n  }\n  \n  /* Asset status indicators */\n  .asset-healthy {\n    @apply bg-cyber-green text-black;\n  }\n  \n  .asset-warning {\n    @apply bg-cyber-yellow text-black;\n  }\n  \n  .asset-critical {\n    @apply bg-cyber-red text-white;\n  }\n  \n  .asset-offline {\n    @apply bg-gray-600 text-white;\n  }\n  \n  /* Cyberpunk card styles */\n  .cyber-card {\n    @apply bg-cyber-gray border border-cyber-blue/20 rounded-lg p-6 shadow-lg;\n  }\n  \n  .cyber-card:hover {\n    @apply border-cyber-blue/40 shadow-cyber-blue/10;\n  }\n  \n  /* Network node styles */\n  .network-node {\n    @apply w-4 h-4 rounded-full border-2;\n  }\n  \n  .network-node-router {\n    @apply bg-cyber-blue border-cyber-blue;\n  }\n  \n  .network-node-switch {\n    @apply bg-cyber-green border-cyber-green;\n  }\n  \n  .network-node-server {\n    @apply bg-cyber-purple border-cyber-purple;\n  }\n  \n  .network-node-client {\n    @apply bg-cyber-yellow border-cyber-yellow;\n  }\n  \n  /* Animated elements */\n  .pulse-cyber {\n    animation: pulse-cyber 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;\n  }\n  \n  .glow-cyber {\n    animation: glow-cyber 2s ease-in-out infinite alternate;\n  }\n}\n\n@layer utilities {\n  /* Custom animations */\n  @keyframes pulse-cyber {\n    0%, 100% {\n      opacity: 1;\n    }\n    50% {\n      opacity: 0.5;\n    }\n  }\n  \n  @keyframes glow-cyber {\n    from {\n      box-shadow: 0 0 5px #00d4ff;\n    }\n    to {\n      box-shadow: 0 0 20px #00d4ff, 0 0 30px #00d4ff;\n    }\n  }\n  \n  /* Text gradients */\n  .text-gradient-cyber {\n    background: linear-gradient(45deg, #00d4ff, #00ff88);\n    -webkit-background-clip: text;\n    -webkit-text-fill-color: transparent;\n    background-clip: text;\n  }\n  \n  /* Border gradients */\n  .border-gradient-cyber {\n    border-image: linear-gradient(45deg, #00d4ff, #00ff88) 1;\n  }\n} "
+        }
+    ]
+}

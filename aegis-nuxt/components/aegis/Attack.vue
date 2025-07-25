@@ -48,7 +48,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="js">
 // Generated from http://cns.ai/ontology/cybersecurity#Attack on 2025-07-24T20:14:09.983327
 import type { Attack } from '~/types/aegis'
 

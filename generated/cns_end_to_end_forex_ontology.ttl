@@ -1,0 +1,488 @@
+@prefix : <http://cns.io/forge/forex/end2end#> .
+@prefix cns: <http://cns.io/forge#> .
+@prefix bitactor: <http://cns.io/bitactor#> .
+@prefix reactor: <http://ash.io/reactor#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# CNS Forge End-to-End Forex Trading Ontology
+# Demonstrates complete TTL → BitActor → Ash.Reactor workflow
+# "The specification is the system" - this TTL defines executable semantics
+
+<http://cns.io/forge/forex/end2end> a owl:Ontology ;
+    dcterms:title "CNS Forge End-to-End Forex Trading System" ;
+    dcterms:description "Complete semantic specification for ultra-low latency forex trading with Ash.Reactor orchestration" ;
+    dcterms:creator "CNS Forge Platform" ;
+    dcterms:date "2025-07-25"^^xsd:date ;
+    owl:versionInfo "1.0.0-end2end" ;
+    cns:targetLatencyNs "42"^^xsd:long ;
+    cns:targetUptimePercent "99.999"^^xsd:decimal ;
+    bitactor:optimizationLevel "O3" ;
+    reactor:workflowPattern "saga" ;
+    dcterms:license "CNS Internal" .
+
+# ===================================================================
+# CORE SEMANTIC CLASSES (Drive BitActor Code Generation)
+# ===================================================================
+
+# Trading System Architecture
+:ForexTradingSystem a owl:Class ;
+    rdfs:label "Forex Trading System" ;
+    rdfs:comment "Complete end-to-end forex trading system with ultra-low latency" ;
+    cns:generates bitactor:ForexBitActor ;
+    cns:latencyTarget "42"^^xsd:long ;
+    cns:memoryLayout "cache_aligned" ;
+    cns:optimizationFlags [ 
+        cns:simdInstructions "AVX2, SSE4" ;
+        cns:compilerFlags "-O3 -march=native -funroll-loops" ;
+        cns:memoryModel "zero_copy" 
+    ] .
+
+# Currency Pairs (Semantic Enumeration)
+:CurrencyPair a owl:Class ;
+    rdfs:label "Currency Pair" ;
+    rdfs:comment "Forex currency pair with semantic constraints" ;
+    cns:generates bitactor:ForexCurrencyPairEnum ;
+    owl:oneOf ( :EUR_USD :GBP_USD :USD_JPY :USD_CHF :AUD_USD :USD_CAD :NZD_USD ) .
+
+:EUR_USD a :CurrencyPair ;
+    :pairCode "EUR/USD" ;
+    :majorPair true ;
+    :minimumSpread "0.1"^^xsd:decimal ;
+    :liquidityScore "100"^^xsd:integer ;
+    cns:enumValue "1"^^xsd:integer .
+
+:GBP_USD a :CurrencyPair ;
+    :pairCode "GBP/USD" ;
+    :majorPair true ;
+    :minimumSpread "0.2"^^xsd:decimal ;
+    :liquidityScore "95"^^xsd:integer ;
+    cns:enumValue "2"^^xsd:integer .
+
+# Market Data Tick (Ultra-low latency structure)
+:MarketTick a owl:Class ;
+    rdfs:label "Market Data Tick" ;
+    rdfs:comment "Real-time market price update with nanosecond precision" ;
+    cns:generates bitactor:ForexMarketTickStruct ;
+    cns:memoryAlignment "64" ;
+    cns:packingDirective "packed" ;
+    cns:cacheOptimized true .
+
+# Trading Position (Risk-managed)
+:TradingPosition a owl:Class ;
+    rdfs:label "Trading Position" ;
+    rdfs:comment "Active forex position with risk controls" ;
+    cns:generates bitactor:ForexPositionStruct ;
+    cns:memoryAlignment "64" ;
+    cns:riskControls true .
+
+# Trader Profile (Compliance-driven)
+:TraderProfile a owl:Class ;
+    rdfs:label "Trader Profile" ;
+    rdfs:comment "Trader configuration with compliance and risk limits" ;
+    cns:generates bitactor:ForexTraderStruct ;
+    cns:complianceRequired true ;
+    cns:riskManagement true .
+
+# News Event (Sentiment-aware)
+:NewsEvent a owl:Class ;
+    rdfs:label "News Event" ;
+    rdfs:comment "Market-moving news with sentiment analysis" ;
+    cns:generates bitactor:ForexNewsEventStruct ;
+    cns:sentimentAnalysis true ;
+    cns:nlpProcessing true .
+
+# ===================================================================
+# PERFORMANCE REQUIREMENTS (Drive Optimization)
+# ===================================================================
+
+:PerformanceRequirement a owl:Class ;
+    rdfs:label "Performance Requirement" ;
+    rdfs:comment "Quantitative performance targets for system optimization" .
+
+:UltraLowLatency a :PerformanceRequirement ;
+    rdfs:label "Ultra-low Latency Requirement" ;
+    :targetLatencyNs "42"^^xsd:long ;
+    :maxLatencyNs "100"^^xsd:long ;
+    :latencyPercentile "99.9"^^xsd:decimal ;
+    cns:enforcementLevel "strict" ;
+    cns:optimizationPriority "highest" .
+
+:HighThroughput a :PerformanceRequirement ;
+    rdfs:label "High Throughput Requirement" ;
+    :targetOpsPerSecond "1000000"^^xsd:long ;
+    :minOpsPerSecond "500000"^^xsd:long ;
+    cns:scalingStrategy "horizontal" ;
+    cns:loadBalancing true .
+
+:FiveNinesAvailability a :PerformanceRequirement ;
+    rdfs:label "Five Nines Availability" ;
+    :targetUptimePercent "99.999"^^xsd:decimal ;
+    :maxDowntimePerMonth "26.28"^^xsd:decimal ;  # 26.28 seconds
+    :recoveryTimeSeconds "2"^^xsd:integer ;
+    cns:faultTolerance true ;
+    cns:selfHealing true .
+
+# ===================================================================
+# ASH.REACTOR WORKFLOW SPECIFICATION
+# ===================================================================
+
+:ReactorWorkflow a owl:Class ;
+    rdfs:label "Ash.Reactor Workflow" ;
+    rdfs:comment "Workflow orchestration pattern with saga compensation" ;
+    cns:generates reactor:WorkflowDefinition ;
+    reactor:pattern "saga" ;
+    reactor:compensationEnabled true ;
+    reactor:transactionSupport true .
+
+:ForexTradingWorkflow a :ReactorWorkflow ;
+    rdfs:label "Forex Trading Workflow" ;
+    rdfs:comment "End-to-end forex trading workflow with TTL semantic validation" ;
+    reactor:steps (
+        :ParseDirectiveStep
+        :LoadOntologyStep  
+        :ValidateParametersStep
+        :GenerateBitActorStep
+        :CompileEngineStep
+        :DeployBitActorStep
+        :InitNewsValidatorStep
+        :StartMarketIngestionStep
+        :ExecuteHFTStrategyStep
+        :CollectTelemetryStep
+        :OptimizeSystemStep
+    ) ;
+    reactor:inputs (
+        :forex_pair
+        :trading_directive  
+        :risk_parameters
+        :news_sentiment
+        :market_conditions
+    ) ;
+    reactor:outputs (
+        :trade_result
+        :performance_metrics
+        :system_optimizations
+    ) .
+
+# Workflow Steps (Map to Ash.Reactor actions)
+:WorkflowStep a owl:Class ;
+    rdfs:label "Workflow Step" ;
+    rdfs:comment "Individual step in Ash.Reactor workflow" ;
+    cns:generates reactor:ActionDefinition .
+
+:ParseDirectiveStep a :WorkflowStep ;
+    rdfs:label "Parse Trading Directive" ;
+    reactor:action "CNSForge.DirectiveParser.parse_directive" ;
+    reactor:undoAction "CNSForge.DirectiveParser.compensate_directive_parsing" ;
+    reactor:undoPolicy "always" ;
+    reactor:inputs [ :directive_text ; :domain_context ; :target_ontology ] ;
+    reactor:outputs [ :parsed_directive ] .
+
+:ValidateParametersStep a :WorkflowStep ;
+    rdfs:label "Validate Trading Parameters" ;
+    reactor:action "CNSForge.SHACLValidator.validate_trading_params" ;
+    reactor:undoAction "CNSForge.SHACLValidator.rollback_validation" ;
+    reactor:undoPolicy "outside_transaction" ;
+    reactor:dependsOn :LoadOntologyStep ;
+    cns:ttlValidation true .
+
+:GenerateBitActorStep a :WorkflowStep ;
+    rdfs:label "Generate BitActor Implementation" ;
+    reactor:action "CNSForge.BitActorGenerator.generate_bitactor" ;
+    reactor:undoAction "CNSForge.BitActorGenerator.cleanup_generated_code" ;
+    reactor:undoPolicy "always" ;
+    reactor:timeout "30s" ;
+    cns:codeGeneration true ;
+    cns:targetLanguage "C" ;
+    cns:optimizationLevel "O3" .
+
+# ===================================================================
+# SHACL CONSTRAINTS (TTL Validation Rules)
+# ===================================================================
+
+# Trader Validation Shape
+:TraderShape a shacl:NodeShape ;
+    shacl:targetClass :TraderProfile ;
+    shacl:property [
+        shacl:path :margin_available ;
+        shacl:datatype xsd:decimal ;
+        shacl:minInclusive "1000.0"^^xsd:decimal ;
+        shacl:message "Trader must have minimum $1000 margin available" ;
+        cns:generates bitactor:MarginValidation
+    ] ;
+    shacl:property [
+        shacl:path :compliance_verified ;
+        shacl:datatype xsd:boolean ;
+        shacl:hasValue true ;
+        shacl:message "Trader must have verified compliance status" ;
+        cns:generates bitactor:ComplianceCheck
+    ] ;
+    shacl:property [
+        shacl:path :max_daily_loss ;
+        shacl:datatype xsd:decimal ;
+        shacl:maxInclusive "-1.0"^^xsd:decimal ;
+        shacl:message "Maximum daily loss must be negative (loss limit)" ;
+        cns:generates bitactor:DailyLossValidation
+    ] .
+
+# Position Size Validation Shape  
+:PositionSizeShape a shacl:NodeShape ;
+    shacl:targetClass :TradingPosition ;
+    shacl:property [
+        shacl:path :position_size ;
+        shacl:datatype xsd:decimal ;
+        shacl:minInclusive "0.01"^^xsd:decimal ;
+        shacl:maxInclusive "1000000.0"^^xsd:decimal ;
+        shacl:message "Position size must be between 0.01 and 1M units" ;
+        cns:generates bitactor:PositionSizeValidation
+    ] ;
+    shacl:sparql [
+        shacl:message "Position size must not exceed trader risk limits" ;
+        shacl:select """
+        SELECT $this WHERE {
+            $this :position_size ?size .
+            $this :trader ?trader .
+            ?trader :max_position_size ?maxSize .
+            FILTER(?size > ?maxSize)
+        }
+        """ ;
+        cns:generates bitactor:RiskLimitValidation
+    ] .
+
+# Market Data Validation Shape
+:MarketTickShape a shacl:NodeShape ;
+    shacl:targetClass :MarketTick ;
+    shacl:property [
+        shacl:path :timestamp_ns ;
+        shacl:datatype xsd:long ;
+        shacl:minInclusive "0"^^xsd:long ;
+        shacl:message "Timestamp must be positive nanoseconds since epoch" ;
+        cns:generates bitactor:TimestampValidation
+    ] ;
+    shacl:property [
+        shacl:path :bid_price ;
+        shacl:datatype xsd:decimal ;
+        shacl:minInclusive "0.0001"^^xsd:decimal ;
+        shacl:message "Bid price must be positive" ;
+        cns:generates bitactor:PriceValidation
+    ] ;
+    shacl:property [
+        shacl:path :spread ;
+        shacl:datatype xsd:decimal ;
+        shacl:minInclusive "0.0"^^xsd:decimal ;
+        shacl:maxInclusive "10.0"^^xsd:decimal ;
+        shacl:message "Spread must be between 0 and 10 pips" ;
+        cns:generates bitactor:SpreadValidation
+    ] .
+
+# ===================================================================
+# TELEMETRY AND MONITORING SPECIFICATIONS
+# ===================================================================
+
+:TelemetryMetric a owl:Class ;
+    rdfs:label "Telemetry Metric" ;
+    rdfs:comment "Performance and operational metrics for monitoring" ;
+    cns:generates bitactor:TelemetryStruct .
+
+:LatencyMetric a :TelemetryMetric ;
+    rdfs:label "Execution Latency Metric" ;
+    :metricName "execution_latency_ns" ;
+    :metricType "gauge" ;
+    :targetValue "42"^^xsd:long ;
+    :alertThreshold "100"^^xsd:long ;
+    :unit "nanoseconds" ;
+    cns:highPriority true .
+
+:ThroughputMetric a :TelemetryMetric ;
+    rdfs:label "Trading Throughput Metric" ;
+    :metricName "trades_per_second" ;
+    :metricType "counter" ;
+    :targetValue "10000"^^xsd:long ;
+    :alertThreshold "5000"^^xsd:long ;
+    :unit "trades/second" .
+
+:ErrorRateMetric a :TelemetryMetric ;
+    rdfs:label "Error Rate Metric" ;
+    :metricName "constraint_violations_per_second" ;
+    :metricType "counter" ;
+    :targetValue "0"^^xsd:long ;
+    :alertThreshold "10"^^xsd:long ;
+    :unit "errors/second" ;
+    cns:criticalAlert true .
+
+# ===================================================================
+# CYBERNETIC FEEDBACK LOOP SPECIFICATIONS  
+# ===================================================================
+
+:CyberneticLoop a owl:Class ;
+    rdfs:label "Cybernetic Feedback Loop" ;
+    rdfs:comment "Self-optimizing system with continuous learning" ;
+    cns:generates bitactor:CyberneticStruct ;
+    cns:selfOptimizing true .
+
+:PerformanceOptimizationLoop a :CyberneticLoop ;
+    rdfs:label "Performance Optimization Loop" ;
+    :observationInterval "100"^^xsd:integer ;  # milliseconds
+    :optimizationTrigger :LatencyDegradation ;
+    :learningRate "0.01"^^xsd:decimal ;
+    :adaptationStrategy "gradient_descent" ;
+    cns:continuousImprovement true .
+
+:OptimizationTrigger a owl:Class ;
+    rdfs:label "Optimization Trigger" ;
+    rdfs:comment "Condition that triggers system optimization" .
+
+:LatencyDegradation a :OptimizationTrigger ;
+    rdfs:label "Latency Degradation Trigger" ;
+    :threshold "63"^^xsd:long ;  # 150% of target 42ns
+    :consecutiveViolations "5"^^xsd:integer ;
+    :action :TriggerLatencyOptimization .
+
+:OptimizationAction a owl:Class ;
+    rdfs:label "Optimization Action" ;
+    rdfs:comment "Specific optimization action to take" .
+
+:TriggerLatencyOptimization a :OptimizationAction ;
+    rdfs:label "Trigger Latency Optimization" ;
+    :strategy "cache_optimization" ;
+    :parameters [
+        :cache_size "increase_by_25_percent" ;
+        :memory_layout "optimize_for_locality" ;
+        :instruction_scheduling "reorder_for_pipeline"
+    ] .
+
+# ===================================================================
+# CODE GENERATION METADATA
+# ===================================================================
+
+:CodeGenerationSpec a owl:Class ;
+    rdfs:label "Code Generation Specification" ;
+    rdfs:comment "Metadata for automatic code generation from TTL" .
+
+:BitActorCodeGen a :CodeGenerationSpec ;
+    rdfs:label "BitActor Code Generation" ;
+    cns:targetLanguage "C" ;
+    cns:compilerFlags "-O3 -march=native -funroll-loops -ffast-math" ;
+    cns:includeHeaders [ "bitactor/bitactor.h" ; "immintrin.h" ; "stdint.h" ] ;
+    cns:memoryModel "cache_aligned" ;
+    cns:vectorization "auto" ;
+    cns:profileGuided true ;
+    cns:linkTimeOptimization true .
+
+:ErlangNIFCodeGen a :CodeGenerationSpec ;
+    rdfs:label "Erlang NIF Code Generation" ;
+    cns:targetLanguage "Erlang" ;
+    cns:nifVersion "2.16" ;
+    cns:threadSafety true ;
+    cns:resourceManagement "automatic" ;
+    cns:telemetryIntegration true .
+
+:ReactorWorkflowCodeGen a :CodeGenerationSpec ;
+    rdfs:label "Ash.Reactor Workflow Code Generation" ;
+    cns:targetLanguage "Elixir" ;
+    cns:ashVersion "3.0" ;
+    cns:reactorVersion "0.8" ;
+    cns:sagaPattern true ;
+    cns:transactionSupport true ;
+    cns:compensationActions true .
+
+# ===================================================================
+# EXECUTION PROFILE (Runtime Configuration)
+# ===================================================================
+
+:ExecutionProfile a owl:Class ;
+    rdfs:label "Execution Profile" ;
+    rdfs:comment "Runtime configuration for system execution" .
+
+:ProductionProfile a :ExecutionProfile ;
+    rdfs:label "Production Execution Profile" ;
+    :cpuAffinity "0-7" ;
+    :memoryPreallocation "1GB" ;
+    :gcStrategy "low_latency" ;
+    :schedulerPriority "realtime" ;
+    :networkBufferSize "64KB" ;
+    :logLevel "warn" ;
+    :telemetryInterval "1s" ;
+    cns:optimizedForLatency true .
+
+# ===================================================================
+# VALIDATION QUERIES (SPARQL-based Runtime Checks)
+# ===================================================================
+
+# Runtime validation query for trade execution
+:ValidateTradeExecution a owl:NamedIndividual ;
+    rdfs:label "Validate Trade Execution Query" ;
+    cns:sparqlQuery """
+    PREFIX : <http://cns.io/forge/forex/end2end#>
+    PREFIX cns: <http://cns.io/forge#>
+    
+    ASK WHERE {
+        ?trader a :TraderProfile ;
+                :compliance_verified true ;
+                :margin_available ?margin ;
+                :margin_used ?used .
+        
+        ?position a :TradingPosition ;
+                  :trader ?trader ;
+                  :position_size ?size ;
+                  :current_price ?price .
+        
+        BIND(?size * ?price AS ?value)
+        BIND(?used + ?value AS ?totalUsed)
+        
+        FILTER(?totalUsed <= ?margin * 0.8)  # Max 80% margin utilization
+    }
+    """ ;
+    cns:generates bitactor:RuntimeValidationCheck .
+
+# Performance monitoring query
+:MonitorPerformance a owl:NamedIndividual ;
+    rdfs:label "Monitor Performance Query" ;
+    cns:sparqlQuery """
+    PREFIX : <http://cns.io/forge/forex/end2end#>
+    PREFIX cns: <http://cns.io/forge#>
+    
+    SELECT ?metric ?value ?threshold WHERE {
+        ?metric a :TelemetryMetric ;
+                :metricName ?name ;
+                :currentValue ?value ;
+                :alertThreshold ?threshold .
+        
+        FILTER(?value > ?threshold)
+    }
+    """ ;
+    cns:generates bitactor:PerformanceMonitor .
+
+# ===================================================================
+# INTEGRATION ENDPOINTS
+# ===================================================================
+
+:IntegrationEndpoint a owl:Class ;
+    rdfs:label "Integration Endpoint" ;
+    rdfs:comment "External system integration point" .
+
+:MarketDataFeed a :IntegrationEndpoint ;
+    rdfs:label "Market Data Feed" ;
+    :protocol "FIX" ;
+    :endpoint "tcp://market-data.example.com:9001" ;
+    :latencyRequirement "5"^^xsd:long ;  # 5ns network latency
+    :compressionEnabled false ;
+    cns:criticalPath true .
+
+:NewsServiceAPI a :IntegrationEndpoint ;
+    rdfs:label "News Service API" ;
+    :protocol "WebSocket" ;
+    :endpoint "wss://news.example.com/forex" ;
+    :sentimentAnalysis true ;
+    :filterCriteria "forex,central_bank,economic_data" .
+
+:RiskManagementSystem a :IntegrationEndpoint ;
+    rdfs:label "Risk Management System" ;
+    :protocol "gRPC" ;
+    :endpoint "grpc://risk.example.com:9090" ;
+    :authenticationRequired true ;
+    :realTimeValidation true .

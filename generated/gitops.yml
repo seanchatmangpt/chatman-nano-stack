@@ -1,0 +1,24 @@
+.github/workflows/gitops.yml
+name: GitOps Deployment
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Update Kubernetes manifests
+      run: |
+        sed -i 's|image: .*|image: cns-forge/service:${{ github.sha }}|' k8s/deployment.yaml
+    
+    - name: Commit and push changes
+      run: |
+        git config user.name "GitOps Bot"
+        git config user.email "gitops@cns-forge.io"
+        git add k8s/
+        git commit -m "Update image to ${{ github.sha }}"
+        git push

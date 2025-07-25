@@ -1,0 +1,248 @@
+# Default values for cns-forge
+replicaCount: 3
+
+image:
+  repository: cns-forge
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: ""
+  name: "cns-forge-app"
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9568"
+  prometheus.io/path: "/metrics"
+
+podSecurityContext:
+  fsGroup: 2000
+  runAsNonRoot: true
+  runAsUser: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+
+service:
+  type: ClusterIP
+  port: 4000
+  healthPort: 4001
+  metricsPort: 9568
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+  hosts:
+    - host: api.cnsforge.io
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: cns-forge-tls
+      hosts:
+        - api.cnsforge.io
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+  customMetrics:
+    - type: Pods
+      pods:
+        metric:
+          name: bitactor_active_count
+        target:
+          type: AverageValue
+          averageValue: "1000"
+
+nodeSelector: {}
+
+tolerations:
+  - key: "spot"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - cns-forge
+        topologyKey: kubernetes.io/hostname
+
+# CNS Forge specific configuration
+cnsForge:
+  environment: production
+  logLevel: info
+  telemetryEnabled: true
+  reactor:
+    maxConcurrency: 100
+  bitactor:
+    defaultTTL: 8
+    ringSize: 1024
+  cache:
+    ttl: 3600
+  healthCheck:
+    port: 4001
+
+# External services configuration
+postgresql:
+  enabled: true
+  auth:
+    username: cns_admin
+    password: ""  # Will be auto-generated if empty
+    database: cns_forge
+  primary:
+    persistence:
+      enabled: true
+      size: 100Gi
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 2Gi
+        cpu: 2
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: ""  # Will be auto-generated if empty
+  master:
+    persistence:
+      enabled: true
+      size: 10Gi
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 1Gi
+        cpu: 1
+  replica:
+    replicaCount: 2
+    persistence:
+      enabled: true
+      size: 10Gi
+
+# Observability stack
+prometheus:
+  enabled: true
+  server:
+    persistentVolume:
+      enabled: true
+      size: 50Gi
+
+grafana:
+  enabled: true
+  adminPassword: ""  # Will be auto-generated if empty
+  persistence:
+    enabled: true
+    size: 10Gi
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://prometheus-server
+        isDefault: true
+
+# OpenTelemetry configuration
+opentelemetry:
+  enabled: true
+  endpoint: "http://otel-collector.observability:4317"
+  
+# Network policies
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: ingress-nginx
+      ports:
+      - protocol: TCP
+        port: 4000
+  egress:
+    - to:
+      - namespaceSelector:
+          matchLabels:
+            name: cns-forge
+      ports:
+      - protocol: TCP
+        port: 5432
+      - protocol: TCP
+        port: 6379
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+# Secrets
+secrets:
+  create: true
+  databaseUrl: ""  # Override in production
+  redisUrl: ""     # Override in production
+  secretKeyBase: "" # Override in production
+
+# CronJobs
+cronJobs:
+  cleanup:
+    enabled: true
+    schedule: "0 */6 * * *"
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+
+# Extra environment variables
+extraEnv: []
+  # - name: CUSTOM_VAR
+  #   value: "custom_value"
+
+# Extra volumes
+extraVolumes: []
+  # - name: custom-volume
+  #   emptyDir: {}
+
+# Extra volume mounts
+extraVolumeMounts: []
+  # - name: custom-volume
+  #   mountPath: /custom

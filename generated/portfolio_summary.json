@@ -1,0 +1,28 @@
+{
+  "portfolio": "CNS Forge SaaS Portfolio",
+  "generated_at": "2025-07-25T10:49:55.777455",
+  "duration_seconds": 0.026189,
+  "services": [
+    {
+      "name": "cns_litigator",
+      "output_dir": "/Users/sac/cns/generated/cns_litigator",
+      "files_generated": 13
+    },
+    {
+      "name": "cns_quant",
+      "output_dir": "/Users/sac/cns/generated/cns_quant",
+      "files_generated": 10
+    },
+    {
+      "name": "cns_clinician",
+      "output_dir": "/Users/sac/cns/generated/cns_clinician",
+      "files_generated": 10
+    },
+    {
+      "name": "cns_fabricator",
+      "output_dir": "/Users/sac/cns/generated/cns_fabricator",
+      "files_generated": 10
+    }
+  ],
+  "total_files": 43
+}

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "aegis-nuxt/app.vue",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1753419857341,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1753419857341,
+            "name": "Commit-0",
+            "content": "<template>\n  <div id=\"app\" class=\"min-h-screen bg-cyber-dark text-white\">\n    <!-- Navigation Header -->\n    <nav class=\"bg-cyber-gray border-b border-cyber-blue/20\">\n      <div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\">\n        <div class=\"flex justify-between h-16\">\n          <div class=\"flex items-center\">\n            <div class=\"flex-shrink-0\">\n              <h1 class=\"text-xl font-bold text-cyber-blue\">\n                🛡️ Aegis Fabric\n              </h1>\n            </div>\n          </div>\n          <div class=\"flex items-center space-x-4\">\n            <div class=\"flex items-center space-x-2\">\n              <div class=\"w-2 h-2 rounded-full bg-cyber-green animate-pulse\"></div>\n              <span class=\"text-sm text-cyber-green\">Live</span>\n            </div>\n            <div class=\"text-sm text-gray-400\">\n              {{ new Date().toLocaleTimeString() }}\n            </div>\n          </div>\n        </div>\n      </div>\n    </nav>\n\n    <!-- Main Content -->\n    <main class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8\">\n      <!-- Dashboard Grid -->\n      <div class=\"grid grid-cols-1 lg:grid-cols-3 gap-8\">\n        <!-- Threat Dashboard -->\n        <div class=\"lg:col-span-2\">\n          <ThreatDashboard />\n        </div>\n        \n        <!-- Network Topology -->\n        <div class=\"lg:col-span-1\">\n          <NetworkTopology />\n        </div>\n      </div>\n      \n      <!-- Asset Monitoring -->\n      <div class=\"mt-8\">\n        <AssetMonitor />\n      </div>\n    </main>\n  </div>\n</template>\n\n<script setup lang=\"ts\">\n// Auto-imports will handle component imports\n</script>\n\n<style>\n/* Global styles */\nbody {\n  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\n}\n\n/* Custom scrollbar */\n::-webkit-scrollbar {\n  width: 8px;\n}\n\n::-webkit-scrollbar-track {\n  background: #1a1a1a;\n}\n\n::-webkit-scrollbar-thumb {\n  background: #00d4ff;\n  border-radius: 4px;\n}\n\n::-webkit-scrollbar-thumb:hover {\n  background: #00b8e6;\n}\n\n/* Cyberpunk animations */\n@keyframes cyber-glow {\n  0%, 100% {\n    box-shadow: 0 0 5px #00d4ff;\n  }\n  50% {\n    box-shadow: 0 0 20px #00d4ff, 0 0 30px #00d4ff;\n  }\n}\n\n.cyber-glow {\n  animation: cyber-glow 2s ease-in-out infinite;\n}\n</style> "
+        }
+    ]
+}

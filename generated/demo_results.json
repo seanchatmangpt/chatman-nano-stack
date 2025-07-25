@@ -1,0 +1,39 @@
+{
+  "directive_parsed": true,
+  "bitactor_generated": true,
+  "ash_reactor_deployed": true,
+  "trade_executed": true,
+  "latency_achieved_ns": 75000,
+  "uptime_percentage": 0.0,
+  "semantic_compliance": true,
+  "telemetry_data": {
+    "timestamp": "2025-07-24T22:01:15.343158",
+    "bitactor_metrics": {
+      "trades_executed": 1,
+      "average_latency_ns": 45,
+      "min_latency_ns": 38,
+      "max_latency_ns": 52,
+      "constraint_violations": 0,
+      "risk_violations": 0
+    },
+    "reactor_metrics": {
+      "workflows_executed": 1,
+      "saga_rollbacks": 0,
+      "compensation_events": 0,
+      "step_success_rate": 1.0
+    },
+    "system_metrics": {
+      "uptime_percentage": 99.999,
+      "memory_usage_mb": 485,
+      "cpu_usage_percent": 15.2,
+      "network_latency_ns": 5
+    },
+    "trading_metrics": {
+      "total_pnl": 125.5,
+      "win_rate": 1.0,
+      "max_drawdown": 0.0,
+      "sharpe_ratio": 2.15
+    }
+  },
+  "execution_time_ms": 5729.719877243042
+}

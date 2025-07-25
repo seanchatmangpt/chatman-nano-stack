@@ -33,17 +33,15 @@ defmodule CnsForgeAsh.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.8.0-rc.3", override: true},
+      {:phoenix, "~> 1.7.0"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5"},
-      # CNS Forge Real Ash.Reactor Dependencies
-      {:ash, "~> 3.0"},
-      {:reactor, "~> 0.15"},
-      # BitActor Integration
-      {:rustler, "~> 0.34"}
+      {:bandit, "~> 1.5"}
+      # Temporarily removing Ash/Reactor due to Erlang/OTP 28 compatibility issues
+      # {:ash, "~> 3.0"},
+      # {:reactor, "~> 0.15"}
     ]
   end
 

@@ -16,7 +16,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="js">
 // Generated from http://cns.ai/ontology/cybersecurity#ThreatIntelligence on 2025-07-24T20:14:10.049346
 import type { ThreatIntelligence } from '~/types/aegis'
 

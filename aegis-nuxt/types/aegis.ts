@@ -366,7 +366,6 @@ export interface Threat {
   uri: string
   label: string
 threatID: string
-severity: number
 confidence: string
 firstSeen: Date
 lastSeen: Date

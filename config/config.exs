@@ -36,25 +36,10 @@ config :cns_forge, CNSForgeWeb.Endpoint,
 config :phoenix, :json_library, Jason
 
 # Telemetry configuration for universal observability
-config :telemetry,
-  metrics: [
-    # BitActor execution metrics
-    Telemetry.Metrics.counter("cns_forge.bit_actor.hops.total"),
-    Telemetry.Metrics.distribution("cns_forge.bit_actor.execution_time", unit: :microsecond),
-    Telemetry.Metrics.gauge("cns_forge.bit_actor.ttl_remaining"),
-    
-    # Signal routing metrics  
-    Telemetry.Metrics.counter("cns_forge.signal.routed.total"),
-    Telemetry.Metrics.counter("cns_forge.signal.dropped.total"),
-    
-    # Transaction completion metrics
-    Telemetry.Metrics.counter("cns_forge.transaction.completed.total"),
-    Telemetry.Metrics.distribution("cns_forge.transaction.duration", unit: :millisecond),
-    
-    # Saga orchestration metrics
-    Telemetry.Metrics.counter("cns_forge.bit_actor.compensate.total"),
-    Telemetry.Metrics.counter("cns_forge.bit_actor.undo.total")
-  ]
+# Metrics are defined in CNSForge.Telemetry module to avoid config-time issues
+config :cns_forge, CNSForge.Telemetry,
+  enabled: true,
+  export_interval: 30_000
 
 # Logger configuration
 config :logger, :console,

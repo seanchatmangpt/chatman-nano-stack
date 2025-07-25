@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom cybersecurity theme styles */
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-cyber-dark text-white;
+  }
+}
+
+@layer components {
+  /* Threat severity indicators */
+  .threat-critical {
+    @apply bg-cyber-red text-white border-cyber-red;
+  }
+  
+  .threat-high {
+    @apply bg-orange-600 text-white border-orange-600;
+  }
+  
+  .threat-medium {
+    @apply bg-cyber-yellow text-black border-cyber-yellow;
+  }
+  
+  .threat-low {
+    @apply bg-cyber-green text-black border-cyber-green;
+  }
+  
+  /* Asset status indicators */
+  .asset-healthy {
+    @apply bg-cyber-green text-black;
+  }
+  
+  .asset-warning {
+    @apply bg-cyber-yellow text-black;
+  }
+  
+  .asset-critical {
+    @apply bg-cyber-red text-white;
+  }
+  
+  .asset-offline {
+    @apply bg-gray-600 text-white;
+  }
+  
+  /* Cyberpunk card styles */
+  .cyber-card {
+    @apply bg-cyber-gray border border-cyber-blue/20 rounded-lg p-6 shadow-lg;
+  }
+  
+  .cyber-card:hover {
+    @apply border-cyber-blue/40 shadow-cyber-blue/10;
+  }
+  
+  /* Network node styles */
+  .network-node {
+    @apply w-4 h-4 rounded-full border-2;
+  }
+  
+  .network-node-router {
+    @apply bg-cyber-blue border-cyber-blue;
+  }
+  
+  .network-node-switch {
+    @apply bg-cyber-green border-cyber-green;
+  }
+  
+  .network-node-server {
+    @apply bg-cyber-purple border-cyber-purple;
+  }
+  
+  .network-node-client {
+    @apply bg-cyber-yellow border-cyber-yellow;
+  }
+  
+  /* Animated elements */
+  .pulse-cyber {
+    animation: pulse-cyber 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .glow-cyber {
+    animation: glow-cyber 2s ease-in-out infinite alternate;
+  }
+}
+
+@layer utilities {
+  /* Custom animations */
+  @keyframes pulse-cyber {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  
+  @keyframes glow-cyber {
+    from {
+      box-shadow: 0 0 5px #00d4ff;
+    }
+    to {
+      box-shadow: 0 0 20px #00d4ff, 0 0 30px #00d4ff;
+    }
+  }
+  
+  /* Text gradients */
+  .text-gradient-cyber {
+    background: linear-gradient(45deg, #00d4ff, #00ff88);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Border gradients */
+  .border-gradient-cyber {
+    border-image: linear-gradient(45deg, #00d4ff, #00ff88) 1;
+  }
+} 

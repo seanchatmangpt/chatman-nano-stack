@@ -1,0 +1,18 @@
+{
+    "sourceFile": "aegis-nuxt/package.json",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1753419843918,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1753419843918,
+            "name": "Commit-0",
+            "content": "{\n  \"name\": \"aegis-fabric-frontend\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Real-time cybersecurity threat detection and response dashboard powered by Aegis Fabric\",\n  \"private\": true,\n  \"scripts\": {\n    \"build\": \"nuxt build\",\n    \"dev\": \"nuxt dev\",\n    \"generate\": \"nuxt generate\",\n    \"preview\": \"nuxt preview\",\n    \"postinstall\": \"nuxt prepare\",\n    \"lint\": \"eslint .\",\n    \"lint:fix\": \"eslint . --fix\",\n    \"type-check\": \"nuxt typecheck\"\n  },\n  \"devDependencies\": {\n    \"@nuxt/devtools\": \"latest\",\n    \"@nuxtjs/eslint-config-typescript\": \"^12.1.0\",\n    \"@nuxtjs/tailwindcss\": \"^6.8.0\",\n    \"@types/node\": \"^20.4.5\",\n    \"@vue/eslint-config-typescript\": \"^11.0.3\",\n    \"eslint\": \"^8.45.0\",\n    \"eslint-plugin-nuxt\": \"^4.0.0\",\n    \"eslint-plugin-vue\": \"^9.15.1\",\n    \"nuxt\": \"^3.7.4\",\n    \"typescript\": \"^5.1.6\"\n  },\n  \"dependencies\": {\n    \"@pinia/nuxt\": \"^0.4.11\",\n    \"@vueuse/nuxt\": \"^10.2.1\",\n    \"pinia\": \"^2.1.6\",\n    \"vue\": \"^3.3.4\",\n    \"vue-toastification\": \"^2.0.0-rc.5\"\n  },\n  \"engines\": {\n    \"node\": \">=18.0.0\",\n    \"npm\": \">=8.0.0\"\n  }\n} "
+        }
+    ]
+}

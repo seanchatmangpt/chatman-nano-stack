@@ -1,0 +1,18 @@
+{
+    "sourceFile": "aegis-nuxt/components/StatCard.vue",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1753419907621,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1753419907621,
+            "name": "Commit-0",
+            "content": "<template>\n  <div class=\"stat-card cyber-card\">\n    <div class=\"flex items-center justify-between\">\n      <div>\n        <p class=\"text-sm text-gray-400\">{{ label }}</p>\n        <p class=\"text-2xl font-bold\" :class=\"getValueColor()\">{{ value }}</p>\n      </div>\n      <div class=\"flex items-center space-x-2\">\n        <div v-if=\"trend\" class=\"text-sm\" :class=\"getTrendColor()\">\n          {{ trend > 0 ? '+' : '' }}{{ trend }}%\n        </div>\n        <div class=\"w-8 h-8 rounded-full flex items-center justify-center\" :class=\"getIconColor()\">\n          <span class=\"text-lg\">{{ getIcon() }}</span>\n        </div>\n      </div>\n    </div>\n  </div>\n</template>\n\n<script setup lang=\"ts\">\ninterface Props {\n  label: string\n  value: number\n  trend?: number\n  color?: 'blue' | 'green' | 'red' | 'yellow' | 'purple'\n}\n\nconst props = withDefaults(defineProps<Props>(), {\n  color: 'blue'\n})\n\nconst getValueColor = () => {\n  switch (props.color) {\n    case 'green':\n      return 'text-cyber-green'\n    case 'red':\n      return 'text-cyber-red'\n    case 'yellow':\n      return 'text-cyber-yellow'\n    case 'purple':\n      return 'text-cyber-purple'\n    default:\n      return 'text-cyber-blue'\n  }\n}\n\nconst getTrendColor = () => {\n  if (!props.trend) return 'text-gray-400'\n  return props.trend > 0 ? 'text-cyber-red' : 'text-cyber-green'\n}\n\nconst getIconColor = () => {\n  switch (props.color) {\n    case 'green':\n      return 'bg-cyber-green/20 text-cyber-green'\n    case 'red':\n      return 'bg-cyber-red/20 text-cyber-red'\n    case 'yellow':\n      return 'bg-cyber-yellow/20 text-cyber-yellow'\n    case 'purple':\n      return 'bg-cyber-purple/20 text-cyber-purple'\n    default:\n      return 'bg-cyber-blue/20 text-cyber-blue'\n  }\n}\n\nconst getIcon = () => {\n  const icons = {\n    'total': '📊',\n    'critical': '🚨',\n    'high': '⚠️',\n    'medium': '⚡',\n    'low': 'ℹ️',\n    'neutralized': '✅'\n  }\n  \n  const key = props.label.toLowerCase().replace(/\\s+/g, '')\n  return icons[key as keyof typeof icons] || '📈'\n}\n</script> "
+        }
+    ]
+}

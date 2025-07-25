@@ -1,0 +1,18 @@
+{
+    "sourceFile": "aegis-nuxt/tsconfig.json",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1753419878255,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1753419878255,
+            "name": "Commit-0",
+            "content": "{\n  \"extends\": \"./.nuxt/tsconfig.json\",\n  \"compilerOptions\": {\n    \"strict\": true,\n    \"skipLibCheck\": true,\n    \"types\": [\n      \"node\"\n    ],\n    \"paths\": {\n      \"~/*\": [\"./*\"],\n      \"@/*\": [\"./*\"]\n    }\n  }\n} "
+        }
+    ]
+}

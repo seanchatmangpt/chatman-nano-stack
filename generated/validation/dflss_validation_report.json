@@ -1,0 +1,65 @@
+{
+  "timestamp": "2025-07-25T17:56:41.167822",
+  "validation_type": "DFLSS Six Sigma",
+  "services": [
+    {
+      "service": "cns_litigator",
+      "dpmo": 3.0,
+      "sigma_level": 6.0,
+      "process_capability": 0.7067531393633848,
+      "quality_gates": {
+        "dpmo": true,
+        "availability": true,
+        "performance": false,
+        "reliability": true
+      },
+      "passed": false
+    },
+    {
+      "service": "cns_quant",
+      "dpmo": 2.0,
+      "sigma_level": 6.0,
+      "process_capability": 0.9423375191511797,
+      "quality_gates": {
+        "dpmo": true,
+        "availability": true,
+        "performance": false,
+        "reliability": true
+      },
+      "passed": false
+    },
+    {
+      "service": "cns_clinician",
+      "dpmo": 4.0,
+      "sigma_level": 5.0,
+      "process_capability": 0.47116875957558974,
+      "quality_gates": {
+        "dpmo": false,
+        "availability": true,
+        "performance": false,
+        "reliability": true
+      },
+      "passed": false
+    },
+    {
+      "service": "cns_fabricator",
+      "dpmo": 1.0,
+      "sigma_level": 6.0,
+      "process_capability": 1.1779218989389748,
+      "quality_gates": {
+        "dpmo": true,
+        "availability": true,
+        "performance": false,
+        "reliability": true
+      },
+      "passed": false
+    }
+  ],
+  "portfolio_summary": {
+    "total_services": 4,
+    "passed": 0,
+    "failed": 4,
+    "quality_percentage": 0.0,
+    "six_sigma_achieved": false
+  }
+}

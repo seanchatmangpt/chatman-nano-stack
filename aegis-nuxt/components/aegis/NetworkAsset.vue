@@ -36,7 +36,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="js">
 // Generated from http://cns.ai/ontology/cybersecurity#NetworkAsset on 2025-07-24T20:14:10.012508
 import type { NetworkAsset } from '~/types/aegis'
 

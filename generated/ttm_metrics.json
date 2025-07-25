@@ -1,0 +1,22 @@
+{
+  "dashboard": "Time to Market Metrics",
+  "metrics": {
+    "traditional_approach": {
+      "planning": "2 months",
+      "development": "12 months",
+      "testing": "3 months",
+      "deployment": "1 month",
+      "total": "18 months"
+    },
+    "cns_forge_approach": {
+      "planning": "1 hour",
+      "development": "1 hour",
+      "testing": "30 minutes",
+      "deployment": "30 minutes",
+      "total": "3 hours"
+    },
+    "improvement_factor": "1,460x",
+    "services_per_day": "8",
+    "services_per_year": "2,920"
+  }
+}

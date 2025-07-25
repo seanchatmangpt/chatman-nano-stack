@@ -3,7 +3,9 @@ defmodule CNSForge.BitActor do
   BitActor as Ash.Resource - represents ephemeral, time-limited execution units
   
   Each BitActor encapsulates one atomic hop of logic within the TTL budget.
-  Implemented as declarative Ash actions rather than literal BEAM processes.
+  Implemented as declarative Ash actions with STRICT TTL security validation.
+  
+  SECURITY: TTL must be a non-negative integer to prevent manipulation attacks.
   """
   
   use Ash.Resource,
@@ -14,8 +16,9 @@ defmodule CNSForge.BitActor do
     uuid_primary_key :id
     
     attribute :type, :atom do
-      description "BitActor type (e.g., :stimulus, :decoder, :workflow, :action)"
+      description "BitActor type (e.g., :stimulus, :sensor, :motor, :processor)"
       allow_nil? false
+      constraints [one_of: [:stimulus, :sensor, :motor, :processor]]
     end
     
     attribute :transaction_id, :string do
@@ -24,9 +27,10 @@ defmodule CNSForge.BitActor do
     end
     
     attribute :ttl, :integer do
-      description "Remaining time-to-live in logical hops"
+      description "Remaining time-to-live in logical hops (MUST be non-negative integer)"
       allow_nil? false
       default 8
+      constraints [min: 0, max: 1000]  # Security: Prevent massive TTL attacks
     end
     
     attribute :token, :map do
@@ -39,6 +43,7 @@ defmodule CNSForge.BitActor do
       description "Current status: :pending, :running, :completed, :failed, :ttl_expired"
       allow_nil? false
       default :pending
+      constraints [one_of: [:pending, :running, :completed, :failed, :ttl_expired]]
     end
     
     attribute :created_at, :utc_datetime_usec do
@@ -64,12 +69,39 @@ defmodule CNSForge.BitActor do
     defaults [:read, :destroy]
     
     create :create do
-      description "Create a new BitActor"
+      description "Create a new BitActor with STRICT TTL validation"
       
       argument :type, :atom, allow_nil? false
-      argument :transaction_id, :string, allow_nil? false
+      argument :transaction_id, :string, allow_nil? false  
       argument :token, :map, default: %{}
       argument :ttl, :integer, default: 8
+      
+      # SECURITY: Strict TTL validation to prevent float acceptance vulnerability
+      validate fn changeset, _context ->
+        ttl_arg = Ash.Changeset.get_argument(changeset, :ttl)
+        
+        cond do
+          not is_integer(ttl_arg) ->
+            type_name = cond do
+              is_float(ttl_arg) -> "float"
+              is_binary(ttl_arg) -> "string"
+              is_atom(ttl_arg) -> "atom"
+              is_list(ttl_arg) -> "list"
+              is_map(ttl_arg) -> "map"
+              true -> "unknown"
+            end
+            {:error, "TTL must be an integer, got: #{inspect(ttl_arg)} (#{type_name})"}
+          
+          ttl_arg < 0 ->
+            {:error, "TTL must be non-negative, got: #{ttl_arg}"}
+          
+          ttl_arg > 1000 ->
+            {:error, "TTL too large (max 1000), got: #{ttl_arg}"}
+          
+          true ->
+            :ok
+        end
+      end
       
       change set_attribute(:type, arg(:type))
       change set_attribute(:transaction_id, arg(:transaction_id))

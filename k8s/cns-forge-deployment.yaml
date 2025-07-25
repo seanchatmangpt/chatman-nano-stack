@@ -1,0 +1,383 @@
+---
+# CNS Forge Kubernetes Deployment - 80/20 Implementation
+# BitActor Mesh and Reactor Orchestration
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cns-forge
+  labels:
+    app: cns-forge
+    linkerd.io/inject: enabled
+    pod-security.kubernetes.io/enforce: restricted
+---
+# ConfigMap for CNS Forge configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cns-forge-config
+  namespace: cns-forge
+data:
+  BITACTOR_TTL_BUDGET: "8"
+  REACTOR_BATCH_SIZE: "50"
+  MESH_TOPOLOGY: "hierarchical"
+  SEMANTIC_PROCESSING_ENABLED: "true"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://opentelemetry-collector.otel:4317"
+  OTEL_SERVICE_NAME: "cns-forge"
+  LOG_LEVEL: "info"
+---
+# Secret for sensitive configuration
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cns-forge-secrets
+  namespace: cns-forge
+type: Opaque
+stringData:
+  DATABASE_URL: "postgresql://cns_admin:password@cns-forge-db:5432/cns_forge"
+  REDIS_URL: "redis://cns-forge-cache:6379"
+  SECRET_KEY_BASE: "your-secret-key-base-here"
+---
+# Service Account with IRSA
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cns-forge
+  namespace: cns-forge
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/cns-forge-role
+---
+# BitActor Mesh StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: bitactor-mesh
+  namespace: cns-forge
+spec:
+  serviceName: bitactor-mesh
+  replicas: 5
+  selector:
+    matchLabels:
+      app: bitactor-mesh
+      component: execution-layer
+  template:
+    metadata:
+      labels:
+        app: bitactor-mesh
+        component: execution-layer
+      annotations:
+        linkerd.io/inject: enabled
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+    spec:
+      serviceAccountName: cns-forge
+      nodeSelector:
+        node-type: bitactor
+      tolerations:
+      - key: bitactor
+        operator: Equal
+        value: "true"
+        effect: NoSchedule
+      containers:
+      - name: bitactor
+        image: cns-forge/bitactor:latest
+        ports:
+        - containerPort: 8080
+          name: grpc
+        - containerPort: 9090
+          name: metrics
+        - containerPort: 7946
+          name: gossip
+        env:
+        - name: BITACTOR_NODE_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: BITACTOR_TTL_BUDGET
+          valueFrom:
+            configMapKeyRef:
+              name: cns-forge-config
+              key: BITACTOR_TTL_BUDGET
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: cns-forge-config
+              key: OTEL_EXPORTER_OTLP_ENDPOINT
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: cns-forge-secrets
+              key: REDIS_URL
+        resources:
+          requests:
+            cpu: 2000m
+            memory: 2Gi
+          limits:
+            cpu: 4000m
+            memory: 4Gi
+        livenessProbe:
+          grpc:
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          grpc:
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: bitactor-storage
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: bitactor-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: gp3
+      resources:
+        requests:
+          storage: 10Gi
+---
+# Reactor Orchestration Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reactor-orchestrator
+  namespace: cns-forge
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: reactor-orchestrator
+      component: orchestration-layer
+  template:
+    metadata:
+      labels:
+        app: reactor-orchestrator
+        component: orchestration-layer
+      annotations:
+        linkerd.io/inject: enabled
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+    spec:
+      serviceAccountName: cns-forge
+      nodeSelector:
+        node-type: reactor
+      containers:
+      - name: reactor
+        image: cns-forge/reactor:latest
+        ports:
+        - containerPort: 4000
+          name: http
+        - containerPort: 9090
+          name: metrics
+        env:
+        - name: PHX_HOST
+          value: reactor.cns-forge.svc.cluster.local
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: cns-forge-secrets
+              key: DATABASE_URL
+        - name: SECRET_KEY_BASE
+          valueFrom:
+            secretKeyRef:
+              name: cns-forge-secrets
+              key: SECRET_KEY_BASE
+        - name: REACTOR_BATCH_SIZE
+          valueFrom:
+            configMapKeyRef:
+              name: cns-forge-config
+              key: REACTOR_BATCH_SIZE
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: cns-forge-config
+              key: OTEL_EXPORTER_OTLP_ENDPOINT
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 1Gi
+          limits:
+            cpu: 2000m
+            memory: 2Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 4000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+---
+# MetaCompiler Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meta-compiler
+  namespace: cns-forge
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: meta-compiler
+      component: semantic-layer
+  template:
+    metadata:
+      labels:
+        app: meta-compiler
+        component: semantic-layer
+      annotations:
+        linkerd.io/inject: enabled
+    spec:
+      serviceAccountName: cns-forge
+      containers:
+      - name: compiler
+        image: cns-forge/meta-compiler:latest
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: SEMANTIC_PROCESSING_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: cns-forge-config
+              key: SEMANTIC_PROCESSING_ENABLED
+        - name: S3_BUCKET
+          value: cns-forge-bitactor-artifacts
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+---
+# Services
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitactor-mesh
+  namespace: cns-forge
+spec:
+  clusterIP: None
+  selector:
+    app: bitactor-mesh
+  ports:
+  - name: grpc
+    port: 8080
+  - name: gossip
+    port: 7946
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reactor-orchestrator
+  namespace: cns-forge
+spec:
+  selector:
+    app: reactor-orchestrator
+  ports:
+  - name: http
+    port: 80
+    targetPort: 4000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: meta-compiler
+  namespace: cns-forge
+spec:
+  selector:
+    app: meta-compiler
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+---
+# HorizontalPodAutoscaler for Reactor
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: reactor-hpa
+  namespace: cns-forge
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: reactor-orchestrator
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+# NetworkPolicy for security
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cns-forge-network-policy
+  namespace: cns-forge
+spec:
+  podSelector:
+    matchLabels:
+      app: cns-forge
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: linkerd
+    - podSelector: {}
+    ports:
+    - port: 8080
+    - port: 4000
+    - port: 8000
+  egress:
+  - to:
+    - namespaceSelector: {}
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - port: 53
+      protocol: UDP
+---
+# PodDisruptionBudget for high availability
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: bitactor-pdb
+  namespace: cns-forge
+spec:
+  minAvailable: 3
+  selector:
+    matchLabels:
+      app: bitactor-mesh
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: reactor-pdb
+  namespace: cns-forge
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: reactor-orchestrator
