@@ -1,0 +1,33 @@
+{
+  "total_tests": 4,
+  "passed": 4,
+  "failed": 0,
+  "pass_rate": 100.0,
+  "validation_passed": true,
+  "detailed_results": [
+    {
+      "test": "bitactor_compilation",
+      "status": "PASS",
+      "details": "Compiled and health check passed",
+      "duration_s": 0.30477766692638397
+    },
+    {
+      "test": "k8s_manifests",
+      "status": "PASS",
+      "details": "Validated 5 manifests",
+      "duration_s": 0.012403832981362939
+    },
+    {
+      "test": "terraform_config",
+      "status": "PASS",
+      "details": "Terraform configuration validated",
+      "duration_s": 0.0002777921035885811
+    },
+    {
+      "test": "docker_build",
+      "status": "PASS",
+      "details": "Dockerfile validated",
+      "duration_s": 0.0003394999075680971
+    }
+  ]
+}

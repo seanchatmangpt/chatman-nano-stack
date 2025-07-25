@@ -1,0 +1,7 @@
+{
+  "max_latency_ns": 100000,
+  "throughput_target": 1000000,
+  "optimization_level": "O2",
+  "memory_pool_size": "2GB",
+  "redundancy": 3
+}

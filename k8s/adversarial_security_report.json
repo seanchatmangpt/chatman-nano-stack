@@ -1,27 +1,58 @@
 {
   "metadata": {
-    "timestamp": "2025-07-24 14:41:28",
+    "timestamp": "2025-07-24 20:27:22",
     "validator_version": "1.0.0",
-    "target": "BitActor K8s Deployment (bitactor)",
+    "target": "BitActor K8s Deployment (aegis-fabric)",
     "methodology": "80/20 Adversarial Security Validation"
   },
   "executive_summary": {
-    "total_findings": 7,
+    "total_findings": 6,
     "severity_breakdown": {
       "CRITICAL": 0,
-      "HIGH": 1,
-      "MEDIUM": 3,
-      "LOW": 3,
+      "HIGH": 3,
+      "MEDIUM": 2,
+      "LOW": 1,
       "INFO": 0
     },
-    "average_risk_score": 5.26,
+    "average_risk_score": 6.5,
     "critical_issues": 0,
-    "high_priority_fixes": 1,
-    "overall_risk_level": "MEDIUM"
+    "high_priority_fixes": 3,
+    "overall_risk_level": "HIGH"
   },
   "findings": [
     {
+      "id": "CLUSTERRB-5",
+      "title": "Cluster role binding detected",
+      "description": "Service uses cluster-wide permissions",
+      "severity": "HIGH",
+      "cvss_score": 7.8,
+      "attack_scenario": "Service account compromise leads to cluster-wide access",
+      "remediation": "Use namespace-scoped role bindings instead",
+      "evidence": [
+        "ClusterRoleBinding resource found"
+      ],
+      "affected_components": [
+        "RBAC"
+      ]
+    },
+    {
       "id": "SECRET-1",
+      "title": "Potential Hardcoded key in main.tf",
+      "description": "Found potential sensitive data pattern in k8s/terraform/main.tf",
+      "severity": "HIGH",
+      "cvss_score": 7.5,
+      "attack_scenario": "Attacker gains access to source code and extracts credentials",
+      "remediation": "Use Kubernetes secrets or external secret management",
+      "evidence": [
+        "Pattern: key\\s*=\\s*[\"\\'][^\"\\']+[\"\\']",
+        "File: k8s/terraform/main.tf"
+      ],
+      "affected_components": [
+        "k8s/terraform/main.tf"
+      ]
+    },
+    {
+      "id": "SECRET-2",
       "title": "Potential Base64 encoded data in values.yaml",
       "description": "Found potential sensitive data pattern in k8s/helm/bitactor/values.yaml",
       "severity": "HIGH",
@@ -37,7 +68,7 @@
       ]
     },
     {
-      "id": "METRICS-7",
+      "id": "METRICS-6",
       "title": "Metrics exposed without authentication",
       "description": "Prometheus metrics exposed without access control",
       "severity": "LOW",
@@ -52,37 +83,7 @@
       ]
     },
     {
-      "id": "IMAGE-4",
-      "title": "Inconsistent image pull policy",
-      "description": "Using 'latest' tag without 'Always' pull policy",
-      "severity": "LOW",
-      "cvss_score": 4.1,
-      "attack_scenario": "Stale vulnerable images may be used",
-      "remediation": "Use 'Always' pull policy with 'latest' tag",
-      "evidence": [
-        "Pull policy: IfNotPresent, Tag: latest"
-      ],
-      "affected_components": [
-        "Image"
-      ]
-    },
-    {
-      "id": "MESH-2",
-      "title": "No service mesh detected",
-      "description": "No service mesh for enhanced security and observability",
-      "severity": "LOW",
-      "cvss_score": 3.7,
-      "attack_scenario": "Limited observability and control over service communication",
-      "remediation": "Consider implementing service mesh for mTLS and traffic control",
-      "evidence": [
-        "No service mesh annotations or configurations found"
-      ],
-      "affected_components": [
-        "ServiceMesh"
-      ]
-    },
-    {
-      "id": "SA-TOKEN-6",
+      "id": "SA-TOKEN-4",
       "title": "Service account token auto-mount not disabled",
       "description": "Service account tokens automatically mounted in pods",
       "severity": "MEDIUM",
@@ -97,7 +98,7 @@
       ]
     },
     {
-      "id": "RUNTIME-5",
+      "id": "RUNTIME-3",
       "title": "No runtime security monitoring",
       "description": "No runtime security tools detected",
       "severity": "MEDIUM",
@@ -110,36 +111,32 @@
       "affected_components": [
         "Runtime"
       ]
-    },
-    {
-      "id": "IMAGE-3",
-      "title": "Using 'latest' image tag",
-      "description": "Container image uses mutable 'latest' tag",
-      "severity": "MEDIUM",
-      "cvss_score": 5.3,
-      "attack_scenario": "Image tag mutation leads to deployment of malicious images",
-      "remediation": "Use specific version tags or SHA256 digests",
-      "evidence": [
-        "Image tag: latest"
-      ],
-      "affected_components": [
-        "Image"
-      ]
     }
   ],
   "80_20_priorities": {
     "critical_path": [
       {
         "priority": 1,
+        "finding_id": "CLUSTERRB-5",
+        "title": "Cluster role binding detected",
+        "impact": "80% risk reduction"
+      },
+      {
+        "priority": 2,
         "finding_id": "SECRET-1",
+        "title": "Potential Hardcoded key in main.tf",
+        "impact": "80% risk reduction"
+      },
+      {
+        "priority": 3,
+        "finding_id": "SECRET-2",
         "title": "Potential Base64 encoded data in values.yaml",
         "impact": "80% risk reduction"
       }
     ],
     "quick_wins": [
-      "SA-TOKEN-6",
-      "RUNTIME-5",
-      "IMAGE-3"
+      "SA-TOKEN-4",
+      "RUNTIME-3"
     ]
   },
   "attack_vectors": [
@@ -179,7 +176,7 @@
   ],
   "compliance_status": {
     "CIS_Kubernetes": {
-      "score": 90,
+      "score": 70,
       "critical_controls": [
         "RBAC enabled",
         "Network policies configured",

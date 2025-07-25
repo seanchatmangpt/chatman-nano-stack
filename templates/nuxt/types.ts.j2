@@ -1,0 +1,56 @@
+// Generated TypeScript types from TTL ontology
+// Generated on {{ generated_at }}
+
+{% for cls in classes %}
+export interface {{ cls.name }} {
+  id: string
+  uri: string
+  label: string
+  {% for prop in cls.properties -%}
+  {{ prop.name }}: {{ prop.type }}
+  {% endfor -%}
+  {% if cls.is_threat -%}
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  status: 'active' | 'neutralized' | 'investigating'
+  targetType: string
+  {% endif -%}
+  {% if cls.is_asset -%}
+  status: 'healthy' | 'warning' | 'critical' | 'offline'
+  lastSeen: Date
+  {% endif -%}
+}
+
+{% endfor %}
+
+export interface ThreatStats {
+  total: number
+  critical: number
+  high: number
+  medium: number
+  low: number
+  neutralized: number
+}
+
+export interface NetworkNode {
+  id: string
+  label: string
+  type: string
+  x?: number
+  y?: number
+  status: 'healthy' | 'warning' | 'critical' | 'offline'
+}
+
+export interface NetworkEdge {
+  id: string
+  source: string
+  target: string
+  type: string
+  bandwidth?: number
+  latency?: number
+}
+
+export interface AegisFabricMessage {
+  type: string
+  payload: any
+  timestamp: number
+}

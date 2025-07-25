@@ -1,0 +1,116 @@
+// WebSocket API for Aegis Fabric real-time communication
+// Generated on {{ generated_at }}
+
+import type { Peer } from 'crossws'
+import { defineWebSocketHandler } from 'h3'
+
+// Import BitActor bridge (will be implemented)
+// import { BitActorBridge } from '~/server/utils/bitactor-bridge'
+
+interface AegisClient extends Peer {
+  id: string
+  subscriptions: Set<string>
+}
+
+const clients = new Map<string, AegisClient>()
+
+export default defineWebSocketHandler({
+  open(peer) {
+    const client = peer as AegisClient
+    client.id = Math.random().toString(36).substring(7)
+    client.subscriptions = new Set()
+    clients.set(client.id, client)
+    
+    console.log(`Client ${client.id} connected`)
+    
+    // Send initial state
+    sendInitialState(client)
+  },
+  
+  message(peer, message) {
+    const client = peer as AegisClient
+    const data = JSON.parse(message.text())
+    
+    console.log(`Message from ${client.id}:`, data)
+    
+    switch (data.type) {
+      case 'subscribe':
+        handleSubscribe(client, data.channels)
+        break
+        
+      case 'unsubscribe':
+        handleUnsubscribe(client, data.channels)
+        break
+        
+      case 'neutralizeThreat':
+        handleNeutralizeThreat(client, data.threatId)
+        break
+        
+      default:
+        console.warn('Unknown message type:', data.type)
+    }
+  },
+  
+  close(peer) {
+    const client = peer as AegisClient
+    clients.delete(client.id)
+    console.log(`Client ${client.id} disconnected`)
+  },
+  
+  error(peer, error) {
+    console.error('WebSocket error:', error)
+  }
+})
+
+function sendInitialState(client: AegisClient) {
+  // Send current state for all entity types
+  {% for cls in classes %}
+  client.send(JSON.stringify({
+    type: '{{ cls.name }}Update',
+    payload: getMock{{ cls.name }}s() // TODO: Replace with real data from BitActor
+  }))
+  {% endfor %}
+}
+
+function handleSubscribe(client: AegisClient, channels: string[]) {
+  channels.forEach(channel => {
+    client.subscriptions.add(channel)
+  })
+}
+
+function handleUnsubscribe(client: AegisClient, channels: string[]) {
+  channels.forEach(channel => {
+    client.subscriptions.delete(channel)
+  })
+}
+
+function handleNeutralizeThreat(client: AegisClient, threatId: string) {
+  // TODO: Send neutralization command to BitActor
+  console.log(`Neutralizing threat ${threatId}`)
+  
+  // Broadcast update to all clients
+  broadcast({
+    type: 'threatNeutralized',
+    threatId,
+    timestamp: Date.now()
+  })
+}
+
+function broadcast(data: any) {
+  const message = JSON.stringify(data)
+  clients.forEach(client => {
+    client.send(message)
+  })
+}
+
+// Mock data generators (replace with BitActor integration)
+{% for cls in classes %}
+function getMock{{ cls.name }}s() {
+  return [] // TODO: Implement
+}
+{% endfor %}
+
+// Start real-time update loop (100ms intervals for ultra-low latency)
+setInterval(() => {
+  // TODO: Get updates from BitActor and broadcast to clients
+}, 100)

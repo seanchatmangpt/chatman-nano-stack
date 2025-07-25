@@ -1,0 +1,155 @@
+# CNS Aegis Fabric - BitActor Container
+# Generated from TTL: {{ timestamp }}
+# NO HANDCODING - This file is auto-generated
+
+# Multi-stage build for optimized container size
+FROM alpine:3.18 AS builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    gcc \
+    g++ \
+    make \
+    cmake \
+    musl-dev \
+    linux-headers \
+    erlang \
+    erlang-dev \
+    elixir \
+    git \
+    bash \
+    curl \
+    openssl-dev
+
+# Set build environment
+ENV CC=gcc
+ENV CXX=g++
+ENV CFLAGS="-O3 -march=native -mtune=native -fPIC"
+ENV CXXFLAGS="-O3 -march=native -mtune=native -fPIC"
+
+# Create build directory
+WORKDIR /build
+
+# Copy BitActor source code
+COPY src/ /build/src/
+COPY bitactor_otp/ /build/bitactor_otp/
+COPY templates/generated/ /build/generated/
+
+# Build BitActor engine with optimizations
+RUN cd /build/src && \
+    make clean && \
+    make OPTIMIZATION="-O3 -march=native -mtune=native" \
+         PROTECTION_MODULE="{{ config.bitactor.protectionModule }}" \
+         ENGINE="{{ config.bitactor.coreEngine }}" && \
+    strip /build/src/bitactor
+
+# Build Erlang/OTP components
+RUN cd /build/bitactor_otp && \
+    rebar3 compile && \
+    rebar3 release
+
+# Final stage - minimal runtime container
+FROM alpine:3.18
+
+# Install runtime dependencies only
+RUN apk add --no-cache \
+    libstdc++ \
+    libgcc \
+    musl \
+    openssl \
+    ncurses-libs \
+    bash \
+    curl \
+    jq \
+    tini
+
+# Create non-root user
+RUN addgroup -g 1000 aegis && \
+    adduser -D -u 1000 -G aegis -h /app -s /bin/bash aegis
+
+# Copy built artifacts from builder
+COPY --from=builder --chown=aegis:aegis /build/src/bitactor /app/bitactor
+COPY --from=builder --chown=aegis:aegis /build/bitactor_otp/_build/default/rel/bitactor_otp /app/erlang
+COPY --from=builder --chown=aegis:aegis /build/generated/*.erl /app/erlang/lib/bitactor_otp-1.0.0/src/
+
+# Copy startup scripts
+COPY --chown=aegis:aegis docker/entrypoint.sh /app/entrypoint.sh
+COPY --chown=aegis:aegis docker/healthcheck.sh /app/healthcheck.sh
+RUN chmod +x /app/entrypoint.sh /app/healthcheck.sh
+
+# Create necessary directories
+RUN mkdir -p /app/data /app/logs /app/tmp /app/cache && \
+    chown -R aegis:aegis /app
+
+# Set up environment
+ENV BITACTOR_ENGINE="{{ config.bitactor.coreEngine }}"
+ENV PROTECTION_MODULE="{{ config.bitactor.protectionModule }}"
+ENV MEMORY_LIMIT="{{ config.bitactor.memoryLimit }}"
+ENV CPU_LIMIT="{{ config.bitactor.cpuLimit }}"
+ENV GOSSIP_FANOUT="{{ config.gossip.fanout }}"
+ENV GOSSIP_INTERVAL="{{ config.gossip.interval }}"
+ENV MAX_HOPS="{{ config.gossip.maxHops }}"
+ENV CONVERGENCE_TARGET="{{ config.gossip.convergenceTarget }}"
+ENV SERVICE_MESH_ENABLED="{{ config.service_mesh.mtlsEnabled | lower }}"
+ENV CIRCUIT_BREAKER_THRESHOLD="{{ config.service_mesh.circuitBreakerThreshold }}"
+ENV RETRY_ATTEMPTS="{{ config.service_mesh.retryAttempts }}"
+ENV TIMEOUT_MS="{{ config.service_mesh.timeoutMs }}"
+ENV THREAT_COUNT="{{ threats | length }}"
+ENV CRITICAL_THREATS="{{ threats | selectattr('properties.priority', 'equalto', 'critical') | list | length }}"
+
+# Performance tuning
+ENV GOGC=100
+ENV GOMAXPROCS=8
+
+# Erlang VM tuning
+ENV ERL_MAX_PORTS=65536
+ENV ERL_MAX_ETS_TABLES=10000
+ENV ERL_CRASH_DUMP=/app/logs/erl_crash.dump
+ENV ERL_EPMD_ADDRESS=127.0.0.1
+ENV ERL_FLAGS="+K true +A 32 +sbt db +sbwt very_long +swt very_low +sub true +Mulmbcs 32767 +Mumbcgs 1 +Musmbcs 2047"
+
+# Security labels
+LABEL security.scan="enabled"
+LABEL security.vulnerabilities="none"
+LABEL security.compliance="cis-benchmark"
+
+# Metadata labels
+LABEL app="aegis-fabric"
+LABEL component="bitactor"
+LABEL version="{{ timestamp | replace(':', '-') | replace('T', '-') }}"
+LABEL generated.from="cybersecurity_core.ttl"
+LABEL generated.at="{{ timestamp }}"
+LABEL threat.signatures="{{ threats | length }}"
+LABEL maintainer="CNS Aegis Team"
+
+# Switch to non-root user
+USER aegis
+WORKDIR /app
+
+# Expose ports
+EXPOSE 8080 8081 9090 7946/tcp 7946/udp 4369 9100-9200
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+    CMD ["/app/healthcheck.sh"]
+
+# Use tini for proper signal handling
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Start BitActor
+CMD ["/app/entrypoint.sh"]
+
+# Build arguments for customization
+ARG BUILD_DATE={{ timestamp }}
+ARG VCS_REF=generated
+ARG VERSION={{ timestamp | replace(':', '-') | replace('T', '-') }}
+
+# OCI annotations
+LABEL org.opencontainers.image.created="${BUILD_DATE}"
+LABEL org.opencontainers.image.title="CNS Aegis BitActor"
+LABEL org.opencontainers.image.description="BitActor engine for CNS Aegis Fabric with {{ threats | length }} threat signatures"
+LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.revision="${VCS_REF}"
+LABEL org.opencontainers.image.source="ttl://cybersecurity_core.ttl"
+LABEL org.opencontainers.image.vendor="CNS"
+LABEL org.opencontainers.image.licenses="Proprietary"

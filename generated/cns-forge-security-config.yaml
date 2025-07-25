@@ -1,0 +1,42 @@
+
+# CNS Forge Security Configuration
+# Implements defense-in-depth security principles
+
+security:
+  encryption:
+    at_rest: true
+    in_transit: true
+    algorithm: "AES-256-GCM"
+    key_rotation_days: 30
+  
+  access_control:
+    principle: "least_privilege"
+    mfa_required: true
+    session_timeout: 3600  # 1 hour
+    max_failed_attempts: 3
+  
+  monitoring:
+    audit_logging: true
+    intrusion_detection: true
+    anomaly_detection: true
+    real_time_alerts: true
+  
+  network:
+    default_deny: true
+    micro_segmentation: true
+    zero_trust: true
+    network_policies: enforced
+  
+  compliance:
+    standards: ["GDPR", "SOX", "ISO27001"]
+    data_retention_days: 90
+    breach_notification_hours: 72
+    regular_audits: true
+
+# Security headers for web components
+headers:
+  - "Strict-Transport-Security: max-age=31536000; includeSubDomains"
+  - "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'"
+  - "X-Frame-Options: DENY"
+  - "X-Content-Type-Options: nosniff"
+  - "Referrer-Policy: strict-origin-when-cross-origin"

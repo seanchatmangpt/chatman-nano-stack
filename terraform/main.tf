@@ -753,9 +753,9 @@ resource "kubernetes_config_map" "cns_service_mesh_config" {
   }
 }
 
-# Include all comprehensive deployment modules
+# Include all comprehensive deployment modules - FIXED MODULE REFERENCES
 module "multi_service_deployment" {
-  source = "./multi-service-deployment.tf"
+  source = "./modules/multi-service"
   
   namespace           = var.namespace
   environment        = var.environment
@@ -764,40 +764,57 @@ module "multi_service_deployment" {
 }
 
 module "distributed_adversarial_testing" {
-  source = "./distributed-adversarial-testing.tf"
+  source = "./modules/adversarial-testing"
   
   namespace           = var.namespace
   environment        = var.environment
   enable_service_mesh = var.enable_service_mesh
+  
+  # Connect to multi-service deployment
+  depends_on = [module.multi_service_deployment]
 }
 
 module "service_optimization_8020" {
-  source = "./80-20-service-optimization.tf"
+  source = "./modules/optimization-8020"
   
   namespace           = var.namespace
   environment        = var.environment
   enable_service_mesh = var.enable_service_mesh
+  
+  # Connect to multi-service deployment
+  depends_on = [module.multi_service_deployment]
 }
 
 module "cross_service_benchmark" {
-  source = "./cross-service-benchmark-stress.tf"
+  source = "./modules/benchmark-stress"
   
   namespace           = var.namespace
   environment        = var.environment
   enable_service_mesh = var.enable_service_mesh
+  
+  # Connect to services and optimization
+  depends_on = [module.multi_service_deployment, module.service_optimization_8020]
 }
 
 module "comprehensive_validation" {
-  source = "./comprehensive-k8s-validation.tf"
+  source = "./modules/validation"
   
   namespace           = var.namespace
   environment        = var.environment
   enable_service_mesh = var.enable_service_mesh
+  
+  # Connect to all other modules for comprehensive testing
+  depends_on = [
+    module.multi_service_deployment,
+    module.distributed_adversarial_testing,
+    module.service_optimization_8020,
+    module.cross_service_benchmark
+  ]
 }
 
 # Include security hardening modules
 module "security_hardening" {
-  source = "./security-hardening.tf"
+  source = "./modules/security"
   
   namespace           = var.namespace
   environment        = var.environment
@@ -805,7 +822,7 @@ module "security_hardening" {
 }
 
 module "secret_management" {
-  source = "./secret-management.tf"
+  source = "./modules/secrets"
   
   namespace              = var.namespace
   region                = var.region

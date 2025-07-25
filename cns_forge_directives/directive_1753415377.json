@@ -1,0 +1,18 @@
+{
+  "directive_id": "directive_1753415377",
+  "original_text": "achieve five-nines availability",
+  "intent_category": "availability",
+  "target_metrics": {
+    "uptime_percentage": 99.999
+  },
+  "constraints": [],
+  "temporal_requirements": {},
+  "success_criteria": [
+    "System uptime >= 99.999%",
+    "Zero unplanned outages > 5 minutes",
+    "Recovery time < 2 minutes"
+  ],
+  "confidence_score": 0.48333333333333334,
+  "generated_ttl": "\n@prefix cns: <http://cns.io/forge#> .\n@prefix sla: <http://cns.io/sla#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\ncns:directive_1753415377 a sla:AvailabilityRequirement ;\n    sla:targetUptime \"99.999\"^^xsd:decimal ;\n    sla:maxDowntimePerMonth \"0\"^^xsd:integer ;\n    sla:measurementWindow \"monthly\" ;\n    sla:priority \"critical\" ;\n    cns:generatedFrom \"achieve five-nines availability\" ;\n    cns:requiresComponents (\n        cns:LoadBalancer\n        cns:HealthCheck\n        cns:FailoverMechanism\n        cns:MonitoringSystem\n    ) .\n",
+  "created_at": "2025-07-24T20:49:37.248159"
+}

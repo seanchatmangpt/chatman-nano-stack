@@ -1,0 +1,46 @@
+@prefix cns: <http://cns.io/forge#> .
+@prefix sys: <http://cns.io/system#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# CNS Forge System Runtime State
+sys:cns_forge_platform a cns:Platform ;
+    cns:componentType "orchestration_platform" ;
+    cns:status "active" ;
+    cns:version "2026.1.0" ;
+    sys:session_id "forge_1753415377" ;
+    sys:uptime_seconds "3600"^^xsd:long ;
+    cns:lastUpdated "2025-07-25T03:56:00Z"^^xsd:dateTime .
+
+# Directive Processing Metrics
+sys:directive_processor a cns:Processor ;
+    cns:status "healthy" ;
+    sys:directives_processed "4"^^xsd:int ;
+    sys:success_rate "100.0"^^xsd:decimal ;
+    sys:avg_processing_time_ms "7500"^^xsd:long ;
+    sys:confidence_score_avg "0.38"^^xsd:decimal ;
+    cns:hasMetric sys:processing_metric_01 .
+
+sys:processing_metric_01 a cns:ProcessingMetric ;
+    sys:last_directive "achieve five-nines availability" ;
+    sys:processing_time_ms "7025"^^xsd:long ;
+    sys:confidence_score "0.30"^^xsd:decimal ;
+    sys:artifacts_generated "1"^^xsd:int ;
+    sys:manifests_created "4"^^xsd:int ;
+    cns:timestamp "2025-07-25T03:56:00Z"^^xsd:dateTime .
+
+# Cybernetic Loop Status
+sys:cybernetic_loop a cns:CyberneticLoop ;
+    cns:status "monitoring" ;
+    sys:observations_count "256"^^xsd:long ;
+    sys:ttl_sources_active "4"^^xsd:int ;
+    sys:anomalies_detected "0"^^xsd:int ;
+    sys:optimization_opportunities "2"^^xsd:int ;
+    cns:alert "none" .
+
+# Resource Utilization
+sys:resource_usage a cns:ResourceMetric ;
+    sys:cpu_usage_percent "25.4"^^xsd:decimal ;
+    sys:memory_usage_mb "2048"^^xsd:long ;
+    sys:disk_usage_gb "15.7"^^xsd:decimal ;
+    sys:network_throughput_mbps "125.3"^^xsd:decimal ;
+    cns:timestamp "2025-07-25T03:56:00Z"^^xsd:dateTime .

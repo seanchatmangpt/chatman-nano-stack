@@ -1,0 +1,14 @@
+{
+  "composition_id": "comp_1753414932",
+  "plan_id": "plan_1753414932",
+  "generated_artifacts": [
+    "generated/bitactor_config.json"
+  ],
+  "deployment_manifests": [
+    "generated/aegis-fabric-5-nodes.yaml",
+    "generated/cns-forge-statefulset.yaml"
+  ],
+  "validation_results": {},
+  "status": "completed",
+  "created_at": "2025-07-24 20:42:17.522553"
+}

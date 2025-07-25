@@ -1,0 +1,23 @@
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cns-forge-network-policy
+  namespace: cns-forge
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+  # Default deny all traffic
+  ingress: []
+  egress:
+  # Allow DNS
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53

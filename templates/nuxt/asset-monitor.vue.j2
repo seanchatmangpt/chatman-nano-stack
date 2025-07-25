@@ -1,0 +1,56 @@
+<template>
+  <div class="asset-monitor">
+    <h2 class="text-2xl font-bold mb-4">📊 Asset Monitoring</h2>
+    
+    <!-- Asset health overview -->
+    <div class="grid grid-cols-3 gap-4 mb-6">
+      {% for asset in assets %}
+      <div class="asset-category">
+        <h3 class="text-lg font-semibold mb-2">{{ asset.label }}</h3>
+        <AssetHealthIndicator
+          :health="get{{ asset.name }}Health()"
+          :count="{{ asset.name | camel_case }}s.length"
+        />
+      </div>
+      {% endfor %}
+    </div>
+    
+    <!-- Real-time asset grid -->
+    <div class="asset-grid">
+      <AssetGrid
+        :assets="allAssets"
+        :update-interval="250"
+        @asset-clicked="onAssetClicked"
+      />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+// Generated from TTL ontology on {{ generated_at }}
+import { useAegisFabric } from '~/composables/useAegisFabric'
+import type { Asset } from '~/types/aegis'
+
+const { 
+  {% for asset in assets -%}
+  {{ asset.name | camel_case }}s,
+  get{{ asset.name }}Health,
+  {% endfor -%}
+  allAssets 
+} = useAegisFabric()
+
+const onAssetClicked = (asset: Asset) => {
+  console.log('Asset clicked:', asset)
+  // Handle asset click
+}
+</script>
+
+<style scoped>
+.asset-monitor {
+  @apply p-6 bg-gray-900 text-white rounded-lg;
+}
+
+.asset-grid {
+  @apply grid grid-cols-6 gap-2;
+}
+</style>

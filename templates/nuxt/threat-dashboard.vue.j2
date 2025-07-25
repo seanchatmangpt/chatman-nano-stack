@@ -1,0 +1,66 @@
+<template>
+  <div class="threat-dashboard">
+    <h2 class="text-2xl font-bold mb-4">🛡️ Threat Detection Dashboard</h2>
+    
+    <!-- Real-time threat map -->
+    <div class="threat-map mb-6">
+      <ClientOnly>
+        <ThreatMap 
+          :threats="activethreats" 
+          :update-interval="100"
+          @threat-selected="onThreatSelected" 
+        />
+      </ClientOnly>
+    </div>
+    
+    <!-- Threat statistics -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <StatCard
+        v-for="stat in threatStats"
+        :key="stat.label"
+        :label="stat.label"
+        :value="stat.value"
+        :trend="stat.trend"
+        :color="stat.color"
+      />
+    </div>
+    
+    <!-- Active threats list -->
+    <div class="active-threats">
+      <h3 class="text-xl font-semibold mb-3">Active Threats</h3>
+      <div class="space-y-2">
+        {% for threat in threats %}
+        <ThreatCard
+          v-for="threat in {{ threat.name | camel_case }}s"
+          :key="threat.id"
+          :threat="threat"
+          @neutralize="neutralizeThreat"
+        />
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+// Generated from TTL ontology on {{ generated_at }}
+import { useAegisFabric } from '~/composables/useAegisFabric'
+import type { Threat, ThreatStats } from '~/types/aegis'
+
+const { activethreats, threatStats, neutralizeThreat } = useAegisFabric()
+
+const onThreatSelected = (threat: Threat) => {
+  console.log('Threat selected:', threat)
+  // Handle threat selection
+}
+</script>
+
+<style scoped>
+.threat-dashboard {
+  @apply p-6 bg-gray-900 text-white rounded-lg;
+}
+
+.threat-map {
+  @apply h-96 bg-gray-800 rounded-lg overflow-hidden;
+}
+</style>

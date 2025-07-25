@@ -1,109 +1,109 @@
 {
   "memory_stress": {
-    "duration": 27.022082542069256,
-    "operations": 73254,
+    "duration": 12.85790824983269,
+    "operations": 31416,
     "failures": 0,
     "failure_rate": 0.0,
-    "start_memory_mb": 44.84375,
-    "peak_memory_mb": 2047.5625,
-    "memory_growth_mb": 2002.71875,
-    "ops_per_second": 2710.893947050702,
+    "start_memory_mb": 43.328125,
+    "peak_memory_mb": 2054.484375,
+    "memory_growth_mb": 2011.15625,
+    "ops_per_second": 2443.321214429166,
     "system_survived": true
   },
   "concurrent_load_stress": {
-    "total_time": 2.7984215831384063,
+    "total_time": 2.67275304091163,
     "num_threads": 100,
     "requests_per_thread": 1000,
     "total_operations": 100000,
     "total_failures": 0,
     "failure_rate": 0.0,
-    "ops_per_second": 35734.42993812635,
-    "avg_thread_duration": 2.719292938665021,
-    "start_memory_mb": 2047.5625,
-    "peak_memory_mb": 2049.53125,
-    "memory_growth_mb": 1.96875,
+    "ops_per_second": 37414.60526629566,
+    "avg_thread_duration": 2.594611157088075,
+    "start_memory_mb": 2054.484375,
+    "peak_memory_mb": 2056.09375,
+    "memory_growth_mb": 1.609375,
     "thread_results_sample": [
       {
         "operations": 1000,
         "failures": 0,
         "errors": [],
-        "start_time": 1416650.129591125,
-        "duration": 2.5955814998596907
+        "start_time": 1430252.493275083,
+        "duration": 2.48152400017716
       },
       {
         "operations": 1000,
         "failures": 0,
         "errors": [],
-        "start_time": 1416650.130426625,
-        "duration": 2.607592415995896
+        "start_time": 1430252.497987916,
+        "duration": 2.489256874890998
       },
       {
         "operations": 1000,
         "failures": 0,
         "errors": [],
-        "start_time": 1416650.13187625,
-        "duration": 2.61211175005883
+        "start_time": 1430252.507413208,
+        "duration": 2.5168105829507113
       },
       {
         "operations": 1000,
         "failures": 0,
         "errors": [],
-        "start_time": 1416650.131519125,
-        "duration": 2.624935207888484
+        "start_time": 1430252.493379916,
+        "duration": 2.5405716670211405
       },
       {
         "operations": 1000,
         "failures": 0,
         "errors": [],
-        "start_time": 1416650.131790375,
-        "duration": 2.651065915822983
+        "start_time": 1430252.527371083,
+        "duration": 2.5075782500207424
       }
     ]
   },
   "chaos_engineering": {
-    "duration": 60.00332770799287,
-    "operations": 33702,
-    "chaos_events": 3325,
+    "duration": 60.00646900013089,
+    "operations": 32368,
+    "chaos_events": 3183,
     "survival_events": 0,
-    "chaos_injection_rate": 0.0986588333036615,
+    "chaos_injection_rate": 0.09833786455758774,
     "system_survival_rate": 1.0,
-    "ops_per_second": 561.6688488347065,
+    "ops_per_second": 539.4085094380307,
     "system_stability": "STABLE"
   },
   "file_descriptor_stress": {
     "files_created": 1000,
-    "time_taken": 0.08281320799142122,
+    "time_taken": 0.10067449999041855,
     "fd_limit_hit": false,
-    "creation_rate": 12075.368461798895
+    "creation_rate": 9933.001903115213
   },
   "process_stress": {
     "error": "Can't get local object 'ComprehensiveStressTestSuite.stress_test_resource_limits.<locals>.cpu_intensive_task'"
   },
   "stress_test_summary": {
-    "total_duration": 91.47408087505028,
+    "total_duration": 77.29001979110762,
     "start_system_stats": {
-      "cpu_percent": 20.8,
-      "memory_percent": 72.4,
+      "cpu_percent": 20.4,
+      "memory_percent": 67.6,
       "disk_usage_percent": 3.7,
       "load_average": [
-        3.81689453125,
-        3.5546875,
-        3.73583984375
+        3.7373046875,
+        3.30810546875,
+        2.99853515625
       ]
     },
     "end_system_stats": {
-      "cpu_percent": 8.7,
-      "memory_percent": 68.1,
+      "cpu_percent": 21.1,
+      "memory_percent": 67.6,
       "disk_usage_percent": 3.7,
       "load_average": [
-        4.6513671875,
-        4.0458984375,
-        3.9140625
+        3.68017578125,
+        3.421875,
+        3.068359375
       ]
     },
     "system_survived": true,
     "tests_completed": 5,
     "overall_success": false,
-    "timestamp": 1753393389.29151
+    "timestamp": 1753414155.5384982
   }
 }

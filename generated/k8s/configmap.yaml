@@ -1,0 +1,419 @@
+---
+# CNS Aegis Fabric - Threat Signatures ConfigMap
+# Generated from TTL: 2025-07-24T20:24:30.994561
+# NO HANDCODING - This file is auto-generated
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aegis-threat-signatures
+  namespace: cns-system
+  labels:
+    app: aegis-fabric
+    component: threats
+    version: "2025-07-24-20-24-30.994561"
+  annotations:
+    aegis.cns.io/threat-count: "5"
+    aegis.cns.io/critical-threats: "4"
+    aegis.cns.io/generation-time: "2025-07-24T20:24:30.994561"
+data:
+  threat_signatures.yaml: |
+    # Aegis Fabric Threat Signatures
+    # Auto-generated from TTL ontology
+    # 80/20 Optimized: These signatures catch 80% of threats
+    
+    version: "1.0"
+    generated: "2025-07-24T20:24:30.994561"
+    
+    threat_signatures:
+      - id: "DDoSAttack"
+        type: "NetworkThreat"
+        priority: "critical"
+        detection_pattern: "rate_limit_exceeded"
+        propagation_speed_ms: 50
+        false_positive_rate: 0.005
+        metadata:
+          uri: "http://cns.aegis/threat#DDoSAttack"
+          threshold_rps: 10000
+        response_actions:
+          - type: "block"
+            severity: "immediate"
+            duration: "permanent"
+          - type: "alert"
+            channels: ["security-ops", "soc-team"]
+          - type: "isolate"
+            scope: "pod"
+      - id: "SQLInjection"
+        type: "ApplicationThreat"
+        priority: "critical"
+        detection_pattern: "('|(--|;)|(<|>)|union|select|insert|update|delete|drop|create|alter|exec|execute|script|javascript|eval)"
+        propagation_speed_ms: 100
+        false_positive_rate: 0.001
+        metadata:
+          uri: "http://cns.aegis/threat#SQLInjection"
+        response_actions:
+          - type: "block"
+            severity: "immediate"
+            duration: "permanent"
+          - type: "alert"
+            channels: ["security-ops", "soc-team"]
+          - type: "isolate"
+            scope: "pod"
+      - id: "XSSAttack"
+        type: "ApplicationThreat"
+        priority: "critical"
+        detection_pattern: "(<script|<iframe|javascript:|onerror=|onload=|onclick=|<svg/onload)"
+        propagation_speed_ms: 100
+        false_positive_rate: 0.002
+        metadata:
+          uri: "http://cns.aegis/threat#XSSAttack"
+        response_actions:
+          - type: "block"
+            severity: "immediate"
+            duration: "permanent"
+          - type: "alert"
+            channels: ["security-ops", "soc-team"]
+          - type: "isolate"
+            scope: "pod"
+      - id: "BruteForceAttack"
+        type: "SystemThreat"
+        priority: "high"
+        detection_pattern: "failed_auth_attempts"
+        propagation_speed_ms: 200
+        false_positive_rate: 0.003
+        metadata:
+          uri: "http://cns.aegis/threat#BruteForceAttack"
+          threshold_attempts: 5
+          time_window_seconds: 60
+        response_actions:
+          - type: "rate_limit"
+            limit: 10
+            window: "60s"
+          - type: "alert"
+            channels: ["security-ops"]
+      - id: "PrivilegeEscalation"
+        type: "SystemThreat"
+        priority: "critical"
+        detection_pattern: "unauthorized_privilege_change"
+        propagation_speed_ms: 50
+        false_positive_rate: 0.001
+        metadata:
+          uri: "http://cns.aegis/threat#PrivilegeEscalation"
+        response_actions:
+          - type: "block"
+            severity: "immediate"
+            duration: "permanent"
+          - type: "alert"
+            channels: ["security-ops", "soc-team"]
+          - type: "isolate"
+            scope: "pod"
+    
+    # Performance targets from TTL
+    performance_targets:
+      threat_detection_rate: 0.99
+      false_positive_rate: 0.01
+      propagation_latency_ms: 100
+      lookup_latency_ms: 10
+      throughput_rps: 100000
+
+  threat_signatures.json: |
+    {
+      "version": "1.0",
+      "generated": "2025-07-24T20:24:30.994561",
+      "threats": [
+        {
+          "id": "DDoSAttack",
+          "type": "NetworkThreat",
+          "priority": "critical",
+          "pattern": ""rate_limit_exceeded"",
+          "propagation_ms": 50,
+          "fp_rate": 0.005
+        },
+        {
+          "id": "SQLInjection",
+          "type": "ApplicationThreat",
+          "priority": "critical",
+          "pattern": ""(\u0027|(--|;)|(\u003c|\u003e)|union|select|insert|update|delete|drop|create|alter|exec|execute|script|javascript|eval)"",
+          "propagation_ms": 100,
+          "fp_rate": 0.001
+        },
+        {
+          "id": "XSSAttack",
+          "type": "ApplicationThreat",
+          "priority": "critical",
+          "pattern": ""(\u003cscript|\u003ciframe|javascript:|onerror=|onload=|onclick=|\u003csvg/onload)"",
+          "propagation_ms": 100,
+          "fp_rate": 0.002
+        },
+        {
+          "id": "BruteForceAttack",
+          "type": "SystemThreat",
+          "priority": "high",
+          "pattern": ""failed_auth_attempts"",
+          "propagation_ms": 200,
+          "fp_rate": 0.003
+        },
+        {
+          "id": "PrivilegeEscalation",
+          "type": "SystemThreat",
+          "priority": "critical",
+          "pattern": ""unauthorized_privilege_change"",
+          "propagation_ms": 50,
+          "fp_rate": 0.001
+        }
+      ]
+    }
+
+---
+# Detection Rules ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aegis-detection-rules
+  namespace: cns-system
+  labels:
+    app: aegis-fabric
+    component: rules
+    version: "2025-07-24-20-24-30.994561"
+data:
+  detection_rules.yaml: |
+    # Aegis Fabric Detection Rules
+    # Auto-generated from TTL ontology
+    
+    version: "1.0"
+    generated: "2025-07-24T20:24:30.994561"
+    
+    rule_sets:
+      - name: "NetworkRule"
+        uri: "http://cns.aegis/rule#NetworkRule"
+        layer: "network"
+        processing_order: 1
+        enabled: true
+        conditions:
+          - type: "rate_limit"
+            threshold: 10000
+            window: "1m"
+          - type: "packet_size"
+            max_bytes: 65535
+          - type: "connection_limit"
+            max_concurrent: 1000
+        actions:
+          on_match:
+            - log_level: "warning"
+            - increment_counter: "rule_networkrule_matches"
+            - propagate_via_gossip: true
+          on_block:
+            - log_level: "error"
+            - alert_channels: ["security-ops"]
+            - isolate_source: true
+      - name: "ApplicationRule"
+        uri: "http://cns.aegis/rule#ApplicationRule"
+        layer: "application"
+        processing_order: 2
+        enabled: true
+        conditions:
+          - type: "pattern_match"
+            patterns:
+              - "('|(--|;)|(<|>)|union|select|insert|update|delete|drop|create|alter|exec|execute|script|javascript|eval)|(<script|<iframe|javascript:|onerror=|onload=|onclick=|<svg/onload)"
+          - type: "content_length"
+            max_bytes: 10485760
+          - type: "header_validation"
+            required: ["Content-Type", "User-Agent"]
+        actions:
+          on_match:
+            - log_level: "warning"
+            - increment_counter: "rule_applicationrule_matches"
+            - propagate_via_gossip: true
+          on_block:
+            - log_level: "error"
+            - alert_channels: ["security-ops"]
+            - isolate_source: true
+      - name: "BehavioralRule"
+        uri: "http://cns.aegis/rule#BehavioralRule"
+        layer: "behavioral"
+        processing_order: 3
+        enabled: true
+        conditions:
+          - type: "anomaly_detection"
+            baseline_window: "24h"
+            deviation_threshold: 3.0
+          - type: "sequence_analysis"
+            max_sequence_length: 100
+          - type: "time_series"
+            window: "5m"
+        actions:
+          on_match:
+            - log_level: "warning"
+            - increment_counter: "rule_behavioralrule_matches"
+            - propagate_via_gossip: true
+          on_block:
+            - log_level: "error"
+            - alert_channels: ["security-ops"]
+            - isolate_source: true
+
+  rules_engine_config.yaml: |
+    # BitActor Rules Engine Configuration
+    engine:
+      mode: "production"
+      optimization: "80-20"
+      parallel_evaluation: true
+      max_rule_depth: 10
+      cache_size_mb: 256
+      
+    evaluation:
+      order: "priority"
+      short_circuit: true
+      batch_size: 100
+      timeout_ms: 10
+      
+    caching:
+      enabled: true
+      ttl_seconds: 300
+      max_entries: 10000
+      
+    gossip_integration:
+      enabled: true
+      propagate_matches: true
+      aggregate_window_ms: 100
+
+---
+# Gossip Protocol Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aegis-gossip-config
+  namespace: cns-system
+  labels:
+    app: aegis-fabric
+    component: gossip
+data:
+  gossip_config.yaml: |
+    # Gossip Protocol Configuration
+    protocol:
+      version: "2.0"
+      fanout: 3
+      interval_ms: 100
+      max_hops: 5
+      convergence_target_ms: 1000
+      
+    membership:
+      join_timeout_ms: 5000
+      ping_interval_ms: 1000
+      ping_timeout_ms: 500
+      indirect_checks: 3
+      
+    transport:
+      bind_addr: "0.0.0.0"
+      bind_port: 7946
+      advertise_addr: "${POD_IP}"
+      advertise_port: 7946
+      
+    encryption:
+      enabled: true
+      key_rotation_interval: "24h"
+      
+    performance:
+      compression: "lz4"
+      batch_size: 50
+      queue_depth: 1000
+      
+  erlang_config: |
+    %% Erlang VM configuration for gossip protocol
+    [
+      {kernel, [
+        {inet_dist_listen_min, 9100},
+        {inet_dist_listen_max, 9200}
+      ]},
+      {aegis_gossip, [
+        {cookie, 'aegis-20250724202430.9'},
+        {distributed_enabled, true},
+        {sync_nodes_timeout, 30000}
+      ]}
+    ].
+
+---
+# Service Mesh Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aegis-service-mesh-config
+  namespace: cns-system
+  labels:
+    app: aegis-fabric
+    component: service-mesh
+data:
+  mesh_config.yaml: |
+    # Service Mesh Configuration for Aegis Fabric
+    mesh:
+      provider: "linkerd"
+      mtls:
+        enabled: true
+        mode: "strict"
+        
+    circuit_breaker:
+      enabled: true
+      threshold: 5
+      timeout_ms: 5000
+      half_open_requests: 10
+      
+    retry_policy:
+      enabled: true
+      attempts: 3
+      timeout_ms: 5000
+      backoff:
+        type: "exponential"
+        base_ms: 100
+        max_ms: 10000
+        
+    load_balancing:
+      algorithm: "least_request"
+      health_check:
+        interval_ms: 5000
+        timeout_ms: 3000
+        unhealthy_threshold: 3
+        healthy_threshold: 2
+        
+    observability:
+      tracing:
+        enabled: true
+        sampling_rate: 0.1
+        propagation: "b3"
+      metrics:
+        enabled: true
+        histogram_buckets: [0.5, 1, 2.5, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000]
+
+---
+# Environment-specific configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aegis-env-config
+  namespace: cns-system
+  labels:
+    app: aegis-fabric
+    component: environment
+data:
+  environment.properties: |
+    # Environment Configuration
+    environment=production
+    region=us-west-2
+    cluster=aegis-primary
+    
+    # Feature Flags
+    features.neural_enabled=true
+    features.gossip_enabled=true
+    features.service_mesh_enabled=true
+    features.adversarial_protection=true
+    features.rate_limiting=true
+    
+    # Performance Tuning
+    performance.max_threads=100
+    performance.connection_pool_size=50
+    performance.cache_size_mb=1024
+    performance.gc_interval_seconds=60
+    
+    # Monitoring
+    monitoring.metrics_enabled=true
+    monitoring.tracing_enabled=true
+    monitoring.logging_level=INFO
+    monitoring.audit_enabled=true

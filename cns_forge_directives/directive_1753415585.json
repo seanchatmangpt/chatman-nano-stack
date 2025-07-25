@@ -1,0 +1,18 @@
+{
+  "directive_id": "directive_1753415585",
+  "original_text": "handle 1M operations per second with auto-scaling",
+  "intent_category": "throughput",
+  "target_metrics": {
+    "min_throughput": 1000000
+  },
+  "constraints": [],
+  "temporal_requirements": {},
+  "success_criteria": [
+    "Sustained throughput >= 1000000 ops/s",
+    "Auto-scaling triggers work correctly",
+    "No dropped requests under load"
+  ],
+  "confidence_score": 0.32166666666666666,
+  "generated_ttl": "\n@prefix cns: <http://cns.io/forge#> .\n@prefix bitactor: <http://cns.io/bitactor#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\ncns:directive_1753415585 a bitactor:ThroughputRequirement ;\n    bitactor:minOpsPerSecond \"1000000\"^^xsd:long ;\n    bitactor:scalingTrigger \"0.8\"^^xsd:decimal ;\n    cns:generatedFrom \"handle 1M operations per second with auto-scaling\" ;\n    cns:requiresComponents (\n        bitactor:Engine\n        cns:AutoScaler\n        cns:LoadDistributor\n    ) .\n",
+  "created_at": "2025-07-24T20:53:05.967126"
+}

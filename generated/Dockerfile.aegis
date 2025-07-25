@@ -1,0 +1,52 @@
+# CNS Aegis Fabric - BitActor Container
+# Generated from TTL specifications
+
+FROM ubuntu:22.04 AS builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    make \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy source
+WORKDIR /build
+COPY bitactor_generated.c .
+
+# Build BitActor
+RUN gcc -O3 -march=native -mtune=native \
+    -fstack-protector-strong \
+    -D_FORTIFY_SOURCE=2 \
+    -Wl,-z,relro -Wl,-z,now \
+    -o bitactor bitactor_generated.c \
+    -lpthread -lm
+
+# Runtime image
+FROM ubuntu:22.04
+
+# Security hardening
+RUN useradd -r -u 1000 -s /bin/false aegis && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy binary
+COPY --from=builder /build/bitactor /usr/local/bin/bitactor
+RUN chmod 755 /usr/local/bin/bitactor
+
+# Run as non-root
+USER aegis
+
+# Health check
+HEALTHCHECK --interval=10s --timeout=3s --retries=3 \
+    CMD /usr/local/bin/bitactor --health || exit 1
+
+# Expose ports
+EXPOSE 8080 9090
+
+# Run BitActor
+ENTRYPOINT ["/usr/local/bin/bitactor"]
+CMD ["--enforce", "--metrics-port=9090"]

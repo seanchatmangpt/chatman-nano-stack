@@ -1,0 +1,435 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aegis-fabric
+  labels:
+    name: aegis-fabric
+    security: enforced
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aegis-gossip-discovery
+  namespace: aegis-fabric
+  labels:
+    app: aegis-fabric
+    component: gossip-protocol
+spec:
+  clusterIP: None  # Headless service for discovery
+  selector:
+    app: aegis-fabric
+    component: enforcement-point
+  ports:
+  - name: gossip
+    port: 4369
+    targetPort: 4369
+    protocol: UDP
+  - name: epmd
+    port: 4369
+    targetPort: 4369
+    protocol: TCP
+  - name: erlang-dist
+    port: 9100
+    targetPort: 9100
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aegis-control-plane
+  namespace: aegis-fabric
+  labels:
+    app: aegis-fabric
+    component: control-plane
+spec:
+  type: ClusterIP
+  selector:
+    app: aegis-fabric
+    component: enforcement-point
+  ports:
+  - name: api
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+  - name: websocket
+    port: 8081
+    targetPort: 8081
+    protocol: TCP
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: aegis-enforcement-point
+  namespace: aegis-fabric
+  labels:
+    app: aegis-fabric
+    component: enforcement-point
+spec:
+  serviceName: aegis-gossip-discovery
+  replicas: 5
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  selector:
+    matchLabels:
+      app: aegis-fabric
+      component: enforcement-point
+  template:
+    metadata:
+      labels:
+        app: aegis-fabric
+        component: enforcement-point
+        version: v1.0.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - aegis-fabric
+            topologyKey: "kubernetes.io/hostname"
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: bitactor-engine
+        image: aegis/bitactor-engine:v1.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: api
+          protocol: TCP
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        - containerPort: 4369
+          name: gossip
+          protocol: UDP
+        - containerPort: 9100
+          name: erlang-dist
+          protocol: TCP
+        env:
+        - name: AEGIS_NODE_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: AEGIS_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: AEGIS_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: AEGIS_GOSSIP_SEEDS
+          value: "aegis-enforcement-point-0.aegis-gossip-discovery.aegis-fabric.svc.cluster.local,aegis-enforcement-point-1.aegis-gossip-discovery.aegis-fabric.svc.cluster.local,aegis-enforcement-point-2.aegis-gossip-discovery.aegis-fabric.svc.cluster.local"
+        - name: ERLANG_COOKIE
+          valueFrom:
+            secretKeyRef:
+              name: aegis-erlang-cookie
+              key: cookie
+        - name: AEGIS_GOSSIP_FANOUT
+          value: "3"
+        - name: AEGIS_GOSSIP_MAX_HOPS
+          value: "5"
+        - name: AEGIS_THREAT_TTL_MS
+          value: "5000"
+        - name: AEGIS_NODE_TIMEOUT_MS
+          value: "1000"
+        - name: BITACTOR_MAX_LATENCY_NS
+          value: "100000"  # 100 microseconds
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_BIND_SERVICE
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: config
+          mountPath: /etc/aegis
+          readOnly: true
+        - name: tmpfs
+          mountPath: /tmp
+      - name: protection-sidecar
+        image: aegis/protection-module:v1.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8082
+          name: protection
+          protocol: TCP
+        env:
+        - name: PROTECTION_MODE
+          value: "enforcing"
+        - name: MAX_MEMORY_MB
+          value: "256"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1001
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmpfs
+          mountPath: /tmp
+      volumes:
+      - name: config
+        configMap:
+          name: aegis-config
+      - name: tmpfs
+        emptyDir:
+          medium: Memory
+          sizeLimit: 100Mi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aegis-config
+  namespace: aegis-fabric
+data:
+  aegis.conf: |
+    # Aegis Fabric Configuration
+    [gossip]
+    protocol = udp
+    port = 4369
+    fanout = 3
+    max_hops = 5
+    compression = lz4
+    encryption = aes256_gcm
+    
+    [bitactor]
+    max_latency_ns = 100000
+    throughput_target = 1000000
+    memory_limit_mb = 2048
+    gc_pause_max_ms = 10
+    
+    [security]
+    mtls_enabled = true
+    certificate_rotation_days = 30
+    audit_logging = true
+    
+    [telemetry]
+    metrics_port = 9090
+    tracing_enabled = true
+    sampling_rate = 0.1
+    
+  threat_rules.ttl: |
+    @prefix aegis: <http://cns.io/aegis/fabric#> .
+    @prefix threat: <http://cns.io/threat#> .
+    
+    # Threat detection rules loaded from cybersecurity_core.ttl
+    # Compiled to WASM bytecode by owl_compiler.py
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aegis-erlang-cookie
+  namespace: aegis-fabric
+  annotations:
+    secret-generator.io/type: "random"
+    secret-generator.io/length: "32"
+type: Opaque
+stringData:
+  # Generated using: openssl rand -base64 32
+  # Replace with proper secret management in production
+  cookie: "PANeZftofoltD/iNGhFAU+8+InI9MydAtUluuavsMq0="
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aegis-fabric-network-policy
+  namespace: aegis-fabric
+spec:
+  podSelector:
+    matchLabels:
+      app: aegis-fabric
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow gossip protocol between pods
+  - from:
+    - podSelector:
+        matchLabels:
+          app: aegis-fabric
+    ports:
+    - protocol: UDP
+      port: 4369
+    - protocol: TCP
+      port: 4369
+    - protocol: TCP
+      port: 9100
+  # Allow API access from control plane
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: control-plane
+    ports:
+    - protocol: TCP
+      port: 8080
+  # Allow metrics scraping
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 9090
+  egress:
+  # Allow gossip to other pods
+  - to:
+    - podSelector:
+        matchLabels:
+          app: aegis-fabric
+    ports:
+    - protocol: UDP
+      port: 4369
+    - protocol: TCP
+      port: 4369
+    - protocol: TCP
+      port: 9100
+  # Allow DNS
+  - to:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow external threat intelligence feeds (optional)
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+        except:
+        - 169.254.169.254/32  # Block metadata service
+    ports:
+    - protocol: TCP
+      port: 443
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: aegis-fabric-pdb
+  namespace: aegis-fabric
+spec:
+  minAvailable: 3
+  selector:
+    matchLabels:
+      app: aegis-fabric
+      component: enforcement-point
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: aegis-fabric-hpa
+  namespace: aegis-fabric
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: aegis-enforcement-point
+  minReplicas: 5
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Pods
+    pods:
+      metric:
+        name: threat_signatures_per_second
+      target:
+        type: AverageValue
+        averageValue: "100000"  # Scale if > 100k threats/sec
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 30
+      - type: Pods
+        value: 5
+        periodSeconds: 60
+---
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: aegis-fabric-metrics
+  namespace: aegis-fabric
+  labels:
+    app: aegis-fabric
+spec:
+  selector:
+    matchLabels:
+      app: aegis-fabric
+  endpoints:
+  - port: metrics
+    interval: 15s
+    path: /metrics
+    relabelings:
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      targetLabel: pod
+    - sourceLabels: [__meta_kubernetes_namespace]
+      targetLabel: namespace

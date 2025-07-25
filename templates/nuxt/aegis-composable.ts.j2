@@ -1,0 +1,171 @@
+// Generated from TTL ontology on {{ generated_at }}
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import type { Ref } from 'vue'
+import type { 
+  {% for cls in classes -%}
+  {{ cls.name }},
+  {% endfor -%}
+  ThreatStats,
+  NetworkNode,
+  NetworkEdge
+} from '~/types/aegis'
+
+export const useAegisFabric = () => {
+  // WebSocket connection
+  const ws = ref<WebSocket | null>(null)
+  const connected = ref(false)
+  
+  // State for each class
+  {% for cls in classes %}
+  const {{ cls.name | camel_case }}s: Ref<{{ cls.name }}[]> = ref([])
+  {% endfor %}
+  
+  // Computed properties
+  const activethreats = computed(() => {
+    const threats = []
+    {% for cls in classes %}
+    {% if cls.is_threat %}
+    threats.push(...{{ cls.name | camel_case }}s.value)
+    {% endif %}
+    {% endfor %}
+    return threats
+  })
+  
+  const allAssets = computed(() => {
+    const assets = []
+    {% for cls in classes %}
+    {% if cls.is_asset %}
+    assets.push(...{{ cls.name | camel_case }}s.value)
+    {% endif %}
+    {% endfor %}
+    return assets
+  })
+  
+  const threatStats = computed<ThreatStats>(() => ({
+    total: activethreats.value.length,
+    critical: activethreats.value.filter(t => t.severity === 'critical').length,
+    high: activethreats.value.filter(t => t.severity === 'high').length,
+    medium: activethreats.value.filter(t => t.severity === 'medium').length,
+    low: activethreats.value.filter(t => t.severity === 'low').length,
+    neutralized: 0
+  }))
+  
+  // WebSocket connection
+  const connect = () => {
+    ws.value = new WebSocket(`ws://${window.location.host}/api/aegis/ws`)
+    
+    ws.value.onopen = () => {
+      connected.value = true
+      console.log('Connected to Aegis Fabric')
+    }
+    
+    ws.value.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      handleMessage(data)
+    }
+    
+    ws.value.onclose = () => {
+      connected.value = false
+      console.log('Disconnected from Aegis Fabric')
+      // Reconnect after 1 second
+      setTimeout(connect, 1000)
+    }
+  }
+  
+  const handleMessage = (data: any) => {
+    switch (data.type) {
+      {% for cls in classes %}
+      case '{{ cls.name }}Update':
+        {{ cls.name | camel_case }}s.value = data.payload
+        break
+      {% endfor %}
+      default:
+        console.warn('Unknown message type:', data.type)
+    }
+  }
+  
+  // Actions
+  const neutralizeThreat = async (threatId: string) => {
+    if (ws.value?.readyState === WebSocket.OPEN) {
+      ws.value.send(JSON.stringify({
+        type: 'neutralizeThreat',
+        threatId
+      }))
+    }
+  }
+  
+  // Health checks
+  {% for cls in classes %}
+  {% if cls.is_asset %}
+  const get{{ cls.name }}Health = () => {
+    const assets = {{ cls.name | camel_case }}s.value
+    if (assets.length === 0) return 'unknown'
+    const healthyCount = assets.filter(a => a.status === 'healthy').length
+    const ratio = healthyCount / assets.length
+    if (ratio >= 0.9) return 'healthy'
+    if (ratio >= 0.7) return 'warning'
+    return 'critical'
+  }
+  {% endif %}
+  {% endfor %}
+  
+  const getSegmentHealth = (segment: any) => {
+    // Implement segment health logic
+    return 'healthy'
+  }
+  
+  // Network topology
+  const networkNodes = computed<NetworkNode[]>(() => {
+    // Build network nodes from assets
+    return []
+  })
+  
+  const networkEdges = computed<NetworkEdge[]>(() => {
+    // Build network edges from relationships
+    return []
+  })
+  
+  const activeNetworkThreats = computed(() => {
+    return activethreats.value.filter(t => t.targetType === 'network')
+  })
+  
+  // Lifecycle
+  onMounted(() => {
+    connect()
+  })
+  
+  onUnmounted(() => {
+    if (ws.value) {
+      ws.value.close()
+    }
+  })
+  
+  return {
+    // State
+    {% for cls in classes -%}
+    {{ cls.name | camel_case }}s,
+    {% endfor %}
+    
+    // Computed
+    activethreats,
+    allAssets,
+    threatStats,
+    networkNodes,
+    networkEdges,
+    activeNetworkThreats,
+    
+    // Actions
+    neutralizeThreat,
+    
+    // Health
+    {% for cls in classes %}
+    {% if cls.is_asset -%}
+    get{{ cls.name }}Health,
+    {% endif -%}
+    {% endfor -%}
+    getSegmentHealth,
+    
+    // Connection
+    connected
+  }
+}

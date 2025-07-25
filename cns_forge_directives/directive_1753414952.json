@@ -1,0 +1,22 @@
+{
+  "directive_id": "directive_1753414952",
+  "original_text": "guarantee data sovereignty with GDPR compliance",
+  "intent_category": "security",
+  "target_metrics": {
+    "compliance_standards": [
+      "GDPR"
+    ]
+  },
+  "constraints": [
+    "compliance_required: GDPR"
+  ],
+  "temporal_requirements": {},
+  "success_criteria": [
+    "All data encrypted at rest and in transit",
+    "Zero security vulnerabilities (CVSS > 7.0)",
+    "Compliance audit passes"
+  ],
+  "confidence_score": 0.48333333333333334,
+  "generated_ttl": "\n@prefix cns: <http://cns.io/forge#> .\n@prefix aegis: <http://cns.io/aegis/fabric#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\ncns:directive_1753414952 a aegis:SecurityPolicy ;\n    aegis:encryptionStandard \"AES256\" ;\n    aegis:complianceStandards \"GDPR\" ;\n    aegis:zeroTrustEnabled \"true\"^^xsd:boolean ;\n    cns:generatedFrom \"guarantee data sovereignty with GDPR compliance\" ;\n    cns:requiresComponents (\n        aegis:Fabric\n        cns:EncryptionModule\n        cns:ComplianceMonitor\n    ) .\n",
+  "created_at": "2025-07-24T20:42:32.900016"
+}

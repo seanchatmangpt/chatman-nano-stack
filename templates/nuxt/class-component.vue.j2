@@ -1,0 +1,34 @@
+<template>
+  <div class="{{ cls.name | kebab_case }}-component">
+    <h3 class="text-lg font-semibold mb-2">{{ cls.label }}</h3>
+    <p class="text-gray-400 mb-4">{{ cls.description }}</p>
+    
+    {% if cls.properties %}
+    <div class="properties">
+      {% for prop in cls.properties %}
+      <div class="property mb-2">
+        <label class="block text-sm font-medium">{{ prop.label }}</label>
+        <span class="text-gray-300">{{ "{{ " }}{{ cls.name | camel_case }}.{{ prop.name }}{{ " }}" }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</template>
+
+<script setup lang="ts">
+// Generated from {{ cls.uri }} on {{ generated_at }}
+import type { {{ cls.name }} } from '~/types/aegis'
+
+interface Props {
+  {{ cls.name | camel_case }}: {{ cls.name }}
+}
+
+const props = defineProps<Props>()
+</script>
+
+<style scoped>
+.{{ cls.name | kebab_case }}-component {
+  @apply p-4 bg-gray-800 rounded-lg;
+}
+</style>

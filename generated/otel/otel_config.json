@@ -1,0 +1,12 @@
+{
+  "service_name": "cns-forge",
+  "endpoint": "http://localhost:4317",
+  "metrics": {
+    "export_interval_millis": 5000,
+    "export_timeout_millis": 30000
+  },
+  "traces": {
+    "max_export_batch_size": 512,
+    "export_timeout_millis": 30000
+  }
+}

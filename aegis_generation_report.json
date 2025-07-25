@@ -1,0 +1,22 @@
+{
+  "ttl_based_generation": {
+    "method": "Jinja2 Templates from TTL Specifications",
+    "components_generated": 7,
+    "files": [
+      "bitactor_generated.c",
+      "aegis_gossip_mesh.erl",
+      "aegis_fabric_deployment.yaml",
+      "aegis_fabric.tf",
+      "aegis_fabric_validator.py",
+      "Dockerfile.aegis",
+      "Makefile"
+    ],
+    "aot_ready": true,
+    "specifications": {
+      "performance": "42ns latency, 10000000 ops/sec",
+      "gossip": "3 fan-out, 100ms convergence",
+      "deployment": "5 replicas in aegis-fabric namespace"
+    },
+    "timestamp": 1753413872.413981
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "directive_id": "directive_1753414941",
+  "original_text": "maintain market latency below 50ms",
+  "intent_category": "latency",
+  "target_metrics": {
+    "max_latency_ns": 50000000
+  },
+  "constraints": [],
+  "temporal_requirements": {},
+  "success_criteria": [
+    "99.9th percentile latency <= 50000000ns",
+    "Zero requests timeout",
+    "Latency variance < 10%"
+  ],
+  "confidence_score": 0.48333333333333334,
+  "generated_ttl": "\n@prefix cns: <http://cns.io/forge#> .\n@prefix bitactor: <http://cns.io/bitactor#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\ncns:directive_1753414941 a bitactor:LatencyConstraint ;\n    bitactor:maxLatencyNs \"50000000\"^^xsd:long ;\n    bitactor:percentile \"99.9\" ;\n    bitactor:measurementInterval \"1s\" ;\n    cns:generatedFrom \"maintain market latency below 50ms\" ;\n    cns:requiresOptimization bitactor:AOTCompilation ;\n    cns:requiresComponents (\n        bitactor:Engine\n        cns:PerformanceMonitor\n        cns:LoadBalancer\n    ) .\n",
+  "created_at": "2025-07-24T20:42:21.528275"
+}

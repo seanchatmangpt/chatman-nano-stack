@@ -1,0 +1,296 @@
+/**
+ * CNS Forge Ash.Reactor BitActor Template
+ * 80/20 Implementation: Combines existing BitActor patterns with Ash.Reactor TTL flow
+ * Generated from {{ ontology_name }} TTL ontology
+ * Ultra-low latency with hop-based TTL execution
+ */
+
+#ifndef {{ guard_name }}_ASH_REACTOR
+#define {{ guard_name }}_ASH_REACTOR
+
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include "{{ prefix }}_bitactor.h"
+
+/* CNS Forge Ash.Reactor Extensions */
+#define {{ prefix|upper }}_MAX_TTL_HOPS      {{ max_ttl_hops|default(8) }}
+#define {{ prefix|upper }}_REACTOR_RING_SIZE {{ reactor_ring_size|default(1024) }}
+#define {{ prefix|upper }}_TOKEN_SIZE        {{ token_size|default(512) }}
+
+/* Token structure for TTL flow */
+typedef struct {
+    uint32_t ttl_hops;              /* Remaining hops */
+    uint64_t transaction_id;        /* Unique transaction ID */
+    uint64_t created_at;           /* Creation timestamp */
+    uint32_t payload_size;         /* Payload size */
+    uint8_t payload[{{ prefix|upper }}_TOKEN_SIZE]; /* Serialized payload */
+} {{ prefix }}_ash_token_t;
+
+/* Reactor Step Definition */
+typedef struct {
+    uint32_t step_id;
+    uint32_t step_type;
+    bool (*run_fn)({{ prefix }}_ash_token_t* token, void* scratch);
+    bool (*compensate_fn)({{ prefix }}_ash_token_t* token, void* scratch);
+    bool (*undo_fn)({{ prefix }}_ash_token_t* token, void* scratch);
+} {{ prefix }}_reactor_step_t;
+
+/* Ash.Reactor Workflow */
+typedef struct {
+    {{ prefix }}_reactor_step_t steps[{{ max_steps|default(16) }}];
+    uint32_t step_count;
+    uint32_t current_step;
+    {{ prefix }}_ash_token_t current_token;
+    uint64_t workflow_id;
+    bool saga_mode;                /* Enable saga compensation */
+} {{ prefix }}_ash_workflow_t;
+
+/* BitActor with Ash.Reactor capabilities */
+typedef struct {
+    {{ prefix }}_bitactor_t base_actor;
+    {{ prefix }}_ash_workflow_t workflows[{{ max_workflows|default(64) }}];
+    uint32_t active_workflows;
+    
+    /* TTL enforcement */
+    uint64_t ttl_violations;
+    uint64_t successful_hops;
+    uint64_t compensations_executed;
+    
+    /* Telemetry (CNS Forge pulse logs) */
+    struct {
+        uint64_t workflows_executed;
+        uint64_t tokens_processed;
+        uint64_t ttl_expirations;
+        uint64_t saga_rollbacks;
+    } telemetry;
+} {{ prefix }}_ash_reactor_t;
+
+/* Core Ash.Reactor API */
+bool {{ prefix }}_ash_reactor_init({{ prefix }}_ash_reactor_t* reactor);
+uint64_t {{ prefix }}_ash_reactor_start_workflow({{ prefix }}_ash_reactor_t* reactor, 
+                                                 const {{ prefix }}_ash_token_t* initial_token);
+bool {{ prefix }}_ash_reactor_tick({{ prefix }}_ash_reactor_t* reactor);
+bool {{ prefix }}_ash_reactor_process_token({{ prefix }}_ash_reactor_t* reactor, 
+                                           uint64_t workflow_id,
+                                           {{ prefix }}_ash_token_t* token);
+
+/* TTL Management */
+bool {{ prefix }}_ash_token_decrement_ttl({{ prefix }}_ash_token_t* token);
+bool {{ prefix }}_ash_token_has_expired(const {{ prefix }}_ash_token_t* token);
+void {{ prefix }}_ash_emit_pulse_log(uint64_t workflow_id, uint32_t step_id, 
+                                    const {{ prefix }}_ash_token_t* token);
+
+/* Generated step implementations from TTL */
+{% for step in reactor_steps %}
+bool {{ prefix }}_ash_step_{{ step.name|c_identifier }}_run({{ prefix }}_ash_token_t* token, void* scratch);
+bool {{ prefix }}_ash_step_{{ step.name|c_identifier }}_compensate({{ prefix }}_ash_token_t* token, void* scratch);
+bool {{ prefix }}_ash_step_{{ step.name|c_identifier }}_undo({{ prefix }}_ash_token_t* token, void* scratch);
+{% endfor %}
+
+#endif /* {{ guard_name }}_ASH_REACTOR */
+
+/* Implementation */
+#ifdef {{ prefix|upper }}_ASH_REACTOR_IMPLEMENTATION
+
+#include <string.h>
+#include <assert.h>
+#include <time.h>
+
+bool {{ prefix }}_ash_reactor_init({{ prefix }}_ash_reactor_t* reactor) {
+    memset(reactor, 0, sizeof({{ prefix }}_ash_reactor_t));
+    
+    /* Initialize base BitActor */
+    {{ prefix }}_bitactor_init(&reactor->base_actor);
+    
+    /* Initialize workflow step definitions */
+{% for step in reactor_steps %}
+    {% set step_index = loop.index0 %}
+    /* Step {{ step_index }}: {{ step.description }} */
+    reactor->workflows[0].steps[{{ step_index }}] = ({{ prefix }}_reactor_step_t){
+        .step_id = {{ step_index }},
+        .step_type = {{ step.type_id|default(step_index) }},
+        .run_fn = {{ prefix }}_ash_step_{{ step.name|c_identifier }}_run,
+        .compensate_fn = {{ prefix }}_ash_step_{{ step.name|c_identifier }}_compensate,
+        .undo_fn = {{ prefix }}_ash_step_{{ step.name|c_identifier }}_undo
+    };
+{% endfor %}
+    
+    return true;
+}
+
+uint64_t {{ prefix }}_ash_reactor_start_workflow({{ prefix }}_ash_reactor_t* reactor, 
+                                                 const {{ prefix }}_ash_token_t* initial_token) {
+    if (reactor->active_workflows >= {{ max_workflows|default(64) }}) {
+        return 0; /* No workflow slots available */
+    }
+    
+    uint64_t workflow_id = (uint64_t)time(NULL) * 1000000 + reactor->active_workflows;
+    uint32_t workflow_index = reactor->active_workflows++;
+    
+    {{ prefix }}_ash_workflow_t* workflow = &reactor->workflows[workflow_index];
+    workflow->workflow_id = workflow_id;
+    workflow->current_step = 0;
+    workflow->current_token = *initial_token;
+    workflow->saga_mode = true;
+    
+    /* Emit start pulse log */
+    {{ prefix }}_ash_emit_pulse_log(workflow_id, 0, initial_token);
+    
+    reactor->telemetry.workflows_executed++;
+    return workflow_id;
+}
+
+bool {{ prefix }}_ash_reactor_tick({{ prefix }}_ash_reactor_t* reactor) {
+    uint64_t start_ticks = rdtsc();
+    bool progress_made = false;
+    
+    /* Process all active workflows */
+    for (uint32_t i = 0; i < reactor->active_workflows; i++) {
+        {{ prefix }}_ash_workflow_t* workflow = &reactor->workflows[i];
+        
+        if (workflow->current_step < workflow->step_count) {
+            if ({{ prefix }}_ash_reactor_process_token(reactor, workflow->workflow_id, &workflow->current_token)) {
+                progress_made = true;
+            }
+        }
+    }
+    
+    /* Also tick base BitActor for signal processing */
+    {{ prefix }}_bitactor_tick(&reactor->base_actor);
+    
+    uint64_t elapsed = rdtsc() - start_ticks;
+    
+    /* Assert tick budget - CNS Forge 8-hop principle */
+    #ifndef BENCHMARK_MODE
+    assert(elapsed <= {{ prefix|upper }}_TICK_BUDGET);
+    #endif
+    
+    return progress_made;
+}
+
+bool {{ prefix }}_ash_reactor_process_token({{ prefix }}_ash_reactor_t* reactor, 
+                                           uint64_t workflow_id,
+                                           {{ prefix }}_ash_token_t* token) {
+    /* Find workflow */
+    {{ prefix }}_ash_workflow_t* workflow = NULL;
+    for (uint32_t i = 0; i < reactor->active_workflows; i++) {
+        if (reactor->workflows[i].workflow_id == workflow_id) {
+            workflow = &reactor->workflows[i];
+            break;
+        }
+    }
+    
+    if (!workflow || workflow->current_step >= workflow->step_count) {
+        return false;
+    }
+    
+    /* Check TTL before processing */
+    if ({{ prefix }}_ash_token_has_expired(token)) {
+        reactor->telemetry.ttl_expirations++;
+        {{ prefix }}_ash_emit_pulse_log(workflow_id, workflow->current_step, token);
+        return false;
+    }
+    
+    /* Decrement TTL (hop-based execution) */
+    if (!{{ prefix }}_ash_token_decrement_ttl(token)) {
+        reactor->ttl_violations++;
+        return false;
+    }
+    
+    /* Execute current step */
+    {{ prefix }}_reactor_step_t* step = &workflow->steps[workflow->current_step];
+    bool step_success = false;
+    
+    if (step->run_fn) {
+        step_success = step->run_fn(token, reactor->base_actor.scratch);
+    }
+    
+    /* Emit pulse log for step execution */
+    {{ prefix }}_ash_emit_pulse_log(workflow_id, step->step_id, token);
+    
+    if (step_success) {
+        workflow->current_step++;
+        reactor->successful_hops++;
+        reactor->telemetry.tokens_processed++;
+        return true;
+    } else if (workflow->saga_mode && step->compensate_fn) {
+        /* Execute saga compensation */
+        step->compensate_fn(token, reactor->base_actor.scratch);
+        reactor->compensations_executed++;
+        reactor->telemetry.saga_rollbacks++;
+        return false;
+    }
+    
+    return false;
+}
+
+bool {{ prefix }}_ash_token_decrement_ttl({{ prefix }}_ash_token_t* token) {
+    if (token->ttl_hops == 0) {
+        return false;
+    }
+    token->ttl_hops--;
+    return true;
+}
+
+bool {{ prefix }}_ash_token_has_expired(const {{ prefix }}_ash_token_t* token) {
+    return token->ttl_hops == 0;
+}
+
+void {{ prefix }}_ash_emit_pulse_log(uint64_t workflow_id, uint32_t step_id, 
+                                    const {{ prefix }}_ash_token_t* token) {
+    /* CNS Forge Universal Observability - Pulse Log */
+    /* This would emit telemetry events in a real implementation */
+    /* Format: [workflow_id, step_id, ttl_remaining, timestamp] */
+    (void)workflow_id;
+    (void)step_id;
+    (void)token;
+    
+    /* In production, emit to OTEL/telemetry system */
+}
+
+/* Generated step implementations */
+{% for step in reactor_steps %}
+bool {{ prefix }}_ash_step_{{ step.name|c_identifier }}_run({{ prefix }}_ash_token_t* token, void* scratch) {
+    /* {{ step.description }} */
+    {% if step.tick_budget %}
+    /* Tick budget: {{ step.tick_budget }} cycles */
+    {% endif %}
+    
+    (void)token;   /* Suppress unused warning */
+    (void)scratch; /* Suppress unused warning */
+    
+    /* TTL-driven logic: {{ step.ttl_operations|join('; ') if step.ttl_operations else 'Processing...' }} */
+    {% for operation in step.operations %}
+    {{ operation }};
+    {% endfor %}
+    
+    return true; /* Step completed successfully */
+}
+
+bool {{ prefix }}_ash_step_{{ step.name|c_identifier }}_compensate({{ prefix }}_ash_token_t* token, void* scratch) {
+    /* Compensation logic for {{ step.name }} */
+    (void)token;
+    (void)scratch;
+    
+    {% for compensation in step.compensations if step.compensations %}
+    {{ compensation }};
+    {% endfor %}
+    
+    return true;
+}
+
+bool {{ prefix }}_ash_step_{{ step.name|c_identifier }}_undo({{ prefix }}_ash_token_t* token, void* scratch) {
+    /* Undo logic for {{ step.name }} */
+    (void)token;
+    (void)scratch;
+    
+    {% for undo_op in step.undo_operations if step.undo_operations %}
+    {{ undo_op }};
+    {% endfor %}
+    
+    return true;
+}
+{% endfor %}
+
+#endif /* {{ prefix|upper }}_ASH_REACTOR_IMPLEMENTATION */

@@ -1,0 +1,323 @@
+---
+# CNS Aegis Fabric - Kubernetes Services
+# Generated from TTL: 2025-07-24T20:24:30.985701
+# NO HANDCODING - This file is auto-generated
+
+# Main BitActor Service with mTLS and service mesh
+apiVersion: v1
+kind: Service
+metadata:
+  name: aegis-bitactor-service
+  namespace: cns-system
+  labels:
+    app: aegis-fabric
+    component: bitactor
+    mesh: "linkerd"
+  annotations:
+    linkerd.io/inject: enabled
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    aegis.cns.io/mtls-enabled: "true"
+    aegis.cns.io/circuit-breaker: "5"
+spec:
+  type: ClusterIP
+  selector:
+    app: aegis-fabric
+    component: bitactor
+  ports:
+  - name: grpc
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+  - name: health
+    port: 8081
+    targetPort: 8081
+    protocol: TCP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+
+---
+# Service for threat detection API
+apiVersion: v1
+kind: Service
+metadata:
+  name: aegis-threat-detection-api
+  namespace: cns-system
+  labels:
+    app: aegis-fabric
+    component: threat-api
+    priority: critical
+  annotations:
+    linkerd.io/inject: enabled
+    trafficpolicy.linkerd.io/retry-limit: "3"
+    trafficpolicy.linkerd.io/timeout: "5000ms"
+spec:
+  type: ClusterIP
+  selector:
+    app: aegis-fabric
+    component: bitactor
+  ports:
+  - name: detect-api
+    port: 8082
+    targetPort: 8080
+    protocol: TCP
+  - name: detect-health
+    port: 8083
+    targetPort: 8081
+    protocol: TCP
+
+---
+# Service for rule management
+apiVersion: v1
+kind: Service
+metadata:
+  name: aegis-rule-management
+  namespace: cns-system
+  labels:
+    app: aegis-fabric
+    component: rule-mgmt
+spec:
+  type: ClusterIP
+  selector:
+    app: aegis-fabric
+    component: bitactor
+  ports:
+  - name: rule-api
+    port: 8084
+    targetPort: 8080
+    protocol: TCP
+
+---
+# Monitoring Service (Prometheus scraping)
+apiVersion: v1
+kind: Service
+metadata:
+  name: aegis-metrics-service
+  namespace: cns-system
+  labels:
+    app: aegis-fabric
+    component: metrics
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  selector:
+    app: aegis-fabric
+  ports:
+  - name: prometheus
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+
+---
+# Internal load balancer for 80/20 optimized traffic
+apiVersion: v1
+kind: Service
+metadata:
+  name: aegis-internal-lb
+  namespace: cns-system
+  labels:
+    app: aegis-fabric
+    component: internal-lb
+    optimization: "80-20"
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+spec:
+  type: LoadBalancer
+  selector:
+    app: aegis-fabric
+    component: bitactor
+  ports:
+  - name: primary
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  - name: secondary
+    port: 443
+    targetPort: 8080
+    protocol: TCP
+  externalTrafficPolicy: Local
+
+---
+# ServiceMonitor for Prometheus Operator
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: aegis-service-monitor
+  namespace: cns-system
+  labels:
+    app: aegis-fabric
+    prometheus: kube-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: aegis-fabric
+      component: metrics
+  endpoints:
+  - port: prometheus
+    interval: 30s
+    path: /metrics
+    scheme: http
+    relabelings:
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      targetLabel: pod
+    - sourceLabels: [__meta_kubernetes_pod_node_name]
+      targetLabel: node
+    metricRelabelings:
+    - regex: '(aegis_threat_.*|aegis_gossip_.*|aegis_performance_.*)'
+      sourceLabels: [__name__]
+      action: keep
+
+---
+# ServiceProfile for service mesh traffic policies
+apiVersion: linkerd.io/v1alpha2
+kind: ServiceProfile
+metadata:
+  name: aegis-bitactor-service.cns-system.svc.cluster.local
+  namespace: cns-system
+spec:
+  routes:
+  - name: threat-detection
+    condition:
+      method: POST
+      pathRegex: "/aegis\\.ThreatDetection/.*"
+    responseClasses:
+    - condition:
+        status:
+          min: 200
+          max: 299
+      isFailure: false
+    timeout: 5000ms
+    retryRatio: 0.2
+  - name: gossip-protocol
+    condition:
+      method: POST
+      pathRegex: "/aegis\\.GossipProtocol/.*"
+    responseClasses:
+    - condition:
+        status:
+          min: 200
+          max: 299
+      isFailure: false
+    timeout: 100ms
+  - name: health-check
+    condition:
+      method: GET
+      pathRegex: "/health"
+    timeout: 3s
+    isRetryable: true
+  retryBudget:
+    retryRatio: 0.2
+    minRetriesPerSecond: 10
+    ttl: 10s
+
+---
+# Egress rules for external threat intelligence feeds
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aegis-egress-policy
+  namespace: cns-system
+spec:
+  podSelector:
+    matchLabels:
+      app: aegis-fabric
+  policyTypes:
+  - Egress
+  egress:
+  # Allow DNS
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  # Allow internal service communication
+  - to:
+    - podSelector:
+        matchLabels:
+          app: aegis-fabric
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 7946
+    - protocol: UDP
+      port: 7946
+    - protocol: TCP
+      port: 4369
+    - protocol: TCP
+      port: 9100
+  # Allow metrics scraping
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: prometheus
+    ports:
+    - protocol: TCP
+      port: 9090
+  # Allow external HTTPS for threat feeds
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443
+
+---
+# Traffic split for canary deployments
+apiVersion: split.smi-spec.io/v1alpha1
+kind: TrafficSplit
+metadata:
+  name: aegis-canary-split
+  namespace: cns-system
+spec:
+  service: aegis-bitactor-service
+  backends:
+  - service: aegis-bitactor-service
+    weight: 95
+  - service: aegis-bitactor-canary
+    weight: 5
+
+---
+# Virtual service for advanced routing (optional Istio support)
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: aegis-virtual-service
+  namespace: cns-system
+spec:
+  hosts:
+  - aegis-bitactor-service
+  http:
+  - match:
+    - headers:
+        x-threat-priority:
+          exact: critical
+    route:
+    - destination:
+        host: aegis-bitactor-service
+        port:
+          number: 8080
+      weight: 100
+    timeout: 100ms
+  - route:
+    - destination:
+        host: aegis-bitactor-service
+        port:
+          number: 8080
+      weight: 100
+    timeout: 5000ms
+    retries:
+      attempts: 3
+      perTryTimeout: 1666ms

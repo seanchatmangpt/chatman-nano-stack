@@ -1,0 +1,355 @@
+---
+# CNS Aegis Fabric - Kubernetes Deployment
+# Generated from TTL: 2025-07-24T20:24:30.983137
+# NO HANDCODING - This file is auto-generated
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aegis-bitactor-bitactor_production
+  namespace: cns-system
+  labels:
+    app: aegis-fabric
+    component: bitactor
+    version: "2025-07-24-20-24-30.983137"
+  annotations:
+    linkerd.io/inject: enabled
+    aegis.cns.io/gossip-enabled: "true"
+    aegis.cns.io/threat-count: "5"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aegis-fabric
+      component: bitactor
+  template:
+    metadata:
+      labels:
+        app: aegis-fabric
+        component: bitactor
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: aegis-bitactor-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+      containers:
+      - name: bitactor-engine
+        image: cns-aegis/bitactor:bitactor_production-latest
+        imagePullPolicy: Always
+        command: ["/app/bitactor"]
+        args:
+        - "--engine=bitactor_production"
+        - "--protection-module=enhanced_protection"
+        - "--gossip-fanout=3"
+        - "--gossip-interval=100ms"
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: THREAT_DETECTION_RATE
+          value: "0.99"
+        - name: FALSE_POSITIVE_RATE
+          value: "0.01"
+        - name: PROPAGATION_LATENCY_MS
+          value: "100"
+        - name: LOOKUP_LATENCY_MS
+          value: "10"
+        - name: TARGET_THROUGHPUT
+          value: "100000"
+        - name: SERVICE_MESH_ENABLED
+          value: "true"
+        - name: CIRCUIT_BREAKER_THRESHOLD
+          value: "5"
+        - name: RETRY_ATTEMPTS
+          value: "3"
+        - name: TIMEOUT_MS
+          value: "5000"
+        ports:
+        - name: grpc
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        - name: health
+          containerPort: 8081
+          protocol: TCP
+        - name: gossip
+          containerPort: 7946
+          protocol: TCP
+        - name: gossip-udp
+          containerPort: 7946
+          protocol: UDP
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: health
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: health
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 256Mi
+          limits:
+            cpu: 2000m
+            memory: 512MB
+        volumeMounts:
+        - name: threat-signatures
+          mountPath: /etc/aegis/threats
+          readOnly: true
+        - name: detection-rules
+          mountPath: /etc/aegis/rules
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+      - name: gossip-sidecar
+        image: cns-aegis/gossip-erlang:latest
+        imagePullPolicy: Always
+        command: ["/app/start_gossip.sh"]
+        env:
+        - name: FANOUT
+          value: "3"
+        - name: INTERVAL_MS
+          value: "100"
+        - name: MAX_HOPS
+          value: "5"
+        - name: CONVERGENCE_TARGET_MS
+          value: "1000"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        ports:
+        - name: erlang-gossip
+          containerPort: 4369
+          protocol: TCP
+        - name: erlang-dist
+          containerPort: 9100
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        volumeMounts:
+        - name: gossip-config
+          mountPath: /etc/gossip
+          readOnly: true
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: threat-signatures
+        configMap:
+          name: aegis-threat-signatures
+      - name: detection-rules
+        configMap:
+          name: aegis-detection-rules
+      - name: gossip-config
+        configMap:
+          name: aegis-gossip-config
+      - name: tmp
+        emptyDir: {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - aegis-fabric
+              topologyKey: kubernetes.io/hostname
+      tolerations:
+      - key: "aegis.cns.io/high-performance"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+
+---
+# Gossip Discovery Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: aegis-gossip-discovery
+  namespace: cns-system
+  labels:
+    app: aegis-fabric
+    component: gossip
+spec:
+  clusterIP: None  # Headless service for gossip
+  selector:
+    app: aegis-fabric
+    component: bitactor
+  ports:
+  - name: gossip
+    port: 7946
+    targetPort: 7946
+    protocol: TCP
+  - name: gossip-udp
+    port: 7946
+    targetPort: 7946
+    protocol: UDP
+  - name: erlang-gossip
+    port: 4369
+    targetPort: 4369
+    protocol: TCP
+  - name: erlang-dist
+    port: 9100
+    targetPort: 9100
+    protocol: TCP
+
+---
+# ServiceAccount with minimal permissions
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: aegis-bitactor-sa
+  namespace: cns-system
+  labels:
+    app: aegis-fabric
+    component: bitactor
+
+---
+# Role for BitActor pods
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: aegis-bitactor-role
+  namespace: cns-system
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["endpoints"]
+  verbs: ["get", "list", "watch"]
+
+---
+# RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: aegis-bitactor-rolebinding
+  namespace: cns-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: aegis-bitactor-role
+subjects:
+- kind: ServiceAccount
+  name: aegis-bitactor-sa
+  namespace: cns-system
+
+---
+# PodDisruptionBudget for high availability
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: aegis-bitactor-pdb
+  namespace: cns-system
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: aegis-fabric
+      component: bitactor
+
+---
+# HorizontalPodAutoscaler for dynamic scaling
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: aegis-bitactor-hpa
+  namespace: cns-system
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: aegis-bitactor-bitactor_production
+  minReplicas: 3
+  maxReplicas: 9
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: threat_detection_rate
+      target:
+        type: AverageValue
+        averageValue: "0.99"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60

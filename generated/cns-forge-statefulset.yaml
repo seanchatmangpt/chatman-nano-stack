@@ -1,0 +1,38 @@
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cns-forge-system
+  namespace: cns-forge
+spec:
+  serviceName: cns-forge-headless
+  replicas: 5
+  selector:
+    matchLabels:
+      app: cns-forge-system
+  template:
+    metadata:
+      labels:
+        app: cns-forge-system
+    spec:
+      containers:
+      - name: bitactor-engine
+        image: cns/bitactor-engine:latest
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - cns-forge-system
+            topologyKey: kubernetes.io/hostname

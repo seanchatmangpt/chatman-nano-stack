@@ -1,0 +1,125 @@
+@prefix aegis: <http://cns.aegis/fabric#> .
+@prefix threat: <http://cns.aegis/threat#> .
+@prefix rule: <http://cns.aegis/rule#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# CNS Aegis Fabric Threat Ontology
+# Defines threat signatures, detection rules, and response actions
+
+aegis:ThreatSignature a owl:Class ;
+    rdfs:label "Threat Signature" ;
+    rdfs:comment "Base class for all threat signatures in the Aegis Fabric" .
+
+aegis:NetworkThreat rdfs:subClassOf aegis:ThreatSignature ;
+    rdfs:label "Network-based Threat" .
+
+aegis:ApplicationThreat rdfs:subClassOf aegis:ThreatSignature ;
+    rdfs:label "Application-layer Threat" .
+
+aegis:SystemThreat rdfs:subClassOf aegis:ThreatSignature ;
+    rdfs:label "System-level Threat" .
+
+# 80/20 Optimized Threat Categories (20% that catch 80% of threats)
+threat:SQLInjection a aegis:ApplicationThreat ;
+    aegis:priority "critical" ;
+    aegis:detectionPattern "('|(--|;)|(<|>)|union|select|insert|update|delete|drop|create|alter|exec|execute|script|javascript|eval)" ;
+    aegis:propagationSpeed "100ms" ;
+    aegis:falsePositiveRate "0.001" .
+
+threat:XSSAttack a aegis:ApplicationThreat ;
+    aegis:priority "critical" ;
+    aegis:detectionPattern "(<script|<iframe|javascript:|onerror=|onload=|onclick=|<svg/onload)" ;
+    aegis:propagationSpeed "100ms" ;
+    aegis:falsePositiveRate "0.002" .
+
+threat:DDoSAttack a aegis:NetworkThreat ;
+    aegis:priority "critical" ;
+    aegis:detectionPattern "rate_limit_exceeded" ;
+    aegis:thresholdRPS 10000 ;
+    aegis:propagationSpeed "50ms" ;
+    aegis:falsePositiveRate "0.005" .
+
+threat:BruteForceAttack a aegis:SystemThreat ;
+    aegis:priority "high" ;
+    aegis:detectionPattern "failed_auth_attempts" ;
+    aegis:thresholdAttempts 5 ;
+    aegis:timeWindowSeconds 60 ;
+    aegis:propagationSpeed "200ms" ;
+    aegis:falsePositiveRate "0.003" .
+
+threat:PrivilegeEscalation a aegis:SystemThreat ;
+    aegis:priority "critical" ;
+    aegis:detectionPattern "unauthorized_privilege_change" ;
+    aegis:propagationSpeed "50ms" ;
+    aegis:falsePositiveRate "0.001" .
+
+# Detection Rules
+rule:DetectionRule a owl:Class ;
+    rdfs:label "Detection Rule" ;
+    rdfs:comment "Rules for detecting threats in the Aegis Fabric" .
+
+rule:NetworkRule rdfs:subClassOf rule:DetectionRule ;
+    aegis:layer "network" ;
+    aegis:processingOrder 1 .
+
+rule:ApplicationRule rdfs:subClassOf rule:DetectionRule ;
+    aegis:layer "application" ;
+    aegis:processingOrder 2 .
+
+rule:BehavioralRule rdfs:subClassOf rule:DetectionRule ;
+    aegis:layer "behavioral" ;
+    aegis:processingOrder 3 .
+
+# Response Actions
+aegis:ResponseAction a owl:Class ;
+    rdfs:label "Response Action" ;
+    rdfs:comment "Actions taken when threats are detected" .
+
+aegis:BlockAction a aegis:ResponseAction ;
+    aegis:severity "immediate" ;
+    aegis:duration "permanent" .
+
+aegis:RateLimitAction a aegis:ResponseAction ;
+    aegis:severity "moderate" ;
+    aegis:duration "300s" .
+
+aegis:AlertAction a aegis:ResponseAction ;
+    aegis:severity "informational" ;
+    aegis:duration "0s" .
+
+aegis:IsolateAction a aegis:ResponseAction ;
+    aegis:severity "critical" ;
+    aegis:duration "until_cleared" .
+
+# Gossip Protocol Configuration
+aegis:GossipProtocol a owl:Class ;
+    aegis:fanout 3 ;
+    aegis:interval "100ms" ;
+    aegis:maxHops 5 ;
+    aegis:convergenceTarget "1000ms" .
+
+# BitActor Agent Configuration
+aegis:BitActorAgent a owl:Class ;
+    aegis:coreEngine "bitactor_production" ;
+    aegis:protectionModule "enhanced_protection" ;
+    aegis:memoryLimit "512MB" ;
+    aegis:cpuLimit "2000m" ;
+    aegis:replicaCount 3 .
+
+# Service Mesh Configuration
+aegis:ServiceMesh a owl:Class ;
+    aegis:provider "linkerd" ;
+    aegis:mtlsEnabled true ;
+    aegis:circuitBreakerThreshold 5 ;
+    aegis:retryAttempts 3 ;
+    aegis:timeoutMs 5000 .
+
+# Performance Targets
+aegis:PerformanceTarget a owl:Class ;
+    aegis:threatDetectionRate 0.99 ;
+    aegis:falsePositiveRate 0.01 ;
+    aegis:propagationLatency "100ms" ;
+    aegis:lookupLatency "10ms" ;
+    aegis:throughput "100000" .

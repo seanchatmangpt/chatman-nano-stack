@@ -1,0 +1,44 @@
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cns-forge-monitoring
+  namespace: cns-forge
+spec:
+  selector:
+    matchLabels:
+      app: cns-forge-system
+  endpoints:
+  - port: metrics
+    interval: 15s
+    path: /metrics
+    relabelings:
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      targetLabel: pod
+    - sourceLabels: [__meta_kubernetes_namespace]
+      targetLabel: namespace
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cns-forge-alerts
+  namespace: cns-forge
+spec:
+  groups:
+  - name: cns-forge.rules
+    rules:
+    - alert: CNSForgeHighLatency
+      expr: bitactor_latency_ns > 100000
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "CNS Forge latency exceeding target"
+        description: "Latency is {{ $value }}ns, above 100μs target"
+    - alert: CNSForgeDown
+      expr: up{job="cns-forge-system"} == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "CNS Forge system is down"
