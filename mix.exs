@@ -36,11 +36,19 @@ defmodule CNSForge.MixProject do
 
   defp deps do
     [
-      # 80/20 APPROACH: Absolute minimal dependencies to avoid compilation issues
-      # Focus on core business logic without framework overhead
+      # Core dependencies for Ash.Reactor functionality
+      {:ash, "~> 3.0"},
+      {:reactor, "~> 0.9"},
+      {:jason, "~> 1.4"},
+      {:telemetry, "~> 1.2"},
       
-      {:jason, "~> 1.4"},  # JSON handling
-      {:telemetry, "~> 1.2"}  # Basic telemetry
+      # Testing and validation dependencies
+      {:excoveralls, "~> 0.18", only: :test},
+      {:ex_unit_notifier, "~> 1.3", only: :test},
+      {:benchee, "~> 1.1", only: [:dev, :test]},
+      {:benchee_html, "~> 1.0", only: [:dev, :test]},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.3", only: [:dev], runtime: false}
     ]
   end
 

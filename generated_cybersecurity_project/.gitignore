@@ -1,0 +1,45 @@
+# Build artifacts
+/_build/
+/cover/
+/deps/
+/doc/
+/.fetch
+
+# Generated files
+*.beam
+*.plt
+*.tar
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+erl_crash.dump
+
+# Temporary files
+.DS_Store
+.vscode/
+.idea/
+
+# Test coverage
+cover/
+htmlcov/
+
+# IDE files
+*.swp
+*.swo
+*~
+
+# OS generated files
+Thumbs.db
+
+# Elixir Language Server
+.elixir_ls/

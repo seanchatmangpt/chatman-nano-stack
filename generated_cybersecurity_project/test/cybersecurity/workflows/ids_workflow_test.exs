@@ -1,0 +1,46 @@
+defmodule Cybersecurity.Workflows.IDSWorkflowTest do
+  use ExUnit.Case, async: true
+  
+  alias Cybersecurity.Workflows.IDSWorkflow
+  alias Cybersecurity.TestHelper
+
+  setup do
+    TestHelper.start_sandbox()
+    on_exit(&TestHelper.stop_sandbox/0)
+  end
+
+  describe "ids workflow" do
+    test "creates ids through workflow" do
+      input = %{
+        action: :create,
+        resource_data: %{
+          name: "Workflow Test IDS",
+          description: "Created via workflow"
+        }
+      }
+      
+      assert {:ok, result} = Reactor.run(IDSWorkflow, input)
+      assert result.action == :create
+      assert result.resource == "ids"
+    end
+    
+    test "reads ids through workflow" do
+      ids = TestHelper.create_test_data(Cybersecurity.Resources.IDS)
+      
+      input = %{
+        action: :read,
+        resource_id: ids.id
+      }
+      
+      assert {:ok, result} = Reactor.run(IDSWorkflow, input)
+      assert result.action == :read
+      assert result.resource == "ids"
+    end
+    
+    test "validates workflow actions" do
+      input = %{action: :invalid_action}
+      
+      assert {:error, _} = Reactor.run(IDSWorkflow, input)
+    end
+  end
+end

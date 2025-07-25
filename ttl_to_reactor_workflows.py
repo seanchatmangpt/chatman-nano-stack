@@ -1311,24 +1311,80 @@ async def build_all_projects() -> Dict[str, Any]:
     }
 
 if __name__ == "__main__":
-    # Run the complete end-to-end project builder
-    result = asyncio.run(build_all_projects())
+    import argparse
     
-    print("\n" + "="*60)
-    print("TTL TO REACTOR WORKFLOWS - END-TO-END PROJECT BUILDER")
-    print("="*60)
-    print(f"Status: {result['status'].upper()}")
-    print(f"Projects Built: {result['successful']}/{result['total_projects']}")
-    print(f"Success Rate: {result['successful']/result['total_projects']*100:.1f}%")
-    print("="*60)
+    parser = argparse.ArgumentParser(description='TTL to Reactor Workflows Generator')
+    parser.add_argument('--parse-only', action='store_true', help='Only parse TTL file and extract concepts')
+    parser.add_argument('--generate-project', action='store_true', help='Generate complete project from TTL')
+    parser.add_argument('--ttl-file', help='Path to TTL file to process')
+    parser.add_argument('--project-name', help='Name for generated project')
+    parser.add_argument('--output-path', help='Output path for generated project')
     
-    # Print project details
-    for project in result['project_results']:
-        if project.get('status') == 'success':
-            print(f"✅ {project['project_name']}: {project['workflow_type']}")
-            print(f"   Concepts: {project['concepts_processed']}")
-            print(f"   Files: {len(project['reactor_workflow']['output_files'])}")
+    args = parser.parse_args()
+    
+    if args.parse_only and args.ttl_file:
+        # Parse TTL file only and report concepts
+        parser = TTLSemanticParser()
+        concepts = parser.parse_ttl_file(args.ttl_file)
+        
+        print(f"Extracted {len(concepts)} semantic concepts from {args.ttl_file}")
+        for concept in concepts:
+            print(f"Concept: {concept.name} (Type: {concept.concept_type})")
+            if concept.performance_requirements:
+                for req, value in concept.performance_requirements.items():
+                    print(f"  Performance: {req} = {value}")
+        
+        print(f"Total performance concepts: {sum(1 for c in concepts if c.performance_requirements)}")
+        print(f"Total hierarchical concepts: {sum(len(c.parent_classes) for c in concepts)}")
+        
+    elif args.generate_project and args.ttl_file and args.project_name:
+        # Generate project from TTL file
+        builder = EndToEndProjectBuilder()
+        
+        result = asyncio.run(builder.build_project_from_ttl(args.ttl_file, args.project_name))
+        
+        if result['status'] == 'success':
+            print(f"✅ Successfully generated project: {args.project_name}")
+            print(f"   Workflow Type: {result['workflow_type']}")
+            print(f"   Concepts Processed: {result['concepts_processed']}")
+            print(f"   Files Generated: {len(result['reactor_workflow']['output_files'])}")
+            
+            # If output path specified, move files there
+            if args.output_path:
+                import shutil
+                import os
+                
+                os.makedirs(args.output_path, exist_ok=True)
+                
+                # Copy generated files to specified output path
+                for file_path in result['reactor_workflow']['output_files']:
+                    filename = os.path.basename(file_path)
+                    dest_path = os.path.join(args.output_path, filename)
+                    shutil.copy2(file_path, dest_path)
+                    print(f"   Copied: {filename}")
         else:
-            print(f"❌ {project.get('project_name', 'Unknown')}: {project.get('error', 'Unknown error')}")
-    
-    print(f"\n{result['summary']}")
+            print(f"❌ Failed to generate project: {result.get('error', 'Unknown error')}")
+            exit(1)
+            
+    else:
+        # Run the complete end-to-end project builder (original behavior)
+        result = asyncio.run(build_all_projects())
+        
+        print("\n" + "="*60)
+        print("TTL TO REACTOR WORKFLOWS - END-TO-END PROJECT BUILDER")
+        print("="*60)
+        print(f"Status: {result['status'].upper()}")
+        print(f"Projects Built: {result['successful']}/{result['total_projects']}")
+        print(f"Success Rate: {result['successful']/result['total_projects']*100:.1f}%")
+        print("="*60)
+        
+        # Print project details
+        for project in result['project_results']:
+            if project.get('status') == 'success':
+                print(f"✅ {project['project_name']}: {project['workflow_type']}")
+                print(f"   Concepts: {project['concepts_processed']}")
+                print(f"   Files: {len(project['reactor_workflow']['output_files'])}")
+            else:
+                print(f"❌ {project.get('project_name', 'Unknown')}: {project.get('error', 'Unknown error')}")
+        
+        print(f"\n{result['summary']}")
