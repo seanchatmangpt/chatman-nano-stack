@@ -1,0 +1,102 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-24 18:38:02",
+    "test_suite": "Network Policy Performance Benchmark",
+    "version": "1.0.0"
+  },
+  "executive_summary": {
+    "overall_network_performance_score": 86.3,
+    "inter_pod_communication_enabled": true,
+    "network_policy_overhead_acceptable": true,
+    "service_discovery_functional": true,
+    "load_handling_acceptable": true,
+    "recommendation": "GOOD: Network performance acceptable with enhanced policies. Monitor under production load."
+  },
+  "detailed_results": {
+    "baseline_network": {
+      "throughput_requests_per_sec": 4778602,
+      "average_latency_ms": 47.879943860298646,
+      "p99_latency_ms": 92.734283015944,
+      "network_utilization_percent": 29.027976860019656,
+      "packet_loss_percent": 0.030507956353356163,
+      "test_duration_seconds": 60.0
+    },
+    "inter_pod_communication": {
+      "pod_to_pod_latency_ms": 2.4671865636309565,
+      "pod_to_pod_throughput_mbps": 178.97353569233013,
+      "connection_establishment_time_ms": 3.4510275013678635,
+      "successful_connections_percent": 99.709028825281,
+      "concurrent_connections_max": 1255
+    },
+    "policy_overhead": {
+      "policy_evaluation_time_ms": 0.5738083672079662,
+      "rule_processing_time_ms": 0.4002686928607601,
+      "connection_decision_time_ms": 0.10786002090867673,
+      "policy_cache_hit_rate_percent": 95.8319241744717,
+      "overhead_vs_baseline_percent": 3.8521615809978713
+    },
+    "service_discovery": {
+      "dns_resolution_time_ms": 6.225094675080064,
+      "service_lookup_time_ms": 44.45167281662579,
+      "api_server_query_time_ms": 41.22309873969504,
+      "service_discovery_success_rate": 99.62588440111733,
+      "cache_effectiveness_percent": 91.46292025415677
+    },
+    "load_testing": {
+      "load_test_results": [
+        {
+          "load_multiplier": 1.0,
+          "throughput": 4902164.888888889,
+          "p99_latency": 119.2906466030684,
+          "policy_overhead": 3.4648264367499326
+        },
+        {
+          "load_multiplier": 2.0,
+          "throughput": 4812726.990754323,
+          "p99_latency": 122.19995218831424,
+          "policy_overhead": 3.1591373425811904
+        },
+        {
+          "load_multiplier": 5.0,
+          "throughput": 4340148.881254165,
+          "p99_latency": 174.42281491614082,
+          "policy_overhead": 4.373442831251569
+        },
+        {
+          "load_multiplier": 10.0,
+          "throughput": 3654590.0087710023,
+          "p99_latency": 275.31894140218094,
+          "policy_overhead": 4.7849411980083865
+        },
+        {
+          "load_multiplier": 20.0,
+          "throughput": 2823740.1793357967,
+          "p99_latency": 468.50349937468224,
+          "policy_overhead": 6.037329432524702
+        }
+      ],
+      "max_sustained_load": 5.0,
+      "policy_overhead_under_load": [
+        3.4648264367499326,
+        3.1591373425811904,
+        4.373442831251569,
+        4.7849411980083865,
+        6.037329432524702
+      ],
+      "connection_saturation_point": 5.0
+    }
+  },
+  "network_performance_targets": {
+    "baseline_network_acceptable": true,
+    "inter_pod_latency_acceptable": true,
+    "policy_overhead_acceptable": true,
+    "service_discovery_fast": true,
+    "load_handling_scalable": true
+  },
+  "network_policy_analysis": {
+    "policies_optimized_for_performance": true,
+    "rule_evaluation_efficient": true,
+    "cache_utilization_effective": true,
+    "inter_pod_communication_optimized": true
+  }
+}

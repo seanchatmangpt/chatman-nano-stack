@@ -1,0 +1,197 @@
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: cns-protection-monitor
+  namespace: trading-system
+  labels:
+    app: cns-protection
+    prometheus: kube-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: cns-protection
+      component: core-protection
+  endpoints:
+  - port: metrics
+    interval: 10s
+    path: /metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cns-protection-alerts
+  namespace: trading-system
+  labels:
+    app: cns-protection
+    prometheus: kube-prometheus
+spec:
+  groups:
+  - name: protection.rules
+    interval: 10s
+    rules:
+    # Response time alerts
+    - alert: ProtectionHighResponseTime
+      expr: |
+        histogram_quantile(0.99, 
+          sum(rate(protection_validation_duration_seconds_bucket[5m])) by (le)
+        ) > 0.05
+      for: 2m
+      labels:
+        severity: warning
+        component: protection
+      annotations:
+        summary: "Protection service response time exceeding 50ms (p99)"
+        description: "99th percentile response time is {{ $value }}s (threshold: 50ms)"
+        
+    - alert: ProtectionCriticalResponseTime
+      expr: |
+        histogram_quantile(0.99, 
+          sum(rate(protection_validation_duration_seconds_bucket[5m])) by (le)
+        ) > 0.1
+      for: 1m
+      labels:
+        severity: critical
+        component: protection
+      annotations:
+        summary: "Protection service violating 100ms SLA"
+        description: "99th percentile response time is {{ $value }}s (SLA: 100ms)"
+    
+    # Circuit breaker alerts
+    - alert: DailyLossCircuitBreakerTriggered
+      expr: protection_circuit_breaker_triggered == 1
+      for: 0m
+      labels:
+        severity: warning
+        component: protection
+      annotations:
+        summary: "Daily loss circuit breaker activated"
+        description: "Trading has been halted due to 2% daily loss limit"
+        
+    - alert: EmergencyKillSwitchActivated
+      expr: protection_kill_switch_active == 1
+      for: 0m
+      labels:
+        severity: critical
+        component: protection
+      annotations:
+        summary: "Emergency kill switch has been activated"
+        description: "All trading has been halted by emergency kill switch"
+    
+    # Violation tracking
+    - alert: HighViolationRate
+      expr: |
+        rate(protection_violations_total[5m]) > 0.1
+      for: 5m
+      labels:
+        severity: warning
+        component: protection
+      annotations:
+        summary: "High rate of protection violations"
+        description: "Protection violations occurring at {{ $value }} per second"
+        
+    # Service health
+    - alert: ProtectionServiceDown
+      expr: up{job="cns-protection-service"} == 0
+      for: 1m
+      labels:
+        severity: critical
+        component: protection
+      annotations:
+        summary: "Protection service is down"
+        description: "Protection service instance {{ $labels.instance }} is not responding"
+        
+    - alert: ProtectionServiceRestartLoop
+      expr: |
+        rate(kube_pod_container_status_restarts_total{container="protection-service"}[15m]) > 0.5
+      for: 5m
+      labels:
+        severity: critical
+        component: protection
+      annotations:
+        summary: "Protection service in restart loop"
+        description: "Protection service restarting frequently ({{ $value }} restarts/min)"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cns-protection-dashboard
+  namespace: trading-system
+data:
+  dashboard.json: |
+    {
+      "dashboard": {
+        "title": "CNS Protection Service - 80/20 Core Metrics",
+        "panels": [
+          {
+            "title": "Response Time (p50, p95, p99)",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.50, sum(rate(protection_validation_duration_seconds_bucket[5m])) by (le))",
+                "legendFormat": "p50"
+              },
+              {
+                "expr": "histogram_quantile(0.95, sum(rate(protection_validation_duration_seconds_bucket[5m])) by (le))",
+                "legendFormat": "p95"
+              },
+              {
+                "expr": "histogram_quantile(0.99, sum(rate(protection_validation_duration_seconds_bucket[5m])) by (le))",
+                "legendFormat": "p99"
+              }
+            ]
+          },
+          {
+            "title": "Protection Violations by Type",
+            "targets": [
+              {
+                "expr": "sum(rate(protection_violations_total[5m])) by (violation_type)",
+                "legendFormat": "{{ violation_type }}"
+              }
+            ]
+          },
+          {
+            "title": "Circuit Breaker Status",
+            "targets": [
+              {
+                "expr": "protection_circuit_breaker_triggered",
+                "legendFormat": "Daily Loss Circuit"
+              },
+              {
+                "expr": "protection_kill_switch_active",
+                "legendFormat": "Kill Switch"
+              }
+            ]
+          },
+          {
+            "title": "Trades Processed",
+            "targets": [
+              {
+                "expr": "sum(rate(protection_trades_validated_total[5m])) by (status)",
+                "legendFormat": "{{ status }}"
+              }
+            ]
+          },
+          {
+            "title": "Position Risk Distribution",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.99, sum(rate(protection_position_risk_percent_bucket[5m])) by (le))",
+                "legendFormat": "p99 risk %"
+              }
+            ]
+          },
+          {
+            "title": "Daily P&L Tracking",
+            "targets": [
+              {
+                "expr": "protection_daily_pnl_dollars",
+                "legendFormat": "Current P&L"
+              },
+              {
+                "expr": "protection_daily_loss_limit_dollars",
+                "legendFormat": "Loss Limit"
+              }
+            ]
+          }
+        ]
+      }
+    }

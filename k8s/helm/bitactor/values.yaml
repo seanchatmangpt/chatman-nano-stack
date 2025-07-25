@@ -1,0 +1,319 @@
+# Default values for BitActor Helm chart
+
+replicaCount: 3
+
+image:
+  repository: bitactor/bitactor-service
+  pullPolicy: Always
+  tag: "v1.2.3"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+  automountServiceAccountToken: false
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9090"
+  prometheus.io/path: "/metrics"
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 9090
+  targetPort: 9090
+  annotations: {}
+
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: bitactor.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+  metrics:
+    - type: Pods
+      pods:
+        metric:
+          name: bitactor_signals_per_second
+        target:
+          type: AverageValue
+          averageValue: "1000000"
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - bitactor
+        topologyKey: kubernetes.io/hostname
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 9090
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 9090
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 3
+  successThreshold: 1
+  failureThreshold: 3
+
+# BitActor specific configuration
+bitactor:
+  # Performance settings
+  performance:
+    tickBudget: 10000  # microseconds for non-x86
+    ringSize: 4096
+    threadCount: 4
+    batchSize: 1000
+    
+  # Security settings
+  security:
+    enableTLS: true
+    atomicOperations: true
+    endiannessCheck: true
+    
+  # Signal processing settings
+  signalProcessing:
+    maxSignalsPerSecond: 10000000  # 10M signals/sec
+    maxLatencyMicros: 10
+    priorityLevels:
+      - name: critical
+        budget: 8
+      - name: high
+        budget: 16
+      - name: normal
+        budget: 32
+      - name: low
+        budget: 64
+
+# Monitoring and observability
+monitoring:
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+      scrapeTimeout: 10s
+      labels: {}
+    rules:
+      enabled: true
+      alerts:
+        - name: BitActorHighLatency
+          expr: bitactor_signal_latency_p99 > 100
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "BitActor high latency detected"
+            description: "BitActor p99 latency is above 100 microseconds"
+        - name: BitActorLowThroughput
+          expr: rate(bitactor_signals_processed_total[1m]) < 100000
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "BitActor low throughput"
+            description: "BitActor processing less than 100K signals/sec"
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 50%
+
+# Network Policy - Enhanced for Inter-Pod Communication
+networkPolicy:
+  enabled: true
+  ingress:
+    # Allow monitoring and observability
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: monitoring
+      ports:
+      - protocol: TCP
+        port: 9090  # Metrics endpoint
+      - protocol: TCP
+        port: 8080  # Health checks
+    
+    # Allow inter-pod communication within BitActor
+    - from:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: bitactor
+      ports:
+      - protocol: TCP
+        port: 9090  # Main service port
+      - protocol: TCP
+        port: 8080  # Health/readiness probes
+      - protocol: TCP
+        port: 8081  # Internal communication
+    
+    # Allow Kubernetes system components
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: kube-system
+      ports:
+      - protocol: TCP
+        port: 8080  # Kubelet health checks
+    
+    # Allow ingress controller (if present)
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: ingress-nginx
+      - namespaceSelector:
+          matchLabels:
+            name: istio-system
+      ports:
+      - protocol: TCP
+        port: 9090
+        
+  egress:
+    # Allow inter-pod communication within BitActor
+    - to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: bitactor
+      ports:
+      - protocol: TCP
+        port: 9090  # Main service port
+      - protocol: TCP
+        port: 8080  # Health/readiness probes
+      - protocol: TCP
+        port: 8081  # Internal communication
+    
+    # Allow DNS resolution
+    - to:
+      - namespaceSelector:
+          matchLabels:
+            name: kube-system
+      ports:
+      - protocol: UDP
+        port: 53
+      - protocol: TCP
+        port: 53
+    
+    # Allow access to Kubernetes API server (for service discovery)
+    - to: []  # Any destination
+      ports:
+      - protocol: TCP
+        port: 443  # HTTPS to API server
+      - protocol: TCP
+        port: 6443  # Alternative API server port
+    
+    # Allow metrics export to monitoring systems
+    - to:
+      - namespaceSelector:
+          matchLabels:
+            name: monitoring
+      ports:
+      - protocol: TCP
+        port: 9090
+      - protocol: TCP
+        port: 9091
+    
+    # Allow external service discovery (if needed)
+    - to: []
+      ports:
+      - protocol: TCP
+        port: 80   # HTTP for service discovery
+      - protocol: TCP
+        port: 8500 # Consul (if used)
+      - protocol: TCP
+        port: 2379 # etcd (if directly accessed)
+      - protocol: TCP
+        port: 2380 # etcd peer communication
+
+# Persistence (for signal buffer overflow)
+persistence:
+  enabled: false
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 8Gi
+  annotations: {}
+
+# Additional environment variables
+env: []
+
+# Runtime Security Monitoring
+runtimeSecurity:
+  falco:
+    enabled: true
+    image:
+      repository: falcosecurity/falco
+      tag: "0.37.1"
+    rules:
+      - /etc/falco/k8s_audit_rules.yaml
+      - /etc/falco/rules.d
+    resources:
+      limits:
+        cpu: 200m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+# Additional volumes
+volumes: []
+
+# Additional volume mounts
+volumeMounts: []

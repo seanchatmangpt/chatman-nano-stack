@@ -1,0 +1,347 @@
+{
+  "secure_file_path": {
+    "total_time": 25.032856040867046,
+    "operations": 500000,
+    "ops_per_second": 19973.749666587457,
+    "avg_latency_us": 50.06571208173409
+  },
+  "validate_input_size": {
+    "total_time": 0.11699283309280872,
+    "operations": 1000000,
+    "ops_per_second": 8547532.131363247,
+    "avg_latency_us": 0.11699283309280872
+  },
+  "sanitize_code_input": {
+    "total_time": 0.03125254204496741,
+    "operations": 50000,
+    "ops_per_second": 1599869.857884136,
+    "avg_latency_us": 0.6250508408993483
+  },
+  "validate_ttl_input": {
+    "total_time": 0.08822191716171801,
+    "operations": 30000,
+    "ops_per_second": 340051.5536860023,
+    "avg_latency_us": 2.940730572057267
+  },
+  "create_safe_temp_file": {
+    "total_time": 0.11492862505838275,
+    "operations": 1000,
+    "ops_per_second": 8701.0524966431,
+    "avg_latency_us": 114.92862505838275
+  },
+  "concurrent_performance": {
+    "total_time": 3.296776582952589,
+    "num_threads": 50,
+    "iterations_per_thread": 1000,
+    "total_operations": 50000,
+    "overall_ops_per_second": 15166.329516700238,
+    "thread_results": [
+      {
+        "path_validation": 3.041992832906544,
+        "input_validation": 0.00021974998526275158,
+        "code_sanitization": 8.670799434185028e-05
+      },
+      {
+        "path_validation": 3.048449750058353,
+        "input_validation": 0.00021650013513863087,
+        "code_sanitization": 8.499994874000549e-05
+      },
+      {
+        "path_validation": 3.0801814168225974,
+        "input_validation": 0.00022904202342033386,
+        "code_sanitization": 8.90830997377634e-05
+      },
+      {
+        "path_validation": 3.08539016591385,
+        "input_validation": 0.00021920911967754364,
+        "code_sanitization": 8.224998600780964e-05
+      },
+      {
+        "path_validation": 3.1237280000932515,
+        "input_validation": 0.00022645783610641956,
+        "code_sanitization": 8.679204620420933e-05
+      },
+      {
+        "path_validation": 3.1555569160263985,
+        "input_validation": 0.0002296247985213995,
+        "code_sanitization": 8.345814421772957e-05
+      },
+      {
+        "path_validation": 3.166652833810076,
+        "input_validation": 0.00021674996241927147,
+        "code_sanitization": 8.658412843942642e-05
+      },
+      {
+        "path_validation": 3.1795838749967515,
+        "input_validation": 0.00023474986664950848,
+        "code_sanitization": 8.345791138708591e-05
+      },
+      {
+        "path_validation": 3.1819864590652287,
+        "input_validation": 0.00023512495681643486,
+        "code_sanitization": 8.35831742733717e-05
+      },
+      {
+        "path_validation": 3.198206915985793,
+        "input_validation": 0.0002266671508550644,
+        "code_sanitization": 8.425000123679638e-05
+      },
+      {
+        "path_validation": 3.2004133749287575,
+        "input_validation": 0.00022641709074378014,
+        "code_sanitization": 8.287490345537663e-05
+      },
+      {
+        "path_validation": 3.2140809160191566,
+        "input_validation": 0.00022308388724923134,
+        "code_sanitization": 8.537503890693188e-05
+      },
+      {
+        "path_validation": 3.2117884589824826,
+        "input_validation": 0.00023912498727440834,
+        "code_sanitization": 8.450006134808064e-05
+      },
+      {
+        "path_validation": 3.2047064169310033,
+        "input_validation": 0.0002147909253835678,
+        "code_sanitization": 8.295802399516106e-05
+      },
+      {
+        "path_validation": 3.2137891249731183,
+        "input_validation": 0.0002257500309497118,
+        "code_sanitization": 8.158315904438496e-05
+      },
+      {
+        "path_validation": 3.233222250128165,
+        "input_validation": 0.0002162500750273466,
+        "code_sanitization": 8.237501606345177e-05
+      },
+      {
+        "path_validation": 3.208145583048463,
+        "input_validation": 0.00022783293388783932,
+        "code_sanitization": 8.058291859924793e-05
+      },
+      {
+        "path_validation": 3.2345910421572626,
+        "input_validation": 0.00022149994038045406,
+        "code_sanitization": 8.466700091958046e-05
+      },
+      {
+        "path_validation": 3.234644082840532,
+        "input_validation": 0.0002251251135021448,
+        "code_sanitization": 8.237501606345177e-05
+      },
+      {
+        "path_validation": 3.235020082909614,
+        "input_validation": 0.00022320891730487347,
+        "code_sanitization": 8.37910920381546e-05
+      },
+      {
+        "path_validation": 3.243153207935393,
+        "input_validation": 0.00022924994118511677,
+        "code_sanitization": 8.395803160965443e-05
+      },
+      {
+        "path_validation": 3.2432298329658806,
+        "input_validation": 0.0002299589104950428,
+        "code_sanitization": 8.183298632502556e-05
+      },
+      {
+        "path_validation": 3.242392542073503,
+        "input_validation": 0.000238833948969841,
+        "code_sanitization": 8.133286610245705e-05
+      },
+      {
+        "path_validation": 3.2482601669616997,
+        "input_validation": 0.00023862509988248348,
+        "code_sanitization": 8.24581366032362e-05
+      },
+      {
+        "path_validation": 3.2300044170115143,
+        "input_validation": 0.0002486251760274172,
+        "code_sanitization": 8.166604675352573e-05
+      },
+      {
+        "path_validation": 3.244699584087357,
+        "input_validation": 0.00022566691040992737,
+        "code_sanitization": 8.216709829866886e-05
+      },
+      {
+        "path_validation": 3.2420683330856264,
+        "input_validation": 0.00022724992595613003,
+        "code_sanitization": 8.15410166978836e-05
+      },
+      {
+        "path_validation": 3.2611173330806196,
+        "input_validation": 0.00022300006821751595,
+        "code_sanitization": 8.49580392241478e-05
+      },
+      {
+        "path_validation": 3.262992291012779,
+        "input_validation": 0.00022333301603794098,
+        "code_sanitization": 8.19589477032423e-05
+      },
+      {
+        "path_validation": 3.2443135830108076,
+        "input_validation": 0.00023850006982684135,
+        "code_sanitization": 8.412497118115425e-05
+      },
+      {
+        "path_validation": 3.2667545001022518,
+        "input_validation": 0.00022379192523658276,
+        "code_sanitization": 8.808285929262638e-05
+      },
+      {
+        "path_validation": 3.2614492080174387,
+        "input_validation": 0.0002259579487144947,
+        "code_sanitization": 8.170795626938343e-05
+      },
+      {
+        "path_validation": 3.2643299580086023,
+        "input_validation": 0.00022795889526605606,
+        "code_sanitization": 8.204206824302673e-05
+      },
+      {
+        "path_validation": 3.2773895000573248,
+        "input_validation": 0.00022849999368190765,
+        "code_sanitization": 8.462485857307911e-05
+      },
+      {
+        "path_validation": 3.269710916094482,
+        "input_validation": 0.00022254209034144878,
+        "code_sanitization": 8.058315142989159e-05
+      },
+      {
+        "path_validation": 3.273646750021726,
+        "input_validation": 0.0002241248730570078,
+        "code_sanitization": 8.033285848796368e-05
+      },
+      {
+        "path_validation": 3.268508000066504,
+        "input_validation": 0.00024033407680690289,
+        "code_sanitization": 8.491589687764645e-05
+      },
+      {
+        "path_validation": 3.2747751669958234,
+        "input_validation": 0.00022420799359679222,
+        "code_sanitization": 8.387491106987e-05
+      },
+      {
+        "path_validation": 3.2759166669566184,
+        "input_validation": 0.000226292060688138,
+        "code_sanitization": 8.174986578524113e-05
+      },
+      {
+        "path_validation": 3.283854458015412,
+        "input_validation": 0.00023475009948015213,
+        "code_sanitization": 8.262484334409237e-05
+      },
+      {
+        "path_validation": 3.285255332943052,
+        "input_validation": 0.00022604200057685375,
+        "code_sanitization": 8.15410166978836e-05
+      },
+      {
+        "path_validation": 3.285475625190884,
+        "input_validation": 0.0002340411301702261,
+        "code_sanitization": 8.616596460342407e-05
+      },
+      {
+        "path_validation": 3.28051079204306,
+        "input_validation": 0.00022916612215340137,
+        "code_sanitization": 8.437503129243851e-05
+      },
+      {
+        "path_validation": 3.2820073750335723,
+        "input_validation": 0.00022020796313881874,
+        "code_sanitization": 7.958314381539822e-05
+      },
+      {
+        "path_validation": 3.2765711250249296,
+        "input_validation": 0.00022649997845292091,
+        "code_sanitization": 8.27498733997345e-05
+      },
+      {
+        "path_validation": 3.281868083169684,
+        "input_validation": 0.00022395793348550797,
+        "code_sanitization": 8.124997839331627e-05
+      },
+      {
+        "path_validation": 3.275623500114307,
+        "input_validation": 0.0002294168807566166,
+        "code_sanitization": 8.075009100139141e-05
+      },
+      {
+        "path_validation": 3.2690810828935355,
+        "input_validation": 0.00023024994879961014,
+        "code_sanitization": 8.49580392241478e-05
+      },
+      {
+        "path_validation": 3.2824286250397563,
+        "input_validation": 0.00022304197773337364,
+        "code_sanitization": 7.995893247425556e-05
+      },
+      {
+        "path_validation": 3.2856910419650376,
+        "input_validation": 0.00023033283650875092,
+        "code_sanitization": 8.191610686480999e-05
+      }
+    ]
+  },
+  "concurrent_path_validation": {
+    "avg_thread_time": 3.2287041899515314,
+    "min_thread_time": 3.041992832906544,
+    "max_thread_time": 3.2856910419650376,
+    "total_ops": 50000,
+    "avg_ops_per_second": 15486.088863641171,
+    "throughput_variance": 0.018997436737967187
+  },
+  "concurrent_input_validation": {
+    "avg_thread_time": 0.00022742839064449072,
+    "min_thread_time": 0.0002147909253835678,
+    "max_thread_time": 0.0002486251760274172,
+    "total_ops": 50000,
+    "avg_ops_per_second": 219849420.99053285,
+    "throughput_variance": 0.029806754359770243
+  },
+  "concurrent_code_sanitization": {
+    "avg_thread_time": 8.324068505316973e-05,
+    "min_thread_time": 7.958314381539822e-05,
+    "max_thread_time": 8.90830997377634e-05,
+    "total_ops": 5000,
+    "avg_ops_per_second": 60066781.007463664,
+    "throughput_variance": 0.024990526288935822
+  },
+  "memory_intensive": {
+    "total_time": 0.2756069169845432,
+    "operations": 10000,
+    "ops_per_second": 36283.559605148905,
+    "start_memory_mb": 217.796875,
+    "peak_memory_mb": 219.078125,
+    "memory_growth_mb": 1.28125,
+    "memory_per_op_kb": 0.1312
+  },
+  "edge_case_handling": {
+    "total_time": 3.5927903749980032,
+    "operations": 50000,
+    "ops_per_second": 13916.759616132013,
+    "avg_latency_us": 71.85580749996006
+  },
+  "async_operations": {
+    "total_time": 0.04278966714628041,
+    "operations": 10000,
+    "successful_operations": 10000,
+    "ops_per_second": 233701.2804005715,
+    "success_rate": 1.0,
+    "avg_latency_us": 4.278966714628041
+  },
+  "benchmark_summary": {
+    "total_benchmark_time": 32.70644637499936,
+    "total_operations_tested": 1651000,
+    "overall_ops_per_second": 50479.34529695699,
+    "benchmark_categories": 8,
+    "security_performance_validated": true,
+    "no_significant_regression": true,
+    "timestamp": 1753393207.9153202
+  }
+}

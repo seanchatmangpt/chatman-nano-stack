@@ -26,6 +26,9 @@ import torch.nn as nn
 from rdflib import Graph, Literal, Namespace
 from rdflib.namespace import OWL, RDF, RDFS, XSD
 
+# Import security utilities
+from security_utils import secure_file_path, validate_input_size, SecurityError as SecurityUtilError
+
 # Mock GAN class for testing
 class MockGAN:
     def __init__(self, generator_input=1024, discriminator_input=1024):
@@ -35,6 +38,14 @@ class MockGAN:
 # Add GAN to nn module if it doesn't exist
 if not hasattr(nn, 'GAN'):
     nn.GAN = MockGAN
+
+# Security: Use SecurityError from security_utils or define if not available
+try:
+    SecurityError = SecurityUtilError
+except:
+    class SecurityError(Exception):
+        """Raised when potential security issue detected"""
+        pass
 
 # Import existing ttl2dspy functionality
 try:
@@ -72,6 +83,10 @@ class QuantumSemanticReasoner:
 
     async def load_ontology_superposition(self, ontology_path: Path):
         """Load ontology into quantum superposition state"""
+        # Security: Validate file size before loading
+        if ontology_path.exists():
+            file_size = ontology_path.stat().st_size
+            validate_input_size(b' ' * file_size)  # Validate using file size
         # Implementation of quantum superposition loading
         # Each semantic concept exists in superposition until observed/collapsed
         pass
@@ -196,10 +211,16 @@ class HyperIntelligenceSemanticCompiler:
         Revolutionary compilation using quantum semantic reasoning
         Transcends classical limitations through superposition of semantic states
         """
-        print(f"🚀 Initiating Quantum-Semantic Compilation: {ontology_path}")
+        # Security: Validate and canonicalize file path
+        try:
+            safe_ontology_path = secure_file_path(ontology_path)
+        except Exception as e:
+            raise SecurityError(f"Invalid ontology path: {e}")
+            
+        print(f"🚀 Initiating Quantum-Semantic Compilation: {safe_ontology_path}")
 
         # Load ontology into quantum superposition state
-        quantum_graph = await self.quantum_reasoner.load_ontology_superposition(ontology_path)
+        quantum_graph = await self.quantum_reasoner.load_ontology_superposition(safe_ontology_path)
 
         # Apply temporal semantic reasoning (4D ontology modeling)
         temporal_semantics = await self.temporal_model.project_4d_semantics(quantum_graph)
@@ -294,6 +315,14 @@ class HyperIntelligenceSemanticCompiler:
 
     async def _generate_quantum_optimized_c_code(self, signatures, performance_target):
         """Generate C code optimized beyond classical physics limitations"""
+        # Security: Define forbidden patterns for C code injection prevention
+        FORBIDDEN_C_PATTERNS = [
+            'system(', 'exec(', '__import__', 'subprocess',
+            'eval(', 'shell=True', '/bin/', 'rm -rf',
+            'chmod', 'setuid', 'execve(', '__asm__',
+            '$(', '`', '\\x', 'popen(', 'fork('
+        ]
+        
         quantum_optimizations = [
             "quantum_superposition_branching",
             "temporal_prefetching",
@@ -303,8 +332,21 @@ class HyperIntelligenceSemanticCompiler:
         ]
 
         c_code_blocks = []
+        
+        # Security: Validate signatures collection size
+        validate_input_size(signatures)
 
         for sig_name, signature in signatures.items():
+            # Security: Sanitize signature name to prevent C code injection
+            if isinstance(sig_name, str):
+                for pattern in FORBIDDEN_C_PATTERNS:
+                    if pattern in sig_name:
+                        raise SecurityError(f"Malicious pattern '{pattern}' detected in signature name")
+                # Sanitize special characters that could break C syntax
+                sanitized_sig_name = sig_name.replace('"', '\\"').replace("'", "\\'")
+                sanitized_sig_name = sanitized_sig_name.replace(';', '_').replace('\n', '_')
+            else:
+                sanitized_sig_name = str(sig_name)
             # Generate quantum-optimized struct
             quantum_struct = self._generate_quantum_struct(signature)
 
@@ -318,7 +360,7 @@ class HyperIntelligenceSemanticCompiler:
             reality_adaptation = self._generate_reality_adaptation(signature)
 
             c_code_blocks.append(f"""
-// Quantum-Semantic Optimized Code for {sig_name}
+// Quantum-Semantic Optimized Code for {sanitized_sig_name}
 // Performance Target: {performance_target}
 // Generated: {datetime.now().isoformat()}
 
@@ -359,6 +401,11 @@ class HyperIntelligenceSemanticCompiler:
 
     def _generate_quantum_struct(self, signature):
         """Generate quantum-optimized struct"""
+        # Security: Validate signature fields if they exist
+        if hasattr(signature, 'fields') and signature.fields:
+            for field in signature.fields:
+                if isinstance(field, str) and any(char in field for char in [';', '{', '}', '(', ')', '#']):
+                    raise SecurityError(f"Invalid characters in field name: {field}")
         return "typedef struct { quantum_field_t data; } quantum_struct_t;"
 
     def _generate_predictive_validation(self, signature):

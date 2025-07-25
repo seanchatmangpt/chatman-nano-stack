@@ -6,17 +6,37 @@ Built for reliability. Designed to last.
 
 import subprocess
 import sys
+import shlex
+from typing import Union, List
 
 
-def run_command(cmd: str, description: str) -> bool:
-    """Run a shell command and report success/failure"""
+def run_command(cmd: Union[str, List[str]], description: str) -> bool:
+    """Run a shell command and report success/failure
+    
+    Args:
+        cmd: Command to run - can be a string (will be split) or list of args
+        description: Human-readable description of the command
+        
+    Returns:
+        bool: True if command succeeded, False otherwise
+    """
     print(f"→ {description}")
     try:
-        result = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+        # Convert string commands to list for security (no shell injection)
+        if isinstance(cmd, str):
+            cmd_list = shlex.split(cmd)
+        else:
+            cmd_list = cmd
+            
+        # Run without shell=True to prevent injection attacks
+        result = subprocess.run(cmd_list, shell=False, check=True, capture_output=True, text=True)
         print(f"✓ {description}")
         return True
     except subprocess.CalledProcessError as e:
         print(f"✗ {description} failed: {e.stderr}")
+        return False
+    except Exception as e:
+        print(f"✗ {description} failed with error: {e}")
         return False
 
 def main():

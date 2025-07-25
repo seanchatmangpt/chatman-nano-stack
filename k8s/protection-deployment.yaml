@@ -1,0 +1,187 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cns-protection-service
+  namespace: trading-system
+  labels:
+    app: cns-protection
+    component: core-protection
+    version: v1.0.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cns-protection
+      component: core-protection
+  template:
+    metadata:
+      labels:
+        app: cns-protection
+        component: core-protection
+        version: v1.0.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - cns-protection
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: protection-service
+        image: cns/protection-service:v1.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        env:
+        - name: MAX_POSITION_RISK_PERCENT
+          value: "0.01"  # 1% max risk
+        - name: DAILY_LOSS_LIMIT_PERCENT
+          value: "0.02"  # 2% daily limit
+        - name: DEFAULT_STOP_PERCENT
+          value: "0.02"  # 2% default stop
+        - name: MAX_RESPONSE_TIME_MS
+          value: "100"   # 100ms requirement
+        - name: LOG_LEVEL
+          value: "INFO"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: config
+          mountPath: /etc/cns-protection
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: cns-protection-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cns-protection-service
+  namespace: trading-system
+  labels:
+    app: cns-protection
+    component: core-protection
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  - port: 9090
+    targetPort: 9090
+    protocol: TCP
+    name: metrics
+  selector:
+    app: cns-protection
+    component: core-protection
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cns-protection-config
+  namespace: trading-system
+data:
+  protection.yaml: |
+    # Core 20% Protection Configuration
+    risk_management:
+      max_position_risk_percent: 0.01  # 1% max risk per trade
+      daily_loss_limit_percent: 0.02   # 2% daily loss circuit breaker
+      max_concurrent_positions: 3      # Maximum 3 concurrent positions
+      total_exposure_limit_percent: 0.05  # 5% max total exposure
+      
+    stop_loss:
+      require_stop_loss: true          # 100% stop loss compliance
+      default_stop_percent: 0.02       # 2% default stop if missing
+      max_stop_percent: 0.05           # 5% maximum stop distance
+      
+    emergency_controls:
+      kill_switch_enabled: true        # Emergency halt capability
+      max_response_time_ms: 100        # 100ms response requirement
+      circuit_breaker_reset_hours: 24  # Daily reset at market close
+      
+    monitoring:
+      metrics_port: 9090
+      health_check_interval: 10s
+      log_violations: true
+      alert_on_circuit_break: true
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: cns-protection-hpa
+  namespace: trading-system
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: cns-protection-service
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Pods
+    pods:
+      metric:
+        name: response_time_milliseconds
+      target:
+        type: AverageValue
+        averageValue: "50"  # Scale if avg response > 50ms
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: cns-protection-pdb
+  namespace: trading-system
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: cns-protection
+      component: core-protection

@@ -161,6 +161,51 @@ test-coverage: clean $(BDD_TESTS)
 test_bitactor_benchmarks: test_bitactor_benchmarks.c
 	$(CC) $(CFLAGS) -o $@ $< ../bitactor/src/bitactor.c ../bitactor/src/bitactor_dispatch.c ../bitactor/src/bitactor_telemetry.c ../bitactor/src/bitfiber.c -DUSE_REAL_IMPLEMENTATIONS -I../bitactor/src -I../bitactor/include -lpthread -lm
 
+# Core protection tests
+test_core_protection: test_core_protection.c ../src/protection/core_protection.c
+	$(CC) $(CFLAGS) -o $@ $^ -lpthread -lm
+
+benchmark_protection: benchmark_protection.c ../src/protection/core_protection.c
+	$(CC) $(CFLAGS) -DBENCHMARK_MODE -o $@ $^ -lpthread -lm
+
+stress_test_protection: stress_test_protection.c ../src/protection/core_protection.c
+	$(CC) $(CFLAGS) -o $@ $^ -lpthread -lm
+
+adversarial_test: adversarial_test.c ../src/protection/core_protection.c
+	$(CC) $(CFLAGS) -o $@ $^ -lpthread -lm
+
+# Run 80/20 protection tests
+test-protection: test_core_protection benchmark_protection stress_test_protection adversarial_test
+	@echo "🛡️ Running 80/20 Core Protection Tests"
+	@echo "====================================="
+	@./test_core_protection
+	@echo "\n⚡ Running Performance Benchmarks"
+	@./benchmark_protection
+	@echo "\n💪 Running Stress Tests"
+	@./stress_test_protection
+	@echo "\n⚔️ Running Adversarial Tests"
+	@./adversarial_test
+	@echo "\n✅ All protection tests passed!"
+
+# Enhanced protection tests (100% adversarial survival rate)
+test_enhanced_protection: test_enhanced_protection.c ../src/protection/enhanced_protection.c ../src/protection/core_protection.c
+	$(CC) $(CFLAGS) -o $@ $^ -lpthread -lm
+
+test_enhanced_adversarial: test_enhanced_adversarial.c ../src/protection/enhanced_protection.c ../src/protection/core_protection.c
+	$(CC) $(CFLAGS) -o $@ $^ -lpthread -lm
+
+# Run enhanced protection tests with 90%+ survival rate validation
+test-enhanced: test_enhanced_protection test_enhanced_adversarial
+	@echo "🛡️ Running Enhanced Protection Tests (90%+ Survival Rate Required)"
+	@echo "================================================================="
+	@echo "\n🧪 Running Enhanced Protection Unit Tests"
+	@./test_enhanced_protection
+	@echo "\n⚔️ Running Enhanced Adversarial Tests (10 Attack Vectors)"
+	@./test_enhanced_adversarial
+	@echo "\n✅ Enhanced protection system validated for production deployment"
+
 # Clean build artifacts
 clean:
 	rm -f $(BDD_TESTS) $(PERF_TESTS) $(REAL_TESTS) $(MOCK_TESTS) test_bitactor_benchmarks *.o *.gcno *.gcda *.gcov
+	rm -f test_core_protection benchmark_protection stress_test_protection adversarial_test
+	rm -f test_enhanced_protection test_enhanced_adversarial

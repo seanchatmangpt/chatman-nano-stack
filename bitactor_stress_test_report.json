@@ -1,0 +1,132 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-24 15:49:15",
+    "test_suite": "BitActor Comprehensive Stress Testing",
+    "version": "1.0.0"
+  },
+  "executive_summary": {
+    "overall_resilience_score": 79.0,
+    "stress_tests_passed": 9,
+    "critical_failures": 3,
+    "security_resilience_maintained": false,
+    "recommendation": "ACCEPTABLE: System survives stress but requires optimization."
+  },
+  "detailed_results": {
+    "pod_termination": {
+      "pods_terminated": 4,
+      "recovery_time_seconds": 19.79937913411206,
+      "service_disruption_seconds": 16.457895072775557,
+      "throughput_during_chaos": 4224004,
+      "resilience_score": 92.62257012412633
+    },
+    "cpu_stress": {
+      "max_cpu_usage_percent": 77.77067661202726,
+      "throttling_events": 0,
+      "performance_degradation_percent": 9.58533909415512,
+      "recovery_time_seconds": 27.54237030437357,
+      "pod_evictions": 1
+    },
+    "memory_stress": {
+      "max_memory_usage_percent": 84.22872046421831,
+      "oom_kills": 1,
+      "swap_usage_mb": 96.72215671962809,
+      "gc_pressure_score": 65.23871567634373,
+      "memory_leaks_detected": 1
+    },
+    "disk_stress": {
+      "max_io_wait_percent": 18.60013972128286,
+      "disk_pressure_events": 3,
+      "read_latency_ms": 10.102773154784177,
+      "write_latency_ms": 18.888507764187707,
+      "disk_full_events": 1
+    },
+    "network_partition": {
+      "partition_duration_seconds": 36.22981731983552,
+      "split_brain_detected": false,
+      "data_consistency_maintained": true,
+      "recovery_time_seconds": 25.31045188763224,
+      "connection_failures": 5
+    },
+    "dns_chaos": {
+      "dns_resolution_failures": 7,
+      "service_discovery_impact": 27.76280019423932,
+      "dns_cache_poisoning_attempts": 0,
+      "fallback_dns_activated": true,
+      "recovery_time_seconds": 17.848950132814068
+    },
+    "service_mesh_stress": {
+      "proxy_cpu_usage_percent": 42.52848068621282,
+      "connection_pool_exhaustion": 2,
+      "circuit_breaker_triggers": 1,
+      "mtls_handshake_failures": 3,
+      "load_balancing_effectiveness": 97.6774486380073
+    },
+    "falco_stress": {
+      "events_processed_per_second": 10374,
+      "rule_evaluation_latency_ms": 4.501348470946836,
+      "alert_generation_rate": 68,
+      "false_positive_rate_percent": 7.200855743565845,
+      "monitoring_effectiveness_score": 90.86990275242569
+    },
+    "rbac_stress": {
+      "authorization_requests_per_second": 4110,
+      "rbac_evaluation_latency_ms": 4.456861906520995,
+      "permission_denials": 43,
+      "token_validation_failures": 2,
+      "security_policy_violations": 1
+    },
+    "network_policy_stress": {
+      "connection_attempts_per_second": 1381,
+      "policy_evaluation_latency_ms": 1.4624400673461977,
+      "blocked_connections": 123,
+      "allowed_connections": 2173,
+      "policy_bypass_attempts": 0
+    },
+    "signal_overload": {
+      "peak_signals_per_second": 9460099,
+      "buffer_overflow_events": 2,
+      "dropped_signals_count": 19483,
+      "latency_spike_events": 4,
+      "backpressure_effectiveness": 94.47547882451441
+    },
+    "concurrent_stress": {
+      "peak_concurrent_requests": 811,
+      "request_queue_overflows": 1,
+      "connection_pool_exhaustion": 1,
+      "timeout_events": 15,
+      "successful_request_rate_percent": 97.2919256276616
+    },
+    "memory_leak_test": {
+      "memory_growth_rate_mb_per_hour": 2.8295989603439367,
+      "gc_frequency_increase_percent": 10.53788384980917,
+      "heap_fragmentation_percent": 24.04209318009831,
+      "memory_leaks_detected": 1,
+      "memory_pressure_events": 3
+    }
+  },
+  "stress_test_targets": {
+    "pod_termination_resilient": true,
+    "cpu_stress_controlled": true,
+    "memory_stable": false,
+    "network_partition_recovered": true,
+    "security_monitoring_effective": true,
+    "signal_processing_resilient": false
+  },
+  "security_stress_analysis": {
+    "falco_under_load": {
+      "effectiveness_score": 90.86990275242569,
+      "alert_generation_maintained": true,
+      "false_positive_rate_acceptable": true
+    },
+    "rbac_under_stress": {
+      "authorization_maintained": false,
+      "performance_acceptable": true,
+      "security_violations": 1
+    },
+    "network_policy_enforcement": {
+      "policies_enforced": true,
+      "performance_impact": 1.4624400673461977,
+      "blocking_effectiveness": 123
+    }
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "memory_stress": {
+    "duration": 27.022082542069256,
+    "operations": 73254,
+    "failures": 0,
+    "failure_rate": 0.0,
+    "start_memory_mb": 44.84375,
+    "peak_memory_mb": 2047.5625,
+    "memory_growth_mb": 2002.71875,
+    "ops_per_second": 2710.893947050702,
+    "system_survived": true
+  },
+  "concurrent_load_stress": {
+    "total_time": 2.7984215831384063,
+    "num_threads": 100,
+    "requests_per_thread": 1000,
+    "total_operations": 100000,
+    "total_failures": 0,
+    "failure_rate": 0.0,
+    "ops_per_second": 35734.42993812635,
+    "avg_thread_duration": 2.719292938665021,
+    "start_memory_mb": 2047.5625,
+    "peak_memory_mb": 2049.53125,
+    "memory_growth_mb": 1.96875,
+    "thread_results_sample": [
+      {
+        "operations": 1000,
+        "failures": 0,
+        "errors": [],
+        "start_time": 1416650.129591125,
+        "duration": 2.5955814998596907
+      },
+      {
+        "operations": 1000,
+        "failures": 0,
+        "errors": [],
+        "start_time": 1416650.130426625,
+        "duration": 2.607592415995896
+      },
+      {
+        "operations": 1000,
+        "failures": 0,
+        "errors": [],
+        "start_time": 1416650.13187625,
+        "duration": 2.61211175005883
+      },
+      {
+        "operations": 1000,
+        "failures": 0,
+        "errors": [],
+        "start_time": 1416650.131519125,
+        "duration": 2.624935207888484
+      },
+      {
+        "operations": 1000,
+        "failures": 0,
+        "errors": [],
+        "start_time": 1416650.131790375,
+        "duration": 2.651065915822983
+      }
+    ]
+  },
+  "chaos_engineering": {
+    "duration": 60.00332770799287,
+    "operations": 33702,
+    "chaos_events": 3325,
+    "survival_events": 0,
+    "chaos_injection_rate": 0.0986588333036615,
+    "system_survival_rate": 1.0,
+    "ops_per_second": 561.6688488347065,
+    "system_stability": "STABLE"
+  },
+  "file_descriptor_stress": {
+    "files_created": 1000,
+    "time_taken": 0.08281320799142122,
+    "fd_limit_hit": false,
+    "creation_rate": 12075.368461798895
+  },
+  "process_stress": {
+    "error": "Can't get local object 'ComprehensiveStressTestSuite.stress_test_resource_limits.<locals>.cpu_intensive_task'"
+  },
+  "stress_test_summary": {
+    "total_duration": 91.47408087505028,
+    "start_system_stats": {
+      "cpu_percent": 20.8,
+      "memory_percent": 72.4,
+      "disk_usage_percent": 3.7,
+      "load_average": [
+        3.81689453125,
+        3.5546875,
+        3.73583984375
+      ]
+    },
+    "end_system_stats": {
+      "cpu_percent": 8.7,
+      "memory_percent": 68.1,
+      "disk_usage_percent": 3.7,
+      "load_average": [
+        4.6513671875,
+        4.0458984375,
+        3.9140625
+      ]
+    },
+    "system_survived": true,
+    "tests_completed": 5,
+    "overall_success": false,
+    "timestamp": 1753393389.29151
+  }
+}

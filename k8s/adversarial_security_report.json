@@ -1,0 +1,210 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-24 14:41:28",
+    "validator_version": "1.0.0",
+    "target": "BitActor K8s Deployment (bitactor)",
+    "methodology": "80/20 Adversarial Security Validation"
+  },
+  "executive_summary": {
+    "total_findings": 7,
+    "severity_breakdown": {
+      "CRITICAL": 0,
+      "HIGH": 1,
+      "MEDIUM": 3,
+      "LOW": 3,
+      "INFO": 0
+    },
+    "average_risk_score": 5.26,
+    "critical_issues": 0,
+    "high_priority_fixes": 1,
+    "overall_risk_level": "MEDIUM"
+  },
+  "findings": [
+    {
+      "id": "SECRET-1",
+      "title": "Potential Base64 encoded data in values.yaml",
+      "description": "Found potential sensitive data pattern in k8s/helm/bitactor/values.yaml",
+      "severity": "HIGH",
+      "cvss_score": 7.5,
+      "attack_scenario": "Attacker gains access to source code and extracts credentials",
+      "remediation": "Use Kubernetes secrets or external secret management",
+      "evidence": [
+        "Pattern: [A-Za-z0-9+/]{32,}={0,2}",
+        "File: k8s/helm/bitactor/values.yaml"
+      ],
+      "affected_components": [
+        "k8s/helm/bitactor/values.yaml"
+      ]
+    },
+    {
+      "id": "METRICS-7",
+      "title": "Metrics exposed without authentication",
+      "description": "Prometheus metrics exposed without access control",
+      "severity": "LOW",
+      "cvss_score": 4.2,
+      "attack_scenario": "Exposed metrics reveal system information",
+      "remediation": "Implement authentication for metrics endpoints",
+      "evidence": [
+        "prometheus.io/scrape annotation present"
+      ],
+      "affected_components": [
+        "Metrics"
+      ]
+    },
+    {
+      "id": "IMAGE-4",
+      "title": "Inconsistent image pull policy",
+      "description": "Using 'latest' tag without 'Always' pull policy",
+      "severity": "LOW",
+      "cvss_score": 4.1,
+      "attack_scenario": "Stale vulnerable images may be used",
+      "remediation": "Use 'Always' pull policy with 'latest' tag",
+      "evidence": [
+        "Pull policy: IfNotPresent, Tag: latest"
+      ],
+      "affected_components": [
+        "Image"
+      ]
+    },
+    {
+      "id": "MESH-2",
+      "title": "No service mesh detected",
+      "description": "No service mesh for enhanced security and observability",
+      "severity": "LOW",
+      "cvss_score": 3.7,
+      "attack_scenario": "Limited observability and control over service communication",
+      "remediation": "Consider implementing service mesh for mTLS and traffic control",
+      "evidence": [
+        "No service mesh annotations or configurations found"
+      ],
+      "affected_components": [
+        "ServiceMesh"
+      ]
+    },
+    {
+      "id": "SA-TOKEN-6",
+      "title": "Service account token auto-mount not disabled",
+      "description": "Service account tokens automatically mounted in pods",
+      "severity": "MEDIUM",
+      "cvss_score": 6.2,
+      "attack_scenario": "Compromised pod can use service account tokens for lateral movement",
+      "remediation": "Set automountServiceAccountToken: false if not needed",
+      "evidence": [
+        "No automountServiceAccountToken configuration found"
+      ],
+      "affected_components": [
+        "ServiceAccount"
+      ]
+    },
+    {
+      "id": "RUNTIME-5",
+      "title": "No runtime security monitoring",
+      "description": "No runtime security tools detected",
+      "severity": "MEDIUM",
+      "cvss_score": 5.8,
+      "attack_scenario": "Runtime attacks go undetected",
+      "remediation": "Deploy runtime security monitoring (Falco, Twistlock, etc.)",
+      "evidence": [
+        "No runtime security annotations found"
+      ],
+      "affected_components": [
+        "Runtime"
+      ]
+    },
+    {
+      "id": "IMAGE-3",
+      "title": "Using 'latest' image tag",
+      "description": "Container image uses mutable 'latest' tag",
+      "severity": "MEDIUM",
+      "cvss_score": 5.3,
+      "attack_scenario": "Image tag mutation leads to deployment of malicious images",
+      "remediation": "Use specific version tags or SHA256 digests",
+      "evidence": [
+        "Image tag: latest"
+      ],
+      "affected_components": [
+        "Image"
+      ]
+    }
+  ],
+  "80_20_priorities": {
+    "critical_path": [
+      {
+        "priority": 1,
+        "finding_id": "SECRET-1",
+        "title": "Potential Base64 encoded data in values.yaml",
+        "impact": "80% risk reduction"
+      }
+    ],
+    "quick_wins": [
+      "SA-TOKEN-6",
+      "RUNTIME-5",
+      "IMAGE-3"
+    ]
+  },
+  "attack_vectors": [
+    {
+      "name": "Container Escape",
+      "likelihood": "MEDIUM",
+      "impact": "HIGH",
+      "steps": [
+        "Exploit container misconfiguration",
+        "Escalate privileges within container",
+        "Break out of container to host",
+        "Gain host-level access"
+      ]
+    },
+    {
+      "name": "Lateral Movement",
+      "likelihood": "HIGH",
+      "impact": "MEDIUM",
+      "steps": [
+        "Compromise pod via application vulnerability",
+        "Abuse overprivileged service account",
+        "Access other pods in namespace",
+        "Pivot to other namespaces"
+      ]
+    },
+    {
+      "name": "Data Exfiltration",
+      "likelihood": "MEDIUM",
+      "impact": "HIGH",
+      "steps": [
+        "Gain access to pod",
+        "Exploit network policy gaps",
+        "Access sensitive data sources",
+        "Exfiltrate via DNS tunneling"
+      ]
+    }
+  ],
+  "compliance_status": {
+    "CIS_Kubernetes": {
+      "score": 90,
+      "critical_controls": [
+        "RBAC enabled",
+        "Network policies configured",
+        "Pod security contexts enforced",
+        "Resource limits set"
+      ]
+    },
+    "NIST_800_190": {
+      "score": 100,
+      "requirements": [
+        "Container image security",
+        "Runtime protection",
+        "Host OS security"
+      ]
+    },
+    "Pod_Security_Standards": {
+      "score": 100,
+      "profile": "Restricted"
+    }
+  },
+  "recommendations": [
+    "Implement Pod Security Standards 'restricted' profile",
+    "Enable runtime security monitoring (Falco/Twistlock)",
+    "Implement service mesh for mTLS and traffic control",
+    "Configure admission controllers for policy enforcement",
+    "Implement secrets management solution"
+  ]
+}

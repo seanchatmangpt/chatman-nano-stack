@@ -22,6 +22,9 @@ class ComprehensiveBitActorTest(unittest.TestCase):
             "/Users/sac/cns/generated/bitactor/semantic_bitactor.py",
             "/Users/sac/cns/generated/demo_output/demo_bitactor.py",
             "/Users/sac/cns/generated/bitactor_cli_test/semantic_bitactor.py",
+            "/Users/sac/cns/generated/test_coverage/coverage_test_bitactor.py",
+            "/Users/sac/cns/generated/coverage_test/coverage_bitactor.py",
+            "/Users/sac/cns/generated/fixed_bitactor/fixed_bitactor.py",
             "/Users/sac/cns/generated/cli_demo/demo_bitactor.py",
             "/Users/sac/cns/generated/test_fix/test_bitactor.py",
 

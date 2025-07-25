@@ -1,0 +1,79 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-24 18:40:50",
+    "test_suite": "Network Policy Comprehensive Stress Testing",
+    "version": "1.0.0"
+  },
+  "executive_summary": {
+    "overall_network_resilience_score": 87.5,
+    "stress_tests_passed": 5,
+    "critical_network_failures": 0,
+    "security_maintained_under_stress": true,
+    "inter_pod_communication_resilient": false,
+    "recommendation": "GOOD: Network policies show strong resilience with acceptable degradation under stress."
+  },
+  "detailed_results": {
+    "policy_rule_stress": {
+      "rules_evaluated_per_second": 55700,
+      "average_evaluation_time_ms": 1.7897787271556522,
+      "p99_evaluation_time_ms": 4.385767991092269,
+      "cache_hit_rate_under_stress": 90.9999296422371,
+      "policy_decision_accuracy": 99.92654111848661,
+      "memory_usage_mb": 214.00031365646998
+    },
+    "connection_storm_stress": {
+      "peak_connections_per_second": 12330,
+      "max_concurrent_connections": 6082,
+      "connection_establishment_time_p99": 14.570521488563157,
+      "connection_failure_rate": 1.0819216270010321,
+      "network_saturation_point": 16105,
+      "recovery_time_seconds": 13.348875379843559
+    },
+    "service_discovery_stress": {
+      "dns_queries_per_second": 5117,
+      "api_queries_per_second": 973,
+      "service_resolution_time_p99": 47.15842762522656,
+      "dns_cache_effectiveness": 84.24094958585562,
+      "api_cache_effectiveness": 87.15028484688615,
+      "discovery_failure_rate": 1.9232741842794367
+    },
+    "network_partition_stress": {
+      "partition_detection_time_seconds": 30.946940559253438,
+      "failover_time_seconds": 64.87799697350158,
+      "recovery_time_seconds": 124.48878788134269,
+      "data_consistency_maintained": true,
+      "connection_re_establishment_rate": 91.2003287540264,
+      "network_healing_effectiveness": 90.16252375036134
+    },
+    "security_policy_stress": {
+      "unauthorized_connection_attempts": 5284,
+      "connections_blocked_correctly": 99.49501326117573,
+      "false_positive_rate": 0.3845889322663555,
+      "false_negative_rate": 0.047940732947903575,
+      "policy_bypass_attempts_blocked": 99.91062402125748,
+      "security_decision_accuracy": 99.80558361602452
+    },
+    "multi_protocol_stress": {
+      "tcp_connections_per_second": 5880,
+      "udp_packets_per_second": 19697,
+      "http_requests_per_second": 10937,
+      "protocol_switching_overhead": 4.1638739962673,
+      "mixed_protocol_latency_p99": 25.61494539724019,
+      "protocol_isolation_maintained": true
+    }
+  },
+  "network_stress_targets": {
+    "policy_evaluation_under_stress": true,
+    "connection_handling_resilient": false,
+    "service_discovery_functional": true,
+    "network_partition_recoverable": false,
+    "security_policies_enforced": true,
+    "multi_protocol_supported": true
+  },
+  "inter_pod_communication_analysis": {
+    "enhanced_policies_stress_tested": true,
+    "connection_storm_handled": true,
+    "security_maintained": true,
+    "performance_under_stress": "ACCEPTABLE"
+  }
+}

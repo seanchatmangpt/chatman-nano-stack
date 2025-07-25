@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: cns-system
+
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - service.yaml
+  - deployment.yaml
+  - network-policy.yaml
+  - high-availability.yaml
+
+commonLabels:
+  app: cns
+  managed-by: kustomize
+
+images:
+  - name: python:3.11-slim
+    newTag: 3.11.9-slim
+
+replicas:
+  - name: cns-deployment
+    count: 3
+
+configMapGenerator:
+  - name: cns-version
+    literals:
+      - version=1.0.0
+      - security_patches=enabled
+      - environment=production

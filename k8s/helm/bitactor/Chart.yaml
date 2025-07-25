@@ -1,0 +1,21 @@
+apiVersion: v2
+name: bitactor
+description: Ultra-fast BitActor signal processing service with 8-tick performance guarantee
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - bitactor
+  - signal-processing
+  - high-performance
+  - real-time
+home: https://github.com/bitactor/bitactor
+sources:
+  - https://github.com/bitactor/bitactor
+maintainers:
+  - name: BitActor Team
+    email: team@bitactor.org
+icon: https://bitactor.org/logo.png
+annotations:
+  category: Processing
+  licenses: Apache-2.0

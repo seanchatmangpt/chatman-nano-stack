@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cns-service
+  namespace: cns-system
+  labels:
+    app: cns
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+spec:
+  type: ClusterIP
+  selector:
+    app: cns
+  ports:
+  - name: http
+    port: 8080
+    targetPort: http
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: metrics
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cns-headless
+  namespace: cns-system
+  labels:
+    app: cns
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: cns
+  ports:
+  - name: http
+    port: 8080
+    targetPort: http
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cns-service-account
+  namespace: cns-system
+  labels:
+    app: cns
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cns-role
+  namespace: cns-system
+  labels:
+    app: cns
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cns-role-binding
+  namespace: cns-system
+  labels:
+    app: cns
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cns-role
+subjects:
+- kind: ServiceAccount
+  name: cns-service-account
+  namespace: cns-system

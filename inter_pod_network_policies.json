@@ -1,0 +1,102 @@
+{
+  "inter_pod_communication": {
+    "apiVersion": "networking.k8s.io/v1",
+    "kind": "NetworkPolicy",
+    "metadata": {
+      "name": "cns-inter-pod-communication",
+      "namespace": "cns-system",
+      "labels": {
+        "app": "cns",
+        "type": "inter-pod-communication",
+        "security": "8020-compliant"
+      }
+    },
+    "spec": {
+      "podSelector": {
+        "matchLabels": {
+          "app": "cns"
+        }
+      },
+      "policyTypes": [
+        "Ingress",
+        "Egress"
+      ],
+      "ingress": [
+        {
+          "from": [
+            {
+              "podSelector": {
+                "matchLabels": {
+                  "app": "cns"
+                }
+              }
+            }
+          ],
+          "ports": [
+            {
+              "protocol": "TCP",
+              "port": 8080
+            },
+            {
+              "protocol": "TCP",
+              "port": 9090
+            },
+            {
+              "protocol": "TCP",
+              "port": 8081
+            }
+          ]
+        }
+      ],
+      "egress": [
+        {
+          "to": [
+            {
+              "podSelector": {
+                "matchLabels": {
+                  "app": "cns"
+                }
+              }
+            }
+          ],
+          "ports": [
+            {
+              "protocol": "TCP",
+              "port": 8080
+            },
+            {
+              "protocol": "TCP",
+              "port": 9090
+            },
+            {
+              "protocol": "TCP",
+              "port": 8081
+            }
+          ]
+        },
+        {
+          "to": [],
+          "ports": [
+            {
+              "protocol": "UDP",
+              "port": 53
+            },
+            {
+              "protocol": "TCP",
+              "port": 53
+            }
+          ]
+        },
+        {
+          "to": [],
+          "ports": [
+            {
+              "protocol": "TCP",
+              "port": 443
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

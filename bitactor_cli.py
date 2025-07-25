@@ -10,6 +10,7 @@ import sys
 import subprocess
 import json
 import time
+import importlib
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 import typer
@@ -19,6 +20,9 @@ from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.panel import Panel
 import rdflib
+
+# Import security utilities
+from security_utils import secure_file_path, validate_input_size, create_safe_temp_file
 
 # Import the generator
 from bitactor_ttl_generator import BitActorTTLGenerator
@@ -40,8 +44,10 @@ class BitActorCLI:
     def validate_ttl(self, ttl_file: Path) -> bool:
         """Validate TTL file syntax"""
         try:
+            # Security: Validate file path
+            safe_ttl_file = secure_file_path(ttl_file)
             g = rdflib.Graph()
-            g.parse(ttl_file, format='turtle')
+            g.parse(safe_ttl_file, format='turtle')
             return True
         except Exception as e:
             console.print(f"[red]❌ Invalid TTL: {e}[/red]")
@@ -119,7 +125,9 @@ class BitActorCLI:
             status.update("Testing Python module...")
             
             # Create test script
-            test_script = output_dir / "test_python.py"
+            # Security: Validate output directory
+            safe_output_dir = secure_file_path(output_dir)
+            test_script = safe_output_dir / "test_python.py"
             test_code = '''
 import sys
 import time
@@ -129,15 +137,16 @@ import glob
 module_files = glob.glob('*_bitactor.py')
 if module_files:
     module_name = module_files[0].replace('.py', '')
-    exec(f'from {module_name} import *')
+    # Secure import using importlib instead of exec/eval
+    module = importlib.import_module(module_name)
     
     # Get the prefix from module name (everything before _bitactor)
     prefix = module_name.replace('_bitactor', '')
     prefix_cap = prefix.title()  # Capitalize first letter
     
-    # Construct class names
-    BitActorClass = eval(f'{prefix_cap}BitActor')
-    SignalClass = eval(f'{prefix_cap}Signal')
+    # Construct class names securely using getattr
+    BitActorClass = getattr(module, f'{prefix_cap}BitActor')
+    SignalClass = getattr(module, f'{prefix_cap}Signal')
     
     # Test instantiation
     ba = BitActorClass()
@@ -212,8 +221,10 @@ else:
             
             module_name = erl_files[0].stem  # Get filename without extension
             
-            # Create test script
-            test_script = output_dir / "test_erlang.escript"
+            # Create test script  
+            # Security: Validate output directory
+            safe_output_dir = secure_file_path(output_dir)
+            test_script = safe_output_dir / "test_erlang.escript"
             test_code = f'''#!/usr/bin/env escript
 %%! -pa .
 

@@ -1,0 +1,126 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cns-config
+  namespace: cns-system
+  labels:
+    app: cns
+    security: hardened
+  annotations:
+    secret-management: enabled
+    secret-reference: "Uses kubernetes Secret for API key storage"
+data:
+  config.yaml: |
+    environment: production
+    features:
+      neural_enabled: true
+      owl_compiler_enabled: true
+      quantum_semantic_enabled: true
+      benchmark_enabled: true
+    security:
+      max_threads: 10
+      max_processes: 5
+      max_memory_mb: 2048
+      max_cpu_percent: 80
+      enable_patches: true
+    observability:
+      otel_enabled: true
+      metrics_port: 9090
+      trace_sampling_rate: 0.1
+      log_level: info
+    performance:
+      neural_inference_target: 300000
+      benchmark_timeout_ms: 50
+      performance_threshold: 90
+  
+  security_patches.py: |
+    #!/usr/bin/env python3
+    """Security patches loader for Kubernetes deployment"""
+    import os
+    import sys
+    sys.path.insert(0, '/app')
+    
+    # Import and apply the actual security patches
+    try:
+        import security_patches_8020
+        security_patches_8020.install_security_patches()
+        print("Security patches applied successfully")
+    except Exception as e:
+        print(f"Failed to apply security patches: {e}")
+        sys.exit(1)
+  
+  health_check.py: |
+    #!/usr/bin/env python3
+    """Health check endpoint for Kubernetes probes"""
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+    import json
+    import os
+    
+    class HealthHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path == '/health':
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                health_data = {
+                    "status": "healthy",
+                    "checks": {
+                        "security_patches": os.environ.get('SECURITY_PATCHES_APPLIED', 'false') == 'true',
+                        "max_threads": int(os.environ.get('MAX_THREADS', '10')),
+                        "max_processes": int(os.environ.get('MAX_PROCESSES', '5'))
+                    }
+                }
+                self.wfile.write(json.dumps(health_data).encode())
+            elif self.path == '/ready':
+                self.send_response(200)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                self.wfile.write(b'ready')
+            else:
+                self.send_response(404)
+                self.end_headers()
+    
+    if __name__ == '__main__':
+        server = HTTPServer(('0.0.0.0', 8080), HealthHandler)
+        print("Health check server running on port 8080")
+        server.serve_forever()
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cns-scripts
+  namespace: cns-system
+  labels:
+    app: cns
+data:
+  entrypoint.sh: |
+    #!/bin/bash
+    set -e
+    
+    echo "CNS Container Starting..."
+    echo "Environment: ${ENVIRONMENT}"
+    echo "Security Patches: Applying..."
+    
+    # Apply security patches
+    python /config/security_patches.py
+    export SECURITY_PATCHES_APPLIED=true
+    
+    # Start health check server in background
+    python /config/health_check.py &
+    HEALTH_PID=$!
+    
+    # Start OTEL metrics exporter
+    if [ "${OTEL_ENABLED}" = "true" ]; then
+        echo "Starting OTEL metrics exporter on port 9090..."
+        # Placeholder for OTEL exporter
+    fi
+    
+    # Run the main CNS application
+    echo "Starting CNS application..."
+    cd /app
+    
+    # Run benchmarks on startup
+    python run_benchmark.py
+    
+    # Keep container running
+    wait $HEALTH_PID

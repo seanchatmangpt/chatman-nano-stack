@@ -262,7 +262,7 @@ execute_adversarial_scenario(Scenario) ->
     #adversarial_scenario{
         id = Id,
         name = Name,
-        attack_level = Level,
+        attack_level = _Level,
         adversary_type = AdversaryType,
         attack_vectors = Vectors
     } = Scenario,
@@ -418,7 +418,7 @@ execute_memory_exhaustion_attack(Adversary) ->
     AllocationPattern = determine_allocation_pattern(Adversary),
     
     %% Execute memory pressure attack
-    MemoryPressure = apply_memory_pressure(OptimalChunkSize, AllocationPattern),
+    _MemoryPressure = apply_memory_pressure(OptimalChunkSize, AllocationPattern),
     
     FinalMemory = erlang:memory(total),
     MemoryIncrease = FinalMemory - InitialMemory,
@@ -667,7 +667,7 @@ analyze_system_resilience(AttackResults, CoordinatedResults) ->
 %%%===================================================================
 
 calculate_attack_success_rate(Results) ->
-    SuccessfulAttacks = length([R || #attack_result{attack_success = true} <- Results]),
+    SuccessfulAttacks = length([R || R = #attack_result{attack_success = true} <- Results]),
     TotalAttacks = length(Results),
     case TotalAttacks of
         0 -> 0.0;

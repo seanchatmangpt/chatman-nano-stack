@@ -1,0 +1,161 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cns-stress-test
+  namespace: cns-system
+  labels:
+    app: cns-test
+spec:
+  parallelism: 3
+  completions: 3
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: cns-test
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: stress-test
+        image: python:3.11-slim
+        command: 
+        - python
+        - -c
+        - |
+          import requests
+          import time
+          import threading
+          import json
+          
+          CNS_SERVICE = "http://cns-service.cns-system.svc.cluster.local:8080"
+          METRICS_ENDPOINT = "http://cns-service.cns-system.svc.cluster.local:9090/metrics"
+          
+          def test_health_endpoint():
+              """Test health endpoint"""
+              try:
+                  resp = requests.get(f"{CNS_SERVICE}/health", timeout=5)
+                  if resp.status_code == 200:
+                      print("✅ Health check passed")
+                      return True
+              except Exception as e:
+                  print(f"❌ Health check failed: {e}")
+              return False
+          
+          def test_ready_endpoint():
+              """Test readiness endpoint"""
+              try:
+                  resp = requests.get(f"{CNS_SERVICE}/ready", timeout=5)
+                  if resp.status_code == 200:
+                      print("✅ Readiness check passed")
+                      return True
+              except Exception as e:
+                  print(f"❌ Readiness check failed: {e}")
+              return False
+          
+          def test_concurrent_requests():
+              """Test concurrent request handling"""
+              print("\n🧪 Testing concurrent requests...")
+              
+              def make_request(i):
+                  try:
+                      resp = requests.get(f"{CNS_SERVICE}/health", timeout=2)
+                      return resp.status_code == 200
+                  except:
+                      return False
+              
+              # Try to make 20 concurrent requests
+              threads = []
+              results = []
+              
+              for i in range(20):
+                  t = threading.Thread(target=lambda: results.append(make_request(i)))
+                  threads.append(t)
+                  t.start()
+              
+              for t in threads:
+                  t.join()
+              
+              success_rate = sum(results) / len(results) * 100 if results else 0
+              print(f"Concurrent requests success rate: {success_rate}%")
+              
+              if success_rate >= 90:
+                  print("✅ Concurrent request test passed")
+                  return True
+              else:
+                  print("❌ Concurrent request test failed")
+                  return False
+          
+          def test_resource_limits():
+              """Test that resource limits are enforced"""
+              print("\n🧪 Testing resource limit enforcement...")
+              
+              # This should fail due to security patches
+              try:
+                  # Try to create many threads
+                  for i in range(100):
+                      threading.Thread(target=lambda: time.sleep(0.1)).start()
+                  print("❌ Thread limit not enforced!")
+                  return False
+              except:
+                  print("✅ Thread limit properly enforced")
+                  return True
+          
+          def run_stress_tests():
+              """Run all stress tests"""
+              print("🚀 CNS Kubernetes Deployment Stress Test")
+              print("=" * 50)
+              
+              # Wait for service to be ready
+              print("Waiting for service to be ready...")
+              for i in range(30):
+                  if test_ready_endpoint():
+                      break
+                  time.sleep(2)
+              else:
+                  print("❌ Service did not become ready in time")
+                  return False
+              
+              tests = [
+                  ("Health Endpoint", test_health_endpoint),
+                  ("Ready Endpoint", test_ready_endpoint),
+                  ("Concurrent Requests", test_concurrent_requests),
+                  ("Resource Limits", test_resource_limits),
+              ]
+              
+              results = []
+              for test_name, test_func in tests:
+                  print(f"\nRunning: {test_name}")
+                  result = test_func()
+                  results.append(result)
+              
+              # Summary
+              print("\n" + "=" * 50)
+              print("📊 STRESS TEST SUMMARY")
+              passed = sum(results)
+              total = len(results)
+              print(f"Tests passed: {passed}/{total}")
+              print(f"Success rate: {passed/total*100:.1f}%")
+              
+              if passed == total:
+                  print("\n✅ ALL STRESS TESTS PASSED")
+                  print("🛡️ CNS deployment is validated and secure")
+                  return True
+              else:
+                  print("\n❌ SOME STRESS TESTS FAILED")
+                  return False
+          
+          # Install requests
+          import subprocess
+          subprocess.run(["pip", "install", "requests"], check=True)
+          
+          # Run tests
+          success = run_stress_tests()
+          exit(0 if success else 1)
+        
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi

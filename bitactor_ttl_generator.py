@@ -159,7 +159,12 @@ class BitActorTTLGenerator:
     
     def generate_c_code(self, context: Dict[str, Any], output_file: str) -> None:
         """Generate C implementation"""
-        template = self.env.get_template('bitactor_c.j2')
+        # Use fixed template with security patches
+        try:
+            template = self.env.get_template('bitactor_c_fixed.j2')
+        except:
+            # Fallback to original if fixed template not found
+            template = self.env.get_template('bitactor_c.j2')
         code = template.render(context)
         
         with open(output_file, 'w') as f:
