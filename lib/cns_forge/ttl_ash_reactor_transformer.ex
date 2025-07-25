@@ -483,46 +483,46 @@ defmodule CnsForge.TTLAshReactorTransformer do
   
   defp generate_class_reactor(class, _properties, _resources) do
     reactor_code = """
-    defmodule CnsForge.TTL#{class.name}Reactor do
-      @moduledoc \"\"\"
-      Specialized Ash.Reactor for #{class.name} semantic processing
-      Focuses on class-specific TTL-bounded operations
-      \"\"\"
+defmodule CnsForge.TTL#{class.name}Reactor do
+  @moduledoc \"\"\"
+  Specialized Ash.Reactor for #{class.name} semantic processing
+  Focuses on class-specific TTL-bounded operations
+  \"\"\"
+  
+  use Reactor
+  
+  input :#{String.downcase(class.name)}_data
+  input :ttl_constraints, default: %{}
+  
+  step :process_#{String.downcase(class.name)}_semantics do
+    argument :data, input(:#{String.downcase(class.name)}_data)
+    argument :constraints, input(:ttl_constraints)
+    
+    run fn %{data: data, constraints: constraints}, _context ->
+      max_processing_ns = Map.get(constraints, :max_processing_ns, 1_000_000)
+      start_time = System.monotonic_time(:nanosecond)
       
-      use Reactor
+      # Specific semantic processing for #{class.name}
+      # This would be customized based on the class semantics
+      result = %{
+        processed_data: data,
+        semantic_type: "#{class.name}",
+        ttl_uri: "#{class.uri}"
+      }
       
-      input :#{String.downcase(class.name)}_data
-      input :ttl_constraints, default: %{}
+      processing_time = System.monotonic_time(:nanosecond) - start_time
       
-      step :process_#{String.downcase(class.name)}_semantics do
-        argument :data, input(:#{String.downcase(class.name)}_data)
-        argument :constraints, input(:ttl_constraints)
-        
-        run fn %{data: data, constraints: constraints}, _context ->
-          max_processing_ns = Map.get(constraints, :max_processing_ns, 1_000_000)
-          start_time = System.monotonic_time(:nanosecond)
-          
-          # Specific semantic processing for #{class.name}
-          # This would be customized based on the class semantics
-          result = %{
-            processed_data: data,
-            semantic_type: "#{class.name}",
-            ttl_uri: "#{class.uri}"
-          }
-          
-          processing_time = System.monotonic_time(:nanosecond) - start_time
-          
-          if processing_time > max_processing_ns do
-            {:error, "TTL constraint violation for #{class.name}: \#{processing_time}ns > \#{max_processing_ns}ns"}
-          else
-            {:ok, Map.put(result, :processing_time_ns, processing_time)}
-          end
-        end
+      if processing_time > max_processing_ns do
+        {:error, "TTL constraint violation for #{class.name}: \#{processing_time}ns > \#{max_processing_ns}ns"}
+      else
+        {:ok, Map.put(result, :processing_time_ns, processing_time)}
       end
-      
-      return :process_#{String.downcase(class.name)}_semantics
     end
-    """
+  end
+  
+  return :process_#{String.downcase(class.name)}_semantics
+end
+"""
     
     %{
       name: "CnsForge.TTL#{class.name}Reactor",
@@ -537,25 +537,25 @@ defmodule CnsForge.TTLAshReactorTransformer do
     files = []
     
     # Write resource files
-    Enum.each(resources, fn resource ->
+    resource_files = Enum.map(resources, fn resource ->
       file_path = Path.join(base_path, "#{String.downcase(resource.class.name)}_resource.ex")
       File.write!(file_path, resource.code)
-      files = [file_path | files]
+      file_path
     end)
     
     # Write reactor files
-    Enum.each(reactors, fn reactor ->
+    reactor_files = Enum.map(reactors, fn reactor ->
       module_name = reactor.name |> String.split(".") |> List.last() |> String.downcase()
       file_path = Path.join(base_path, "#{module_name}.ex")
       File.write!(file_path, reactor.code)
-      files = [file_path | files]
+      file_path
     end)
     
     # Write domain file
     domain_path = Path.join(base_path, "ttl_domain.ex")
     File.write!(domain_path, domain)
-    files = [domain_path | files]
     
-    files
+    # Return all file paths
+    resource_files ++ reactor_files ++ [domain_path]
   end
 end
