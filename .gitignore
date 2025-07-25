@@ -256,3 +256,4 @@ config/**/*.exs.bak
 !test/**/*.exs
 !config/**/*.exs
 !mix.exs
+generated/terraform/.terraform/
