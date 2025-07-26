@@ -125,10 +125,14 @@ defmodule UltraThinkSwarmPermutationDemo do
     case CnsForge.UltraThinkSwarmPermutationOrchestrator.execute_permutation(test_data, :adaptive) do
       {:ok, result} ->
         IO.puts "✅ Adaptive pattern executed successfully!"
-        IO.puts "   Pattern type: #{result[:pattern_type]}"
+        IO.puts "   Pattern type: #{result[:pattern_type] || "adaptive"}"
         
       {:error, reason} ->
         IO.puts "❌ Adaptive pattern failed: #{reason}"
+        
+      result ->
+        IO.puts "✅ Adaptive pattern executed successfully!"
+        IO.puts "   Result: #{inspect(result, limit: :infinity) |> String.slice(0, 100)}..."
     end
   end
   
@@ -145,6 +149,10 @@ defmodule UltraThinkSwarmPermutationDemo do
         
       {:error, reason} ->
         IO.puts "❌ Mesh pattern failed: #{reason}"
+        
+      result ->
+        IO.puts "✅ Mesh pattern executed successfully!"
+        IO.puts "   Result: #{inspect(result, limit: :infinity) |> String.slice(0, 100)}..."
     end
   end
   

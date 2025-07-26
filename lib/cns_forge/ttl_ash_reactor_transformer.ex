@@ -17,7 +17,8 @@ defmodule CnsForge.TTLAshReactorTransformer do
         parsed_ontology: parsed,
         resources: resources,
         reactors: reactors,
-        domain: generate_simple_domain()
+        domain: generate_simple_domain(),
+        generated_files: generate_file_list(resources, reactors)
       }
       
       Logger.info("CLEAN TTL transformation completed")
@@ -144,5 +145,28 @@ end
   defp generate_module_name(class_uri) do
     local_name = extract_local_name(class_uri)
     "CnsForge.TTLResources.#{local_name}"
+  end
+  
+  defp generate_file_list(resources, reactors) do
+    resource_files = Enum.map(resources, fn resource ->
+      %{
+        name: "lib/cns_forge/ttl_resources/#{String.downcase(resource.class.name)}.ex",
+        content: resource.code
+      }
+    end)
+    
+    reactor_files = Enum.map(reactors, fn reactor ->
+      %{
+        name: "lib/cns_forge/reactors/#{String.downcase(String.replace(reactor.name, "CnsForge.", ""))}.ex",
+        content: reactor.code
+      }
+    end)
+    
+    domain_file = %{
+      name: "lib/cns_forge/ttl_domain.ex",
+      content: generate_simple_domain()
+    }
+    
+    [domain_file | resource_files ++ reactor_files]
   end
 end

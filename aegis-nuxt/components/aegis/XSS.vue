@@ -6,7 +6,7 @@
   </div>
 </template>
 
-<script setup lang="js">
+<script setup lang="ts">
 // Generated from http://cns.ai/ontology/cybersecurity#XSS on 2025-07-24T20:14:10.061872
 import type { XSS } from '~/types/aegis'
 

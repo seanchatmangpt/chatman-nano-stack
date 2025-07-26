@@ -6,7 +6,7 @@
   </div>
 </template>
 
-<script setup lang="js">
+<script setup lang="ts">
 // Generated from http://cns.ai/ontology/cybersecurity#Antivirus on 2025-07-24T20:14:09.978844
 import type { Antivirus } from '~/types/aegis'
 

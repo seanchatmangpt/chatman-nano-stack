@@ -1,0 +1,43 @@
+{
+  "name": "bitactor-nuxt-variants-cypress-tests",
+  "version": "1.0.0",
+  "main": "nuxt_bitactor_hybrid_bridge_variant.js",
+  "description": "Cypress 80/20 test suite for BitActor Nuxt variants with TTL constraint enforcement",
+  "scripts": {
+    "test": "cypress run",
+    "test:open": "cypress open",
+    "test:headless": "cypress run --headless",
+    "test:variants": "cypress run --spec 'cypress/e2e/nuxt-variants/**/*.cy.js'",
+    "test:ui-variants": "cypress run --spec 'cypress/e2e/nuxt-ui-variants/**/*.cy.js'",
+    "test:integration": "cypress run --spec 'cypress/e2e/bitactor-integration/**/*.cy.js'",
+    "test:ttl": "cypress run --spec 'cypress/e2e/ttl-validation/**/*.cy.js'",
+    "test:8020": "npm run test:variants && npm run test:ui-variants && npm run test:integration && npm run test:ttl",
+    "test:report": "cypress run --reporter json --reporter-options 'outputFile=cypress/reports/test-results.json'",
+    "install:deps": "npm install"
+  },
+  "keywords": [
+    "cypress",
+    "bitactor",
+    "nuxt",
+    "ttl",
+    "8020-testing",
+    "pipeline",
+    "variants"
+  ],
+  "author": "BitActor Pipeline Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0",
+    "nuxt": "^4.0.1",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "vue": "^3.5.18",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "cypress": "^13.17.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

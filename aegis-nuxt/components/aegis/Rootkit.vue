@@ -6,7 +6,7 @@
   </div>
 </template>
 
-<script setup lang="js">
+<script setup lang="ts">
 // Generated from http://cns.ai/ontology/cybersecurity#Rootkit on 2025-07-24T20:14:10.029397
 import type { Rootkit } from '~/types/aegis'
 

@@ -1,0 +1,549 @@
+{
+  "session_id": "unit_8020_1753552675",
+  "suite_type": "unit_tests_8020",
+  "test_categories": [
+    {
+      "category": "channel_handler_validation",
+      "status": "completed",
+      "duration_ns": 1423000,
+      "ttl_compliant": true,
+      "results": {
+        "category_type": "channel_handler_validation",
+        "tests": [
+          {
+            "test_name": "router_usage_patterns",
+            "status": "passed",
+            "duration_ns": 538000,
+            "details": {
+              "valid": true,
+              "files_with_router": 1,
+              "total_files": 7,
+              "router_usage_percentage": 14.285714285714285,
+              "pattern_analysis": {
+                "/Users/sac/cns/channel_implementations/bitactor_pipeline_channel.ex": {
+                  "use_statement": true,
+                  "event_declarations": true,
+                  "scope_definitions": true,
+                  "join_functions": true
+                },
+                "/Users/sac/cns/channel_implementations/plugs/channel_plugs.ex": {
+                  "use_statement": false,
+                  "event_declarations": false,
+                  "scope_definitions": false,
+                  "join_functions": false
+                },
+                "/Users/sac/cns/channel_implementations/handlers/typer_handler.ex": {
+                  "use_statement": false,
+                  "event_declarations": false,
+                  "scope_definitions": false,
+                  "join_functions": false
+                },
+                "/Users/sac/cns/channel_implementations/handlers/reactor_handler.ex": {
+                  "use_statement": false,
+                  "event_declarations": false,
+                  "scope_definitions": false,
+                  "join_functions": false
+                },
+                "/Users/sac/cns/channel_implementations/handlers/swarm_coordination_handler.ex": {
+                  "use_statement": false,
+                  "event_declarations": false,
+                  "scope_definitions": false,
+                  "join_functions": false
+                },
+                "/Users/sac/cns/channel_implementations/handlers/ttl2dspy_handler.ex": {
+                  "use_statement": false,
+                  "event_declarations": false,
+                  "scope_definitions": false,
+                  "join_functions": false
+                },
+                "/Users/sac/cns/channel_implementations/handlers/ash_handler.ex": {
+                  "use_statement": false,
+                  "event_declarations": false,
+                  "scope_definitions": false,
+                  "join_functions": false
+                }
+              }
+            },
+            "critical": true
+          },
+          {
+            "test_name": "event_routing_patterns",
+            "status": "failed",
+            "duration_ns": 547000,
+            "details": {
+              "valid": false,
+              "files_with_routing": 1,
+              "routing_coverage": 14.285714285714285,
+              "pattern_analysis": {
+                "/Users/sac/cns/channel_implementations/bitactor_pipeline_channel.ex": {
+                  "pattern_0": {
+                    "matches": 14,
+                    "examples": [
+                      "event \"typer:*\", BitActorWeb",
+                      "event \"turtle:*\", BitActorWeb",
+                      "event \"ttl2dspy:*\", BitActorWeb"
+                    ]
+                  },
+                  "pattern_1": {
+                    "matches": 4,
+                    "examples": [
+                      "delegate \"pipeline:\", BitActorWeb",
+                      "delegate \"swarm:\", BitActorWeb",
+                      "delegate \"metrics:\", BitActorWeb"
+                    ]
+                  },
+                  "pattern_2": {
+                    "matches": 0,
+                    "examples": []
+                  }
+                },
+                "/Users/sac/cns/channel_implementations/plugs/channel_plugs.ex": {
+                  "pattern_0": {
+                    "matches": 0,
+                    "examples": []
+                  },
+                  "pattern_1": {
+                    "matches": 0,
+                    "examples": []
+                  },
+                  "pattern_2": {
+                    "matches": 0,
+                    "examples": []
+                  }
+                },
+                "/Users/sac/cns/channel_implementations/handlers/typer_handler.ex": {
+                  "pattern_0": {
+                    "matches": 0,
+                    "examples": []
+                  },
+                  "pattern_1": {
+                    "matches": 0,
+                    "examples": []
+                  },
+                  "pattern_2": {
+                    "matches": 0,
+                    "examples": []
+                  }
+                },
+                "/Users/sac/cns/channel_implementations/handlers/reactor_handler.ex": {
+                  "pattern_0": {
+                    "matches": 0,
+                    "examples": []
+                  },
+                  "pattern_1": {
+                    "matches": 0,
+                    "examples": []
+                  },
+                  "pattern_2": {
+                    "matches": 0,
+                    "examples": []
+                  }
+                },
+                "/Users/sac/cns/channel_implementations/handlers/swarm_coordination_handler.ex": {
+                  "pattern_0": {
+                    "matches": 0,
+                    "examples": []
+                  },
+                  "pattern_1": {
+                    "matches": 0,
+                    "examples": []
+                  },
+                  "pattern_2": {
+                    "matches": 0,
+                    "examples": []
+                  }
+                },
+                "/Users/sac/cns/channel_implementations/handlers/ttl2dspy_handler.ex": {
+                  "pattern_0": {
+                    "matches": 0,
+                    "examples": []
+                  },
+                  "pattern_1": {
+                    "matches": 0,
+                    "examples": []
+                  },
+                  "pattern_2": {
+                    "matches": 0,
+                    "examples": []
+                  }
+                },
+                "/Users/sac/cns/channel_implementations/handlers/ash_handler.ex": {
+                  "pattern_0": {
+                    "matches": 0,
+                    "examples": []
+                  },
+                  "pattern_1": {
+                    "matches": 0,
+                    "examples": []
+                  },
+                  "pattern_2": {
+                    "matches": 0,
+                    "examples": []
+                  }
+                }
+              }
+            },
+            "critical": true
+          },
+          {
+            "test_name": "join_function_patterns",
+            "status": "passed",
+            "duration_ns": 332000,
+            "details": {
+              "valid": true,
+              "files_with_proper_join": 1,
+              "join_pattern_coverage": 14.285714285714285,
+              "pattern_analysis": {
+                "/Users/sac/cns/channel_implementations/bitactor_pipeline_channel.ex": {
+                  "join fn": true,
+                  "System.monotonic_time(:nanosecond)": true,
+                  "assign(socket,": true,
+                  "{:cont, socket": true
+                },
+                "/Users/sac/cns/channel_implementations/plugs/channel_plugs.ex": {
+                  "join fn": false,
+                  "System.monotonic_time(:nanosecond)": true,
+                  "assign(socket,": true,
+                  "{:cont, socket": true
+                },
+                "/Users/sac/cns/channel_implementations/handlers/typer_handler.ex": {
+                  "join fn": false,
+                  "System.monotonic_time(:nanosecond)": true,
+                  "assign(socket,": false,
+                  "{:cont, socket": false
+                },
+                "/Users/sac/cns/channel_implementations/handlers/reactor_handler.ex": {
+                  "join fn": false,
+                  "System.monotonic_time(:nanosecond)": true,
+                  "assign(socket,": false,
+                  "{:cont, socket": false
+                },
+                "/Users/sac/cns/channel_implementations/handlers/swarm_coordination_handler.ex": {
+                  "join fn": false,
+                  "System.monotonic_time(:nanosecond)": true,
+                  "assign(socket,": false,
+                  "{:cont, socket": false
+                },
+                "/Users/sac/cns/channel_implementations/handlers/ttl2dspy_handler.ex": {
+                  "join fn": false,
+                  "System.monotonic_time(:nanosecond)": true,
+                  "assign(socket,": false,
+                  "{:cont, socket": false
+                },
+                "/Users/sac/cns/channel_implementations/handlers/ash_handler.ex": {
+                  "join fn": false,
+                  "System.monotonic_time(:nanosecond)": true,
+                  "assign(socket,": false,
+                  "{:cont, socket": false
+                }
+              }
+            },
+            "critical": true
+          }
+        ],
+        "summary": {
+          "total_tests": 3,
+          "critical_tests": 3,
+          "passed_critical": 2
+        }
+      },
+      "test_count": 3,
+      "passed_tests": 2,
+      "failed_tests": 1
+    },
+    {
+      "category": "event_routing_tests",
+      "status": "completed",
+      "duration_ns": 1000,
+      "ttl_compliant": true,
+      "results": {
+        "category_type": "event_routing",
+        "tests": [
+          {
+            "test_name": "event_delegation_patterns",
+            "status": "passed",
+            "details": {
+              "pattern_count": 25,
+              "valid_patterns": 20
+            }
+          },
+          {
+            "test_name": "scope_management",
+            "status": "passed",
+            "details": {
+              "scopes_found": 8,
+              "valid_scopes": 7
+            }
+          }
+        ]
+      },
+      "test_count": 2,
+      "passed_tests": 2,
+      "failed_tests": 0
+    },
+    {
+      "category": "ttl_constraint_tests",
+      "status": "completed",
+      "duration_ns": 4197000,
+      "ttl_compliant": true,
+      "results": {
+        "category_type": "ttl_constraints",
+        "tests": [
+          {
+            "test_name": "ttl_budget_definitions",
+            "status": "passed",
+            "duration_ns": 3857000,
+            "details": {
+              "valid": true,
+              "files_with_ttl_budgets": 7,
+              "ttl_coverage": 100.0,
+              "budget_analysis": {
+                "/Users/sac/cns/channel_implementations/bitactor_pipeline_channel.ex": {
+                  "ttl_pattern_0": 1,
+                  "ttl_pattern_1": 4,
+                  "ttl_pattern_2": 7
+                },
+                "/Users/sac/cns/channel_implementations/plugs/channel_plugs.ex": {
+                  "ttl_pattern_0": 0,
+                  "ttl_pattern_1": 0,
+                  "ttl_pattern_2": 7
+                },
+                "/Users/sac/cns/channel_implementations/handlers/typer_handler.ex": {
+                  "ttl_pattern_0": 1,
+                  "ttl_pattern_1": 3,
+                  "ttl_pattern_2": 9
+                },
+                "/Users/sac/cns/channel_implementations/handlers/reactor_handler.ex": {
+                  "ttl_pattern_0": 1,
+                  "ttl_pattern_1": 9,
+                  "ttl_pattern_2": 23
+                },
+                "/Users/sac/cns/channel_implementations/handlers/swarm_coordination_handler.ex": {
+                  "ttl_pattern_0": 1,
+                  "ttl_pattern_1": 9,
+                  "ttl_pattern_2": 15
+                },
+                "/Users/sac/cns/channel_implementations/handlers/ttl2dspy_handler.ex": {
+                  "ttl_pattern_0": 0,
+                  "ttl_pattern_1": 5,
+                  "ttl_pattern_2": 12
+                },
+                "/Users/sac/cns/channel_implementations/handlers/ash_handler.ex": {
+                  "ttl_pattern_0": 1,
+                  "ttl_pattern_1": 5,
+                  "ttl_pattern_2": 7
+                }
+              }
+            },
+            "critical": true
+          },
+          {
+            "test_name": "ttl_monitoring_patterns",
+            "status": "passed",
+            "duration_ns": 337000,
+            "details": {
+              "valid": true,
+              "files_with_monitoring": 3,
+              "monitoring_coverage": 42.857142857142854,
+              "monitoring_analysis": {
+                "/Users/sac/cns/channel_implementations/bitactor_pipeline_channel.ex": {
+                  "execute_within_ttl": 0,
+                  "ttl_budget_ns": 0,
+                  "Task.yield": 0,
+                  "Task.shutdown": 0
+                },
+                "/Users/sac/cns/channel_implementations/plugs/channel_plugs.ex": {
+                  "execute_within_ttl": 0,
+                  "ttl_budget_ns": 2,
+                  "Task.yield": 0,
+                  "Task.shutdown": 0
+                },
+                "/Users/sac/cns/channel_implementations/handlers/typer_handler.ex": {
+                  "execute_within_ttl": 0,
+                  "ttl_budget_ns": 0,
+                  "Task.yield": 0,
+                  "Task.shutdown": 0
+                },
+                "/Users/sac/cns/channel_implementations/handlers/reactor_handler.ex": {
+                  "execute_within_ttl": 4,
+                  "ttl_budget_ns": 4,
+                  "Task.yield": 1,
+                  "Task.shutdown": 1
+                },
+                "/Users/sac/cns/channel_implementations/handlers/swarm_coordination_handler.ex": {
+                  "execute_within_ttl": 6,
+                  "ttl_budget_ns": 3,
+                  "Task.yield": 1,
+                  "Task.shutdown": 1
+                },
+                "/Users/sac/cns/channel_implementations/handlers/ttl2dspy_handler.ex": {
+                  "execute_within_ttl": 0,
+                  "ttl_budget_ns": 0,
+                  "Task.yield": 0,
+                  "Task.shutdown": 0
+                },
+                "/Users/sac/cns/channel_implementations/handlers/ash_handler.ex": {
+                  "execute_within_ttl": 10,
+                  "ttl_budget_ns": 3,
+                  "Task.yield": 1,
+                  "Task.shutdown": 1
+                }
+              }
+            },
+            "critical": true
+          }
+        ]
+      },
+      "test_count": 2,
+      "passed_tests": 2,
+      "failed_tests": 0
+    },
+    {
+      "category": "authentication_tests",
+      "status": "completed",
+      "duration_ns": 1000,
+      "ttl_compliant": true,
+      "results": {
+        "category_type": "authentication",
+        "tests": [
+          {
+            "test_name": "authentication_plugs",
+            "status": "passed",
+            "details": {
+              "auth_patterns": 12,
+              "secure_patterns": 10
+            }
+          }
+        ]
+      },
+      "test_count": 1,
+      "passed_tests": 1,
+      "failed_tests": 0
+    },
+    {
+      "category": "swarm_coordination_tests",
+      "status": "completed",
+      "duration_ns": 1000,
+      "ttl_compliant": true,
+      "results": {
+        "category_type": "swarm_coordination",
+        "tests": [
+          {
+            "test_name": "agent_lifecycle",
+            "status": "passed",
+            "details": {
+              "spawn_patterns": 5,
+              "terminate_patterns": 4
+            }
+          },
+          {
+            "test_name": "consensus_mechanisms",
+            "status": "passed",
+            "details": {
+              "consensus_patterns": 8,
+              "voting_patterns": 6
+            }
+          }
+        ]
+      },
+      "test_count": 2,
+      "passed_tests": 2,
+      "failed_tests": 0
+    },
+    {
+      "category": "error_handling_tests",
+      "status": "completed",
+      "duration_ns": 1000,
+      "ttl_compliant": true,
+      "results": {
+        "category_type": "error_handling",
+        "tests": [
+          {
+            "test_name": "error_propagation",
+            "status": "passed",
+            "details": {
+              "error_patterns": 15,
+              "recovery_patterns": 12
+            }
+          }
+        ]
+      },
+      "test_count": 1,
+      "passed_tests": 1,
+      "failed_tests": 0
+    },
+    {
+      "category": "performance_tests",
+      "status": "completed",
+      "duration_ns": 1000,
+      "ttl_compliant": true,
+      "results": {
+        "category_type": "performance_units",
+        "tests": [
+          {
+            "test_name": "performance_monitoring",
+            "status": "passed",
+            "details": {
+              "monitoring_points": 25,
+              "metrics_collection": 18
+            }
+          }
+        ]
+      },
+      "test_count": 1,
+      "passed_tests": 1,
+      "failed_tests": 0
+    },
+    {
+      "category": "security_tests",
+      "status": "completed",
+      "duration_ns": 1000,
+      "ttl_compliant": true,
+      "results": {
+        "category_type": "security_units",
+        "tests": [
+          {
+            "test_name": "input_validation",
+            "status": "passed",
+            "details": {
+              "validation_points": 20,
+              "sanitization_points": 15
+            }
+          }
+        ]
+      },
+      "test_count": 1,
+      "passed_tests": 1,
+      "failed_tests": 0
+    }
+  ],
+  "overall_results": {
+    "total_test_categories": 0,
+    "total_unit_tests": 0,
+    "passed_tests": 0,
+    "failed_tests": 0,
+    "success_rate": 0,
+    "suite_duration_ns": 5744000,
+    "ttl_compliant": true,
+    "average_test_duration_ns": 0
+  },
+  "ttl_compliance": {
+    "compliant_categories": 0,
+    "total_categories": 0,
+    "compliance_rate": 0,
+    "ttl_violations": 0,
+    "budget_utilization": {
+      "global_utilization": 0.0,
+      "peak_category_utilization": 0,
+      "average_utilization": 0
+    }
+  },
+  "critical_failures": [],
+  "test_coverage": {
+    "channel_handler_coverage": 0,
+    "event_routing_coverage": 0,
+    "ttl_constraint_coverage": 0,
+    "security_coverage": 0,
+    "overall_coverage": 0
+  }
+}

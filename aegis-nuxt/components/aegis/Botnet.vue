@@ -6,7 +6,7 @@
   </div>
 </template>
 
-<script setup lang="js">
+<script setup lang="ts">
 // Generated from http://cns.ai/ontology/cybersecurity#Botnet on 2025-07-24T20:14:09.984776
 import type { Botnet } from '~/types/aegis'
 

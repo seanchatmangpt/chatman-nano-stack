@@ -1,0 +1,170 @@
+{
+  "test_run_id": "nuxt_test_1753514298",
+  "timestamp": "2025-07-26T00:18:18.561643",
+  "total_projects": 3,
+  "projects": {
+    "nuxt-ash-graphql": {
+      "name": "nuxt-ash-graphql",
+      "type": "GraphQL Integration",
+      "status": "failed",
+      "tests": {
+        "structure": {
+          "status": "passed",
+          "missing_files": [],
+          "message": "All required files present"
+        },
+        "package": {
+          "status": "passed",
+          "issues": [],
+          "message": "Package configuration valid"
+        },
+        "no_typescript": {
+          "status": "passed",
+          "typescript_files": [],
+          "message": "No TypeScript files found"
+        },
+        "nuxt_config": {
+          "status": "passed",
+          "message": "Valid Nuxt.js configuration found"
+        },
+        "components": {
+          "status": "passed",
+          "issues": [],
+          "message": "All components use JavaScript"
+        },
+        "build": {
+          "status": "failed",
+          "message": "Build failed: sh: nuxt: command not found\n"
+        }
+      },
+      "metrics": {},
+      "errors": []
+    },
+    "nuxt-bitactor-performance": {
+      "name": "nuxt-bitactor-performance",
+      "type": "Performance Dashboard",
+      "status": "failed",
+      "tests": {
+        "structure": {
+          "status": "failed",
+          "missing_files": [
+            "components"
+          ],
+          "message": "Missing: ['components']"
+        },
+        "package": {
+          "status": "passed",
+          "issues": [],
+          "message": "Package configuration valid"
+        },
+        "no_typescript": {
+          "status": "passed",
+          "typescript_files": [],
+          "message": "No TypeScript files found"
+        },
+        "nuxt_config": {
+          "status": "passed",
+          "message": "Valid Nuxt.js configuration found"
+        },
+        "components": {
+          "status": "passed",
+          "issues": [],
+          "message": "All components use JavaScript"
+        },
+        "build": {
+          "status": "failed",
+          "message": "Build failed: sh: nuxt: command not found\n"
+        }
+      },
+      "metrics": {},
+      "errors": []
+    },
+    "nuxt-semantic-web": {
+      "name": "nuxt-semantic-web",
+      "type": "SSR/SSG Semantic Web",
+      "status": "failed",
+      "tests": {
+        "structure": {
+          "status": "failed",
+          "missing_files": [
+            "components"
+          ],
+          "message": "Missing: ['components']"
+        },
+        "package": {
+          "status": "passed",
+          "issues": [],
+          "message": "Package configuration valid"
+        },
+        "no_typescript": {
+          "status": "passed",
+          "typescript_files": [],
+          "message": "No TypeScript files found"
+        },
+        "nuxt_config": {
+          "status": "passed",
+          "message": "Valid Nuxt.js configuration found"
+        },
+        "components": {
+          "status": "passed",
+          "issues": [],
+          "message": "All components use JavaScript"
+        },
+        "build": {
+          "status": "failed",
+          "message": "Build failed: sh: nuxt: command not found\n"
+        }
+      },
+      "metrics": {},
+      "errors": []
+    }
+  },
+  "overall_status": "failed",
+  "otel_metrics": {
+    "span_name": "nuxt_integration_tests",
+    "trace_id": "trace_nuxt_test_1753514298",
+    "start_time": "2025-07-26T00:18:18.561643",
+    "end_time": "2025-07-26T00:18:18.891534",
+    "attributes": {
+      "test.framework": "nuxt_integration_tester",
+      "test.total_projects": 3,
+      "test.overall_status": "failed"
+    },
+    "metrics": {
+      "projects_tested": 3,
+      "projects_passed": 0,
+      "projects_failed": 3,
+      "total_tests_run": 18,
+      "test_success_rate": 72.22
+    },
+    "events": [
+      {
+        "name": "project_test_completed",
+        "timestamp": "2025-07-26T00:18:18.891578",
+        "attributes": {
+          "project.name": "nuxt-ash-graphql",
+          "project.status": "failed",
+          "project.type": "GraphQL Integration"
+        }
+      },
+      {
+        "name": "project_test_completed",
+        "timestamp": "2025-07-26T00:18:18.891581",
+        "attributes": {
+          "project.name": "nuxt-bitactor-performance",
+          "project.status": "failed",
+          "project.type": "Performance Dashboard"
+        }
+      },
+      {
+        "name": "project_test_completed",
+        "timestamp": "2025-07-26T00:18:18.891582",
+        "attributes": {
+          "project.name": "nuxt-semantic-web",
+          "project.status": "failed",
+          "project.type": "SSR/SSG Semantic Web"
+        }
+      }
+    ]
+  }
+}

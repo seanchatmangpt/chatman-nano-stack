@@ -1,0 +1,15 @@
+{
+  "status": "success",
+  "resources": [
+    {
+      "id": 1,
+      "type": "User",
+      "count": 150
+    },
+    {
+      "id": 2,
+      "type": "Pipeline",
+      "count": 12
+    }
+  ]
+}

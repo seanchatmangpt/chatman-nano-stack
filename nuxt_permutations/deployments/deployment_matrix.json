@@ -1,0 +1,402 @@
+{
+  "timestamp": "2025-07-26T00:20:59.371469",
+  "platforms": {
+    "vercel": {
+      "name": "Vercel Deployment",
+      "description": "Serverless deployment with global CDN",
+      "config_files": {
+        "vercel.json": {
+          "version": 2,
+          "builds": [
+            {
+              "src": "nuxt.config.js",
+              "use": "@nuxtjs/vercel-builder"
+            }
+          ],
+          "routes": [
+            {
+              "src": "/api/(.*)",
+              "dest": "/api/$1"
+            }
+          ]
+        }
+      },
+      "environment_variables": {
+        "ASH_API_URL": "https://api.cns-forge.com",
+        "BITACTOR_WS_URL": "wss://bitactor.cns-forge.com",
+        "NODE_VERSION": "18"
+      },
+      "features": [
+        "Auto-scaling",
+        "Edge Functions",
+        "Preview Deployments"
+      ],
+      "commands": {
+        "install": "npm install",
+        "build": "npm run build",
+        "start": "npm run start"
+      }
+    },
+    "netlify": {
+      "name": "Netlify Deployment",
+      "description": "JAMstack deployment with form handling",
+      "config_files": {
+        "netlify.toml": "\n[build]\n  command = \"npm run generate\"\n  publish = \"dist\"\n  \n[build.environment]\n  NODE_VERSION = \"18\"\n  \n[[redirects]]\n  from = \"/api/*\"\n  to = \"/.netlify/functions/:splat\"\n  status = 200\n  \n[[headers]]\n  for = \"/*.js\"\n  [headers.values]\n    Cache-Control = \"public, max-age=31536000\"\n"
+      },
+      "features": [
+        "Forms",
+        "Identity",
+        "Analytics",
+        "Edge Functions"
+      ],
+      "strategy": "static"
+    },
+    "aws": {
+      "name": "AWS Deployment",
+      "description": "Scalable cloud deployment with S3 and CloudFront",
+      "config_files": {
+        "aws-cloudformation.yaml": {
+          "AWSTemplateFormatVersion": "2010-09-09",
+          "Resources": {
+            "S3Bucket": {
+              "Type": "AWS::S3::Bucket",
+              "Properties": {
+                "BucketName": "cns-forge-nuxt-app",
+                "WebsiteConfiguration": {
+                  "IndexDocument": "index.html"
+                }
+              }
+            },
+            "CloudFrontDistribution": {
+              "Type": "AWS::CloudFront::Distribution",
+              "Properties": {
+                "DistributionConfig": {
+                  "Origins": [
+                    {
+                      "DomainName": {
+                        "Fn::GetAtt": [
+                          "S3Bucket",
+                          "DomainName"
+                        ]
+                      },
+                      "Id": "S3Origin",
+                      "S3OriginConfig": {}
+                    }
+                  ],
+                  "DefaultCacheBehavior": {
+                    "TargetOriginId": "S3Origin",
+                    "ViewerProtocolPolicy": "redirect-to-https"
+                  },
+                  "Enabled": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "services": [
+        "S3",
+        "CloudFront",
+        "Lambda",
+        "API Gateway"
+      ],
+      "features": [
+        "Auto-scaling",
+        "Global CDN",
+        "Lambda@Edge"
+      ]
+    },
+    "gcp": {
+      "name": "gcp Deployment",
+      "description": "Custom deployment configuration"
+    },
+    "azure": {
+      "name": "azure Deployment",
+      "description": "Custom deployment configuration"
+    },
+    "docker": {
+      "name": "Docker Deployment",
+      "description": "Containerized deployment for any platform",
+      "config_files": {
+        "Dockerfile": "\nFROM node:18-alpine\n\nWORKDIR /app\n\n# Copy package files\nCOPY package*.json ./\n\n# Install dependencies\nRUN npm ci --only=production\n\n# Copy source code\nCOPY . .\n\n# Build application\nRUN npm run build\n\n# Expose port\nEXPOSE 3000\n\n# Health check\nHEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \\\n  CMD node healthcheck.js\n\n# Start application\nCMD [\"npm\", \"start\"]\n",
+        "docker-compose.yml": "\nversion: '3.8'\n\nservices:\n  nuxt-app:\n    build: .\n    ports:\n      - \"3000:3000\"\n    environment:\n      - NODE_ENV=production\n      - ASH_API_URL=http://ash-api:4000\n      - BITACTOR_WS_URL=ws://bitactor:8080\n    depends_on:\n      - ash-api\n      - bitactor\n    restart: unless-stopped\n    \n  ash-api:\n    image: cns-forge/ash-api:latest\n    ports:\n      - \"4000:4000\"\n    environment:\n      - DATABASE_URL=postgres://user:pass@postgres:5432/cns_forge\n    depends_on:\n      - postgres\n      \n  bitactor:\n    image: cns-forge/bitactor:latest\n    ports:\n      - \"8080:8080\"\n    environment:\n      - BITACTOR_CONFIG=/etc/bitactor/config.toml\n      \n  postgres:\n    image: postgres:15\n    environment:\n      - POSTGRES_DB=cns_forge\n      - POSTGRES_USER=user\n      - POSTGRES_PASSWORD=pass\n    volumes:\n      - postgres_data:/var/lib/postgresql/data\n\nvolumes:\n  postgres_data:\n"
+      },
+      "features": [
+        "Portability",
+        "Isolation",
+        "Scalability"
+      ]
+    },
+    "kubernetes": {
+      "name": "Kubernetes Deployment",
+      "description": "Cloud-native orchestration with auto-scaling",
+      "config_files": {
+        "k8s-deployment.yaml": "\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: nuxt-app\n  labels:\n    app: nuxt-app\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: nuxt-app\n  template:\n    metadata:\n      labels:\n        app: nuxt-app\n    spec:\n      containers:\n      - name: nuxt-app\n        image: cns-forge/nuxt-app:latest\n        ports:\n        - containerPort: 3000\n        env:\n        - name: ASH_API_URL\n          value: \"http://ash-api-service:4000\"\n        - name: BITACTOR_WS_URL\n          value: \"ws://bitactor-service:8080\"\n        resources:\n          requests:\n            memory: \"128Mi\"\n            cpu: \"100m\"\n          limits:\n            memory: \"512Mi\"\n            cpu: \"500m\"\n        livenessProbe:\n          httpGet:\n            path: /health\n            port: 3000\n          initialDelaySeconds: 30\n          periodSeconds: 10\n        readinessProbe:\n          httpGet:\n            path: /ready\n            port: 3000\n          initialDelaySeconds: 5\n          periodSeconds: 5\n\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: nuxt-app-service\nspec:\n  selector:\n    app: nuxt-app\n  ports:\n  - port: 80\n    targetPort: 3000\n  type: LoadBalancer\n\n---\napiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: nuxt-app-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: nuxt-app\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70\n  - type: Resource\n    resource:\n      name: memory\n      target:\n        type: Utilization\n        averageUtilization: 80\n"
+      },
+      "features": [
+        "Auto-scaling",
+        "Service Discovery",
+        "Rolling Updates",
+        "Health Checks"
+      ]
+    }
+  },
+  "strategies": {
+    "static": {
+      "name": "Static Site Generation (SSG)",
+      "description": "Pre-rendered static files for maximum performance",
+      "nuxt_config": {
+        "nitro": {
+          "prerender": {
+            "routes": [
+              "/",
+              "/ontology",
+              "/schema"
+            ]
+          }
+        },
+        "ssr": false
+      },
+      "build_command": "npm run generate",
+      "output_dir": "dist",
+      "benefits": [
+        "Fastest loading",
+        "SEO friendly",
+        "CDN optimized"
+      ],
+      "use_cases": [
+        "Documentation",
+        "Marketing sites",
+        "Blogs"
+      ]
+    },
+    "ssr": {
+      "name": "Server-Side Rendering (SSR)",
+      "description": "Dynamic server-side rendering for real-time data",
+      "nuxt_config": {
+        "ssr": true,
+        "nitro": {
+          "preset": "node-server"
+        }
+      },
+      "build_command": "npm run build",
+      "runtime": "Node.js server",
+      "benefits": [
+        "Dynamic content",
+        "SEO friendly",
+        "Fast initial load"
+      ],
+      "use_cases": [
+        "E-commerce",
+        "Dynamic dashboards",
+        "User portals"
+      ]
+    },
+    "spa": {
+      "name": "Single Page Application (SPA)",
+      "description": "Client-side rendering for interactive applications",
+      "nuxt_config": {
+        "ssr": false,
+        "app": {
+          "spa": true
+        }
+      },
+      "build_command": "npm run build",
+      "runtime": "Static hosting",
+      "benefits": [
+        "Rich interactions",
+        "App-like experience",
+        "Simple deployment"
+      ],
+      "use_cases": [
+        "Dashboards",
+        "Admin panels",
+        "Interactive tools"
+      ]
+    },
+    "hybrid": {
+      "name": "Hybrid Rendering",
+      "description": "Mix of SSR, SSG, and SPA for optimal performance",
+      "nuxt_config": {
+        "nitro": {
+          "routeRules": {
+            "/": {
+              "prerender": true
+            },
+            "/ontology": {
+              "prerender": true
+            },
+            "/dashboard/**": {
+              "ssr": false
+            },
+            "/api/**": {
+              "cors": true
+            }
+          }
+        }
+      },
+      "benefits": [
+        "Best of all worlds",
+        "Optimized per route",
+        "Flexible"
+      ],
+      "use_cases": [
+        "Complex applications",
+        "Mixed content types",
+        "Performance optimization"
+      ]
+    },
+    "edge": {
+      "name": "Edge-Side Rendering",
+      "description": "Rendering at CDN edge locations",
+      "nuxt_config": {
+        "nitro": {
+          "preset": "cloudflare-pages"
+        }
+      },
+      "runtime": "Edge functions",
+      "benefits": [
+        "Global performance",
+        "Reduced latency",
+        "Auto-scaling"
+      ],
+      "use_cases": [
+        "Global applications",
+        "Real-time features",
+        "High traffic sites"
+      ]
+    },
+    "serverless": {
+      "name": "Serverless Functions",
+      "description": "Function-as-a-Service deployment",
+      "nuxt_config": {
+        "nitro": {
+          "preset": "aws-lambda"
+        }
+      },
+      "runtime": "Lambda functions",
+      "benefits": [
+        "Pay per use",
+        "Auto-scaling",
+        "No server management"
+      ],
+      "use_cases": [
+        "APIs",
+        "Microservices",
+        "Event-driven apps"
+      ]
+    }
+  },
+  "configurations": {
+    "combinations": {
+      "vercel_ssr": {
+        "name": "Vercel SSR",
+        "platform": "vercel",
+        "strategy": "ssr",
+        "description": "Perfect for dynamic web apps",
+        "complexity": 6,
+        "performance": 8,
+        "cost": 6,
+        "scalability": 7
+      },
+      "vercel_static": {
+        "name": "Vercel SSG",
+        "platform": "vercel",
+        "strategy": "static",
+        "description": "Optimal for static sites",
+        "complexity": 3,
+        "performance": 9,
+        "cost": 8,
+        "scalability": 6
+      },
+      "netlify_static": {
+        "name": "Netlify JAMstack",
+        "platform": "netlify",
+        "strategy": "static",
+        "description": "Best for content sites",
+        "complexity": 3,
+        "performance": 9,
+        "cost": 9,
+        "scalability": 5
+      },
+      "aws_hybrid": {
+        "name": "AWS Hybrid",
+        "platform": "aws",
+        "strategy": "hybrid",
+        "description": "Enterprise-grade deployment",
+        "complexity": 10,
+        "performance": 8,
+        "cost": 5,
+        "scalability": 8
+      },
+      "docker_ssr": {
+        "name": "Docker SSR",
+        "platform": "docker",
+        "strategy": "ssr",
+        "description": "Portable containerized app",
+        "complexity": 9,
+        "performance": 6,
+        "cost": 7,
+        "scalability": 6
+      },
+      "kubernetes_hybrid": {
+        "name": "K8s Hybrid",
+        "platform": "kubernetes",
+        "strategy": "hybrid",
+        "description": "Cloud-native scaling",
+        "complexity": 10,
+        "performance": 8,
+        "cost": 5,
+        "scalability": 9
+      },
+      "gcp_edge": {
+        "name": "GCP Edge",
+        "platform": "gcp",
+        "strategy": "edge",
+        "description": "Global edge deployment",
+        "complexity": 10,
+        "performance": 9,
+        "cost": 6,
+        "scalability": 9
+      },
+      "azure_serverless": {
+        "name": "Azure Functions",
+        "platform": "azure",
+        "strategy": "serverless",
+        "description": "Event-driven deployment",
+        "complexity": 10,
+        "performance": 7,
+        "cost": 7,
+        "scalability": 9
+      }
+    },
+    "recommendations": {
+      "startup_mvp": {
+        "platform": "vercel",
+        "strategy": "ssr",
+        "reason": "Quick deployment, good performance, free tier"
+      },
+      "enterprise_app": {
+        "platform": "kubernetes",
+        "strategy": "hybrid",
+        "reason": "Maximum control, scalability, enterprise features"
+      },
+      "documentation_site": {
+        "platform": "netlify",
+        "strategy": "static",
+        "reason": "Perfect for static content, excellent DX"
+      },
+      "performance_dashboard": {
+        "platform": "docker",
+        "strategy": "spa",
+        "reason": "Real-time updates, containerized deployment"
+      },
+      "global_saas": {
+        "platform": "gcp",
+        "strategy": "edge",
+        "reason": "Global performance, edge computing"
+      }
+    },
+    "comparison": {}
+  }
+}

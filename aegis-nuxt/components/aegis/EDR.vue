@@ -6,7 +6,7 @@
   </div>
 </template>
 
-<script setup lang="js">
+<script setup lang="ts">
 // Generated from http://cns.ai/ontology/cybersecurity#EDR on 2025-07-24T20:14:09.997237
 import type { EDR } from '~/types/aegis'
 

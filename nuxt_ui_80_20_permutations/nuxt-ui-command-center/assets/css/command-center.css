@@ -1,0 +1,66 @@
+/* Command Center Dark Theme */
+.dark {
+  --color-primary-50: rgb(240 249 255);
+  --color-primary-500: rgb(59 130 246);
+  --color-primary-950: rgb(23 37 84);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(75, 85, 99, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
+
+/* Animations */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 2s infinite;
+}
+
+/* Command palette enhancements */
+.command-palette {
+  backdrop-filter: blur(20px);
+  background: rgba(17, 24, 39, 0.95);
+}
+
+/* Pipeline flow animations */
+@keyframes flow {
+  0% { stroke-dashoffset: 20; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.pipeline-edge {
+  stroke-dasharray: 5,5;
+  animation: flow 2s linear infinite;
+}
+
+/* Glow effects for active components */
+.status-active {
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.status-warning {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+.status-error {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}

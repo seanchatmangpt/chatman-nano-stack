@@ -1,0 +1,9 @@
+{
+  "status": "connected",
+  "channels": [
+    "pipeline",
+    "metrics",
+    "alerts"
+  ],
+  "subscribers": 45
+}

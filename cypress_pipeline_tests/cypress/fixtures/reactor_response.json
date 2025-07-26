@@ -1,0 +1,6 @@
+{
+  "status": "success",
+  "workflow_id": "wf-12345",
+  "stages_completed": 5,
+  "execution_time": "245ms"
+}

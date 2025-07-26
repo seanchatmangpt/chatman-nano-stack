@@ -1,0 +1,160 @@
+{
+  "span_name": "nuxt_80_20_validation",
+  "trace_id": "trace_nuxt_80_20_1753515535",
+  "start_time": "2025-07-26T00:38:55.336024",
+  "attributes": {
+    "validation.framework": "nuxt_80_20_otel",
+    "validation.principle": "pareto_80_20",
+    "validation.no_typescript": true
+  },
+  "spans": [
+    {
+      "span_id": "span_nuxt-realtime-pipeline",
+      "operation": "validate_nuxt-realtime-pipeline",
+      "start_time": 1753515535.336033,
+      "duration": 0.00030684471130371094,
+      "attributes": {
+        "permutation.id": "nuxt-realtime-pipeline",
+        "permutation.name": "Real-time Pipeline Monitor",
+        "permutation.value_score": 95,
+        "validation.passed": true,
+        "validation.score": 100
+      },
+      "events": [
+        {
+          "name": "project_found",
+          "timestamp": "2025-07-26T00:38:55.336062"
+        },
+        {
+          "name": "typescript_free_verified",
+          "timestamp": "2025-07-26T00:38:55.336124"
+        },
+        {
+          "name": "pages_validated",
+          "timestamp": "2025-07-26T00:38:55.336335"
+        }
+      ]
+    },
+    {
+      "span_id": "span_nuxt-ontology-editor",
+      "operation": "validate_nuxt-ontology-editor",
+      "start_time": 1753515535.336344,
+      "duration": 0.0001289844512939453,
+      "attributes": {
+        "permutation.id": "nuxt-ontology-editor",
+        "permutation.name": "Visual Ontology Editor",
+        "permutation.value_score": 90,
+        "validation.passed": true,
+        "validation.score": 70
+      },
+      "events": [
+        {
+          "name": "project_found",
+          "timestamp": "2025-07-26T00:38:55.336356"
+        },
+        {
+          "name": "typescript_free_verified",
+          "timestamp": "2025-07-26T00:38:55.336400"
+        },
+        {
+          "name": "pages_validated",
+          "timestamp": "2025-07-26T00:38:55.336469"
+        }
+      ]
+    },
+    {
+      "span_id": "span_nuxt-bitactor-console",
+      "operation": "validate_nuxt-bitactor-console",
+      "start_time": 1753515535.3364758,
+      "duration": 0.00010609626770019531,
+      "attributes": {
+        "permutation.id": "nuxt-bitactor-console",
+        "permutation.name": "BitActor Control Console",
+        "permutation.value_score": 88,
+        "validation.passed": true,
+        "validation.score": 70
+      },
+      "events": [
+        {
+          "name": "project_found",
+          "timestamp": "2025-07-26T00:38:55.336485"
+        },
+        {
+          "name": "typescript_free_verified",
+          "timestamp": "2025-07-26T00:38:55.336523"
+        },
+        {
+          "name": "pages_validated",
+          "timestamp": "2025-07-26T00:38:55.336580"
+        }
+      ]
+    },
+    {
+      "span_id": "span_nuxt-reactor-builder",
+      "operation": "validate_nuxt-reactor-builder",
+      "start_time": 1753515535.3365839,
+      "duration": 9.822845458984375e-05,
+      "attributes": {
+        "permutation.id": "nuxt-reactor-builder",
+        "permutation.name": "Visual Reactor Workflow Builder",
+        "permutation.value_score": 85,
+        "validation.passed": true,
+        "validation.score": 70
+      },
+      "events": [
+        {
+          "name": "project_found",
+          "timestamp": "2025-07-26T00:38:55.336592"
+        },
+        {
+          "name": "typescript_free_verified",
+          "timestamp": "2025-07-26T00:38:55.336629"
+        },
+        {
+          "name": "pages_validated",
+          "timestamp": "2025-07-26T00:38:55.336679"
+        }
+      ]
+    },
+    {
+      "span_id": "span_nuxt-semantic-transformer",
+      "operation": "validate_nuxt-semantic-transformer",
+      "start_time": 1753515535.336683,
+      "duration": 9.489059448242188e-05,
+      "attributes": {
+        "permutation.id": "nuxt-semantic-transformer",
+        "permutation.name": "Semantic Pipeline Transformer",
+        "permutation.value_score": 82,
+        "validation.passed": true,
+        "validation.score": 70
+      },
+      "events": [
+        {
+          "name": "project_found",
+          "timestamp": "2025-07-26T00:38:55.336691"
+        },
+        {
+          "name": "typescript_free_verified",
+          "timestamp": "2025-07-26T00:38:55.336727"
+        },
+        {
+          "name": "pages_validated",
+          "timestamp": "2025-07-26T00:38:55.336775"
+        }
+      ]
+    }
+  ],
+  "metrics": {
+    "permutations.total": 5,
+    "permutations.validated": 5,
+    "permutations.validation_rate": 100.0,
+    "value_score.total": 440,
+    "value_score.average": 88.0,
+    "pipeline_connections.total": 21,
+    "pipeline_connections.average": 4.2,
+    "validation.duration_ms": 0.7588863372802734,
+    "pareto_efficiency": 100
+  },
+  "end_time": "2025-07-26T00:38:55.336779",
+  "duration": 0.0007579326629638672
+}

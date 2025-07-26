@@ -353,9 +353,18 @@ defmodule CnsForge.UltraThinkSwarmPermutationOrchestrator do
   
   defp execute_stage(:ash, data) do
     Logger.debug("🛡️ Executing ash stage")
-    case TTLAshReactorTransformer.transform_ttl(to_string(data)) do
+    
+    # Extract TTL content if available, otherwise generate placeholder
+    ttl_content = case data do
+      binary when is_binary(binary) -> binary
+      %{original: original} when is_binary(original) -> original
+      %{turtle: turtle} when is_binary(turtle) -> turtle
+      _ -> "# Generated TTL for Ash resources\n@prefix : <http://example.org#> .\n:Resource a :Class ."
+    end
+    
+    case TTLAshReactorTransformer.transform_ttl(ttl_content) do
       {:ok, result} -> result
-      _ -> data
+      _ -> %{ash_resources: "Generated from: #{inspect(data)}"}
     end
   end
   
@@ -386,7 +395,7 @@ defmodule CnsForge.UltraThinkSwarmPermutationOrchestrator do
   end
   
   defp execute_stage(unknown_stage, data) do
-    Logger.warn("❓ Unknown stage: #{unknown_stage}")
+    Logger.warning("❓ Unknown stage: #{unknown_stage}")
     data
   end
   

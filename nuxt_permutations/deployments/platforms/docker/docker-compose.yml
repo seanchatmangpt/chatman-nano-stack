@@ -1,0 +1,44 @@
+
+version: '3.8'
+
+services:
+  nuxt-app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - ASH_API_URL=http://ash-api:4000
+      - BITACTOR_WS_URL=ws://bitactor:8080
+    depends_on:
+      - ash-api
+      - bitactor
+    restart: unless-stopped
+    
+  ash-api:
+    image: cns-forge/ash-api:latest
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgres://user:pass@postgres:5432/cns_forge
+    depends_on:
+      - postgres
+      
+  bitactor:
+    image: cns-forge/bitactor:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - BITACTOR_CONFIG=/etc/bitactor/config.toml
+      
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=cns_forge
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

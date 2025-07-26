@@ -1,0 +1,219 @@
+{
+  "span_name": "nuxt_ui_80_20_validation",
+  "trace_id": "trace_nuxt_ui_80_20_1753516932",
+  "start_time": "2025-07-26T01:02:12.331641",
+  "attributes": {
+    "validation.framework": "nuxt_ui_80_20_otel",
+    "validation.principle": "pareto_80_20",
+    "validation.ui_focused": true,
+    "validation.no_typescript": true
+  },
+  "spans": [
+    {
+      "span_id": "span_nuxt-ui-command-center",
+      "operation": "validate_nuxt-ui-command-center",
+      "start_time": 1753516932.3316538,
+      "duration": 0.0004432201385498047,
+      "attributes": {
+        "permutation.id": "nuxt-ui-command-center",
+        "permutation.name": "Command Center Dashboard",
+        "permutation.ui_value_score": 98,
+        "permutation.design_system": "command-center",
+        "validation.passed": true,
+        "validation.score": 115,
+        "ui.frameworks_count": 3,
+        "ui.interactions_count": 3
+      },
+      "events": [
+        {
+          "name": "ui_project_found",
+          "timestamp": "2025-07-26T01:02:12.331687"
+        },
+        {
+          "name": "nuxt_ui_module_found",
+          "timestamp": "2025-07-26T01:02:12.331758"
+        },
+        {
+          "name": "typescript_free_verified",
+          "timestamp": "2025-07-26T01:02:12.331762"
+        },
+        {
+          "name": "ui_frameworks_validated",
+          "timestamp": "2025-07-26T01:02:12.331831",
+          "frameworks_found": 2
+        },
+        {
+          "name": "ui_components_validated",
+          "timestamp": "2025-07-26T01:02:12.331987"
+        },
+        {
+          "name": "css_styling_found",
+          "timestamp": "2025-07-26T01:02:12.332093"
+        }
+      ]
+    },
+    {
+      "span_id": "span_nuxt-ui-workflow-studio",
+      "operation": "validate_nuxt-ui-workflow-studio",
+      "start_time": 1753516932.332103,
+      "duration": 0.00016498565673828125,
+      "attributes": {
+        "permutation.id": "nuxt-ui-workflow-studio",
+        "permutation.name": "Visual Workflow Studio",
+        "permutation.ui_value_score": 95,
+        "permutation.design_system": "workflow-designer",
+        "validation.passed": true,
+        "validation.score": 60,
+        "ui.frameworks_count": 3,
+        "ui.interactions_count": 3
+      },
+      "events": [
+        {
+          "name": "ui_project_found",
+          "timestamp": "2025-07-26T01:02:12.332115"
+        },
+        {
+          "name": "nuxt_ui_module_found",
+          "timestamp": "2025-07-26T01:02:12.332161"
+        },
+        {
+          "name": "typescript_free_verified",
+          "timestamp": "2025-07-26T01:02:12.332164"
+        }
+      ]
+    },
+    {
+      "span_id": "span_nuxt-ui-data-explorer",
+      "operation": "validate_nuxt-ui-data-explorer",
+      "start_time": 1753516932.332272,
+      "duration": 0.00013184547424316406,
+      "attributes": {
+        "permutation.id": "nuxt-ui-data-explorer",
+        "permutation.name": "Interactive Data Explorer",
+        "permutation.ui_value_score": 92,
+        "permutation.design_system": "data-centric",
+        "validation.passed": true,
+        "validation.score": 60,
+        "ui.frameworks_count": 3,
+        "ui.interactions_count": 3
+      },
+      "events": [
+        {
+          "name": "ui_project_found",
+          "timestamp": "2025-07-26T01:02:12.332283"
+        },
+        {
+          "name": "nuxt_ui_module_found",
+          "timestamp": "2025-07-26T01:02:12.332320"
+        },
+        {
+          "name": "typescript_free_verified",
+          "timestamp": "2025-07-26T01:02:12.332323"
+        }
+      ]
+    },
+    {
+      "span_id": "span_nuxt-ui-performance-hub",
+      "operation": "validate_nuxt-ui-performance-hub",
+      "start_time": 1753516932.332408,
+      "duration": 0.00017309188842773438,
+      "attributes": {
+        "permutation.id": "nuxt-ui-performance-hub",
+        "permutation.name": "Performance Analytics Hub",
+        "permutation.ui_value_score": 90,
+        "permutation.design_system": "analytics-focused",
+        "validation.passed": true,
+        "validation.score": 115,
+        "ui.frameworks_count": 3,
+        "ui.interactions_count": 3
+      },
+      "events": [
+        {
+          "name": "ui_project_found",
+          "timestamp": "2025-07-26T01:02:12.332416"
+        },
+        {
+          "name": "nuxt_ui_module_found",
+          "timestamp": "2025-07-26T01:02:12.332451"
+        },
+        {
+          "name": "typescript_free_verified",
+          "timestamp": "2025-07-26T01:02:12.332454"
+        },
+        {
+          "name": "ui_frameworks_validated",
+          "timestamp": "2025-07-26T01:02:12.332497",
+          "frameworks_found": 2
+        },
+        {
+          "name": "ui_components_validated",
+          "timestamp": "2025-07-26T01:02:12.332539"
+        },
+        {
+          "name": "css_styling_found",
+          "timestamp": "2025-07-26T01:02:12.332578"
+        }
+      ]
+    },
+    {
+      "span_id": "span_nuxt-ui-semantic-playground",
+      "operation": "validate_nuxt-ui-semantic-playground",
+      "start_time": 1753516932.332584,
+      "duration": 0.0001709461212158203,
+      "attributes": {
+        "permutation.id": "nuxt-ui-semantic-playground",
+        "permutation.name": "Semantic Web Playground",
+        "permutation.ui_value_score": 88,
+        "permutation.design_system": "semantic-focused",
+        "validation.passed": true,
+        "validation.score": 115,
+        "ui.frameworks_count": 3,
+        "ui.interactions_count": 3
+      },
+      "events": [
+        {
+          "name": "ui_project_found",
+          "timestamp": "2025-07-26T01:02:12.332593"
+        },
+        {
+          "name": "nuxt_ui_module_found",
+          "timestamp": "2025-07-26T01:02:12.332629"
+        },
+        {
+          "name": "typescript_free_verified",
+          "timestamp": "2025-07-26T01:02:12.332632"
+        },
+        {
+          "name": "ui_frameworks_validated",
+          "timestamp": "2025-07-26T01:02:12.332673",
+          "frameworks_found": 3
+        },
+        {
+          "name": "ui_components_validated",
+          "timestamp": "2025-07-26T01:02:12.332716"
+        },
+        {
+          "name": "css_styling_found",
+          "timestamp": "2025-07-26T01:02:12.332753"
+        }
+      ]
+    }
+  ],
+  "metrics": {
+    "ui_permutations.total": 5,
+    "ui_permutations.validated": 5,
+    "ui_permutations.validation_rate": 100.0,
+    "ui_value_score.total": 463,
+    "ui_value_score.average": 92.6,
+    "ui_value_score.max": 500,
+    "pipeline_connections.total": 22,
+    "pipeline_connections.average": 4.4,
+    "ui_frameworks.unique_count": 11,
+    "ui_interactions.unique_count": 15,
+    "validation.duration_ms": 1.1219978332519531,
+    "ui_pareto_efficiency": 100,
+    "design_systems.count": 5
+  },
+  "end_time": "2025-07-26T01:02:12.332758",
+  "duration": 0.0011200904846191406
+}

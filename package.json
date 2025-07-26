@@ -1,0 +1,43 @@
+{
+  "name": "cns-swarm-pipeline",
+  "version": "1.0.0",
+  "description": "CNS Forge Swarm Pipeline with Ultrathink 80/20 Optimization",
+  "scripts": {
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "cypress:run:headless": "cypress run --headless",
+    "cypress:component": "cypress run --component",
+    "cypress:e2e": "cypress run --e2e",
+    "cypress:swarm": "cypress run --spec 'cypress/e2e/swarm-test-runner.cy.js'",
+    "test": "npm run cypress:run",
+    "test:integration": "cypress run --spec 'cypress/e2e/swarm-pipeline-integration.cy.js,cypress/e2e/websocket-channels.cy.js,cypress/e2e/ash-reactor-integration.cy.js'",
+    "test:optimization": "cypress run --spec 'cypress/e2e/80-20-optimization.cy.js'",
+    "test:components": "cypress run --component --spec 'cypress/component/**/*.cy.js'",
+    "test:all": "npm run test:components && npm run test:integration && npm run test:optimization",
+    "dev": "echo 'Development server for CNS Forge'",
+    "build": "echo 'Build CNS Forge application'",
+    "lint": "echo 'Lint CNS Forge codebase'"
+  },
+  "dependencies": {
+    "nuxt": "^3.8.0",
+    "phoenix": "^1.7.0",
+    "vue": "^3.3.0"
+  },
+  "devDependencies": {
+    "@cypress/vue": "^6.0.0",
+    "@vue/test-utils": "^2.4.0",
+    "cypress": "^13.17.0"
+  },
+  "keywords": [
+    "swarm",
+    "pipeline",
+    "ash",
+    "reactor",
+    "80/20",
+    "optimization",
+    "telemetry",
+    "cybersecurity"
+  ],
+  "author": "CNS Forge Team",
+  "license": "MIT"
+}

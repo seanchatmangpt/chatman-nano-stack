@@ -1,0 +1,35 @@
+# Kubernetes Deployment for CNS Forge Notification System
+# Generated from ULTRATHINK 80/20 Demo
+# Pipeline ID: ultrathink_731766
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cns-forge-notifications
+  labels:
+    app: cns-forge-notifications
+    pipeline-id: "ultrathink_731766"
+    component: ultrathink-80-20
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cns-forge-notifications
+  template:
+    metadata:
+      labels:
+        app: cns-forge-notifications
+    spec:
+      containers:
+      - name: notification-server
+        image: cns-forge-notifications:latest
+        ports:
+        - containerPort: 4000
+          name: http
+        - containerPort: 4369
+          name: bitactor
+        env:
+        - name: PIPELINE_ID
+          value: "ultrathink_731766"
+        - name: NOTIFICATION_CHANNELS
+          value: "websocket,pubsub,k8s_events,webhooks,bitactor"

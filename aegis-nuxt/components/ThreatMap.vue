@@ -71,7 +71,7 @@
   </div>
 </template>
 
-<script setup lang="js">
+<script setup lang="ts">
 import type { Threat } from "~/types/aegis";
 
 interface Props {

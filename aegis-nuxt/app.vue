@@ -30,18 +30,18 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Threat Dashboard -->
         <div class="lg:col-span-2">
-          <ThreatDashboard />
+          <AegisThreatDashboard />
         </div>
 
         <!-- Network Topology -->
         <div class="lg:col-span-1">
-          <NetworkTopology />
+          <AegisNetworkTopology />
         </div>
       </div>
 
       <!-- Asset Monitoring -->
       <div class="mt-8">
-        <AssetMonitor />
+        <AegisAssetMonitor />
       </div>
     </main>
   </div>

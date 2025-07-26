@@ -1,0 +1,920 @@
+{
+  "suite_name": "BitActor Nuxt.js Variants Validation - validation_1753515851",
+  "total_tests": 73,
+  "passed_tests": 67,
+  "failed_tests": 6,
+  "total_execution_time_ms": 1215.667963027954,
+  "ttl_violations": 2,
+  "performance_metrics": {
+    "avg_execution_time_ms": 1.5749169481149063,
+    "min_execution_time_ms": 8.288770914077759e-05,
+    "max_execution_time_ms": 34.056459087878466,
+    "total_execution_time_ms": 1215.667963027954,
+    "success_rate_percent": 91.78082191780823,
+    "ttl_compliance_rate_percent": 97.26027397260275
+  },
+  "variant_results": {
+    "nuxt_swarm_coordination_plugin": [
+      {
+        "variant_name": "nuxt_swarm_coordination_plugin",
+        "test_name": "plugin_load_test",
+        "success": true,
+        "execution_time_ms": 0.1838207244873047,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 28219,
+          "line_count": 973
+        }
+      },
+      {
+        "variant_name": "nuxt_swarm_coordination_plugin",
+        "test_name": "plugin_injection_test",
+        "success": true,
+        "execution_time_ms": 0.05793571472167969,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 28219,
+          "line_count": 973
+        }
+      },
+      {
+        "variant_name": "nuxt_swarm_coordination_plugin",
+        "test_name": "ttl_plugin_test",
+        "success": true,
+        "execution_time_ms": 0.055789947509765625,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 28219,
+          "line_count": 973
+        }
+      },
+      {
+        "variant_name": "nuxt_swarm_coordination_plugin",
+        "test_name": "ttl_compliance_default_ttl_ms",
+        "success": true,
+        "execution_time_ms": 5.036624846979976,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 8,
+          "utilization": 62.957810587249696
+        }
+      },
+      {
+        "variant_name": "nuxt_swarm_coordination_plugin",
+        "test_name": "perf_basic_performance",
+        "success": true,
+        "execution_time_ms": 1.2980420142412186,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 1.2980420142412186,
+          "min_ms": 1.2799999676644802,
+          "max_ms": 1.3119170907884836,
+          "iterations": 3
+        }
+      }
+    ],
+    "nuxt_websocket_variant_realtime": [
+      {
+        "variant_name": "nuxt_websocket_variant_realtime",
+        "test_name": "websocket_connection_test",
+        "success": false,
+        "execution_time_ms": 30.71308135986328,
+        "ttl_compliant": false,
+        "error_message": "Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 3101), [Errno 61] Connect call failed ('::1', 3101, 0, 0)",
+        "metrics": null
+      },
+      {
+        "variant_name": "nuxt_websocket_variant_realtime",
+        "test_name": "realtime_message_test",
+        "success": true,
+        "execution_time_ms": 0.08392333984375,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 19802,
+          "line_count": 702
+        }
+      },
+      {
+        "variant_name": "nuxt_websocket_variant_realtime",
+        "test_name": "ttl_websocket_test",
+        "success": true,
+        "execution_time_ms": 0.04124641418457031,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 19802,
+          "line_count": 702
+        }
+      },
+      {
+        "variant_name": "nuxt_websocket_variant_realtime",
+        "test_name": "ttl_compliance_message_ttl_ms",
+        "success": true,
+        "execution_time_ms": 2.87687499076128,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 5,
+          "utilization": 57.5374998152256
+        }
+      },
+      {
+        "variant_name": "nuxt_websocket_variant_realtime",
+        "test_name": "ttl_compliance_connection_ttl_ms",
+        "success": true,
+        "execution_time_ms": 0.6554580759257078,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 1,
+          "utilization": 65.54580759257078
+        }
+      },
+      {
+        "variant_name": "nuxt_websocket_variant_realtime",
+        "test_name": "perf_websocket_throughput",
+        "success": true,
+        "execution_time_ms": 1.057861295218269,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 1.057861295218269,
+          "min_ms": 0.9217080660164356,
+          "max_ms": 1.306791789829731,
+          "iterations": 3
+        }
+      },
+      {
+        "variant_name": "nuxt_websocket_variant_realtime",
+        "test_name": "perf_realtime_latency",
+        "success": true,
+        "execution_time_ms": 1.297666613633434,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 1.297666613633434,
+          "min_ms": 1.2953327968716621,
+          "max_ms": 1.30175007507205,
+          "iterations": 3
+        }
+      }
+    ],
+    "nuxt_bitactor_hybrid_bridge_variant": [
+      {
+        "variant_name": "nuxt_bitactor_hybrid_bridge_variant",
+        "test_name": "bridge_startup_test",
+        "success": true,
+        "execution_time_ms": 0.0016689300537109375,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "bridge_running": true,
+          "pid": 3794
+        }
+      },
+      {
+        "variant_name": "nuxt_bitactor_hybrid_bridge_variant",
+        "test_name": "api_test",
+        "success": true,
+        "execution_time_ms": 0.11682510375976562,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 46277,
+          "line_count": 1533
+        }
+      },
+      {
+        "variant_name": "nuxt_bitactor_hybrid_bridge_variant",
+        "test_name": "integration_test",
+        "success": true,
+        "execution_time_ms": 0.07176399230957031,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 46277,
+          "line_count": 1533
+        }
+      },
+      {
+        "variant_name": "nuxt_bitactor_hybrid_bridge_variant",
+        "test_name": "ttl_compliance_api_ttl_ms",
+        "success": true,
+        "execution_time_ms": 5.0440828781574965,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 8,
+          "utilization": 63.051035976968706
+        }
+      },
+      {
+        "variant_name": "nuxt_bitactor_hybrid_bridge_variant",
+        "test_name": "ttl_compliance_pipeline_ttl_ms",
+        "success": true,
+        "execution_time_ms": 34.056459087878466,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 64,
+          "utilization": 53.2132173248101
+        }
+      },
+      {
+        "variant_name": "nuxt_bitactor_hybrid_bridge_variant",
+        "test_name": "perf_bridge_throughput",
+        "success": true,
+        "execution_time_ms": 1.8631669227033854,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 1.8631669227033854,
+          "min_ms": 1.5190839767456055,
+          "max_ms": 2.1712498273700476,
+          "iterations": 3
+        }
+      },
+      {
+        "variant_name": "nuxt_bitactor_hybrid_bridge_variant",
+        "test_name": "perf_api_performance",
+        "success": true,
+        "execution_time_ms": 1.2866943919410307,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 1.2866943919410307,
+          "min_ms": 1.2831250205636024,
+          "max_ms": 1.2923330068588257,
+          "iterations": 3
+        }
+      },
+      {
+        "variant_name": "nuxt_bitactor_hybrid_bridge_variant",
+        "test_name": "perf_pipeline_performance",
+        "success": true,
+        "execution_time_ms": 0.9892218125363191,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 0.9892218125363191,
+          "min_ms": 0.9166661184281111,
+          "max_ms": 1.0389161761850119,
+          "iterations": 3
+        }
+      }
+    ],
+    "nuxt_ssr_variant_ttl_aware": [
+      {
+        "variant_name": "nuxt_ssr_variant_ttl_aware",
+        "test_name": "ssr_render_test",
+        "success": false,
+        "execution_time_ms": 1.188039779663086,
+        "ttl_compliant": false,
+        "error_message": "Cannot connect to host localhost:3100 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 3100), [Errno 61] Connect call failed ('::1', 3100, 0, 0)]",
+        "metrics": null
+      },
+      {
+        "variant_name": "nuxt_ssr_variant_ttl_aware",
+        "test_name": "ttl_ssr_test",
+        "success": true,
+        "execution_time_ms": 0.0476837158203125,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 18197,
+          "line_count": 627
+        }
+      },
+      {
+        "variant_name": "nuxt_ssr_variant_ttl_aware",
+        "test_name": "hydration_test",
+        "success": true,
+        "execution_time_ms": 0.034809112548828125,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 18197,
+          "line_count": 627
+        }
+      },
+      {
+        "variant_name": "nuxt_ssr_variant_ttl_aware",
+        "test_name": "ttl_compliance_render_ttl_ms",
+        "success": true,
+        "execution_time_ms": 5.028249928727746,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 8,
+          "utilization": 62.853124109096825
+        }
+      },
+      {
+        "variant_name": "nuxt_ssr_variant_ttl_aware",
+        "test_name": "ttl_compliance_hydration_ttl_ms",
+        "success": true,
+        "execution_time_ms": 1.2734998017549515,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 2,
+          "utilization": 63.674990087747574
+        }
+      },
+      {
+        "variant_name": "nuxt_ssr_variant_ttl_aware",
+        "test_name": "perf_ssr_performance",
+        "success": true,
+        "execution_time_ms": 2.553583666061362,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 2.553583666061362,
+          "min_ms": 2.5515840388834476,
+          "max_ms": 2.555249957367778,
+          "iterations": 3
+        }
+      },
+      {
+        "variant_name": "nuxt_ssr_variant_ttl_aware",
+        "test_name": "perf_ttl_ssr_performance",
+        "success": true,
+        "execution_time_ms": 1.2864166249831517,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 1.2864166249831517,
+          "min_ms": 1.2793748173862696,
+          "max_ms": 1.2902079615741968,
+          "iterations": 3
+        }
+      }
+    ],
+    "nuxt_ttl_metrics_components_variant": [
+      {
+        "variant_name": "nuxt_ttl_metrics_components_variant",
+        "test_name": "component_render_test",
+        "success": true,
+        "execution_time_ms": 0.00095367431640625,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "components_found": 5,
+          "render_time_ms": 3.2
+        }
+      },
+      {
+        "variant_name": "nuxt_ttl_metrics_components_variant",
+        "test_name": "ttl_component_test",
+        "success": true,
+        "execution_time_ms": 0.15401840209960938,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 51537,
+          "line_count": 1853
+        }
+      },
+      {
+        "variant_name": "nuxt_ttl_metrics_components_variant",
+        "test_name": "reactivity_test",
+        "success": true,
+        "execution_time_ms": 0.11301040649414062,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 51537,
+          "line_count": 1853
+        }
+      },
+      {
+        "variant_name": "nuxt_ttl_metrics_components_variant",
+        "test_name": "ttl_compliance_render_ttl_ms",
+        "success": true,
+        "execution_time_ms": 1.9076250027865171,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 3,
+          "utilization": 63.58750009288391
+        }
+      },
+      {
+        "variant_name": "nuxt_ttl_metrics_components_variant",
+        "test_name": "ttl_compliance_update_ttl_ms",
+        "success": true,
+        "execution_time_ms": 0.6485420744866133,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 1,
+          "utilization": 64.85420744866133
+        }
+      },
+      {
+        "variant_name": "nuxt_ttl_metrics_components_variant",
+        "test_name": "perf_component_render_performance",
+        "success": true,
+        "execution_time_ms": 1.288235963632663,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 1.288235963632663,
+          "min_ms": 1.2809168547391891,
+          "max_ms": 1.2927500065416098,
+          "iterations": 3
+        }
+      },
+      {
+        "variant_name": "nuxt_ttl_metrics_components_variant",
+        "test_name": "perf_reactivity_performance",
+        "success": true,
+        "execution_time_ms": 1.2907225949068863,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 1.2907225949068863,
+          "min_ms": 1.2899169232696295,
+          "max_ms": 1.2917090207338333,
+          "iterations": 3
+        }
+      }
+    ],
+    "nuxt_cybersecurity_components_variant": [
+      {
+        "variant_name": "nuxt_cybersecurity_components_variant",
+        "test_name": "component_render_test",
+        "success": true,
+        "execution_time_ms": 0.0007152557373046875,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "components_found": 5,
+          "render_time_ms": 3.2
+        }
+      },
+      {
+        "variant_name": "nuxt_cybersecurity_components_variant",
+        "test_name": "ttl_component_test",
+        "success": true,
+        "execution_time_ms": 0.05316734313964844,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 25224,
+          "line_count": 1031
+        }
+      },
+      {
+        "variant_name": "nuxt_cybersecurity_components_variant",
+        "test_name": "reactivity_test",
+        "success": true,
+        "execution_time_ms": 0.04673004150390625,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 25224,
+          "line_count": 1031
+        }
+      },
+      {
+        "variant_name": "nuxt_cybersecurity_components_variant",
+        "test_name": "ttl_compliance_render_ttl_ms",
+        "success": true,
+        "execution_time_ms": 1.9127500709146261,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 3,
+          "utilization": 63.7583356971542
+        }
+      },
+      {
+        "variant_name": "nuxt_cybersecurity_components_variant",
+        "test_name": "ttl_compliance_update_ttl_ms",
+        "success": true,
+        "execution_time_ms": 0.6639999337494373,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 1,
+          "utilization": 66.39999337494373
+        }
+      },
+      {
+        "variant_name": "nuxt_cybersecurity_components_variant",
+        "test_name": "perf_component_render_performance",
+        "success": true,
+        "execution_time_ms": 1.2879582742849986,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 1.2879582742849986,
+          "min_ms": 1.2813329230993986,
+          "max_ms": 1.2922498863190413,
+          "iterations": 3
+        }
+      },
+      {
+        "variant_name": "nuxt_cybersecurity_components_variant",
+        "test_name": "perf_reactivity_performance",
+        "success": true,
+        "execution_time_ms": 1.2825004135568936,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 1.2825004135568936,
+          "min_ms": 1.2765841092914343,
+          "max_ms": 1.2896670959889889,
+          "iterations": 3
+        }
+      }
+    ],
+    "nuxt_pipeline_monitoring_pages_variant": [
+      {
+        "variant_name": "nuxt_pipeline_monitoring_pages_variant",
+        "test_name": "page_render_test",
+        "success": true,
+        "execution_time_ms": 0.12683868408203125,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 50217,
+          "line_count": 1667
+        }
+      },
+      {
+        "variant_name": "nuxt_pipeline_monitoring_pages_variant",
+        "test_name": "navigation_test",
+        "success": true,
+        "execution_time_ms": 0.1049041748046875,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 50217,
+          "line_count": 1667
+        }
+      },
+      {
+        "variant_name": "nuxt_pipeline_monitoring_pages_variant",
+        "test_name": "ttl_page_test",
+        "success": true,
+        "execution_time_ms": 0.1010894775390625,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 50217,
+          "line_count": 1667
+        }
+      },
+      {
+        "variant_name": "nuxt_pipeline_monitoring_pages_variant",
+        "test_name": "ttl_compliance_page_ttl_ms",
+        "success": true,
+        "execution_time_ms": 5.0248331390321255,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 8,
+          "utilization": 62.81041423790157
+        }
+      },
+      {
+        "variant_name": "nuxt_pipeline_monitoring_pages_variant",
+        "test_name": "ttl_compliance_navigation_ttl_ms",
+        "success": true,
+        "execution_time_ms": 1.9146669656038284,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 3,
+          "utilization": 63.82223218679428
+        }
+      },
+      {
+        "variant_name": "nuxt_pipeline_monitoring_pages_variant",
+        "test_name": "perf_basic_performance",
+        "success": true,
+        "execution_time_ms": 1.2862083191672962,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 1.2862083191672962,
+          "min_ms": 1.281167147681117,
+          "max_ms": 1.2899998109787703,
+          "iterations": 3
+        }
+      }
+    ],
+    "nuxt_cybersecurity_layouts_variant": [
+      {
+        "variant_name": "nuxt_cybersecurity_layouts_variant",
+        "test_name": "layout_render_test",
+        "success": true,
+        "execution_time_ms": 0.10013580322265625,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 37378,
+          "line_count": 1355
+        }
+      },
+      {
+        "variant_name": "nuxt_cybersecurity_layouts_variant",
+        "test_name": "layout_ttl_test",
+        "success": true,
+        "execution_time_ms": 0.08511543273925781,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 37378,
+          "line_count": 1355
+        }
+      },
+      {
+        "variant_name": "nuxt_cybersecurity_layouts_variant",
+        "test_name": "responsive_test",
+        "success": true,
+        "execution_time_ms": 0.0820159912109375,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 37378,
+          "line_count": 1355
+        }
+      },
+      {
+        "variant_name": "nuxt_cybersecurity_layouts_variant",
+        "test_name": "ttl_compliance_layout_ttl_ms",
+        "success": true,
+        "execution_time_ms": 3.1657919753342867,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 5,
+          "utilization": 63.315839506685734
+        }
+      },
+      {
+        "variant_name": "nuxt_cybersecurity_layouts_variant",
+        "test_name": "ttl_compliance_responsive_ttl_ms",
+        "success": true,
+        "execution_time_ms": 1.290834043174982,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 2,
+          "utilization": 64.5417021587491
+        }
+      },
+      {
+        "variant_name": "nuxt_cybersecurity_layouts_variant",
+        "test_name": "perf_basic_performance",
+        "success": true,
+        "execution_time_ms": 1.2882499334712822,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 1.2882499334712822,
+          "min_ms": 1.2839578557759523,
+          "max_ms": 1.2929579243063927,
+          "iterations": 3
+        }
+      }
+    ],
+    "nuxt_variants_validation_suite": [
+      {
+        "variant_name": "nuxt_variants_validation_suite",
+        "test_name": "basic_validation_test",
+        "success": true,
+        "execution_time_ms": 0.18024444580078125,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "file_size_bytes": 65398,
+          "line_count": 1612
+        }
+      },
+      {
+        "variant_name": "nuxt_variants_validation_suite",
+        "test_name": "ttl_compliance_default_ttl_ms",
+        "success": true,
+        "execution_time_ms": 5.0505828112363815,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "budget_ms": 8,
+          "utilization": 63.13228514045477
+        }
+      },
+      {
+        "variant_name": "nuxt_variants_validation_suite",
+        "test_name": "perf_basic_performance",
+        "success": true,
+        "execution_time_ms": 1.2934583549698193,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "avg_ms": 1.2934583549698193,
+          "min_ms": 1.2895830441266298,
+          "max_ms": 1.2963749468326569,
+          "iterations": 3
+        }
+      }
+    ],
+    "ttl_enforcement": [
+      {
+        "variant_name": "ttl_enforcement",
+        "test_name": "enforcement_strict",
+        "success": true,
+        "execution_time_ms": 0.00045797787606716156,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "enforcement_mode": "strict"
+        }
+      },
+      {
+        "variant_name": "ttl_enforcement",
+        "test_name": "enforcement_graceful",
+        "success": true,
+        "execution_time_ms": 0.0004169996827840805,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "enforcement_mode": "graceful"
+        }
+      }
+    ],
+    "timing_precision": [
+      {
+        "variant_name": "timing_precision",
+        "test_name": "nanosecond_precision",
+        "success": false,
+        "execution_time_ms": 1.303416,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "expected_ms": 1.0,
+          "actual_ms": 1.303416,
+          "precision_error_ms": 0.3034159999999999,
+          "execution_time_ns": 1303416
+        }
+      }
+    ],
+    "ssr_websocket_integration": [
+      {
+        "variant_name": "ssr_websocket_integration",
+        "test_name": "ssr_websocket_integration",
+        "success": true,
+        "execution_time_ms": 8.288770914077759e-05,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      }
+    ],
+    "components_layouts_integration": [
+      {
+        "variant_name": "components_layouts_integration",
+        "test_name": "components_layouts_integration",
+        "success": true,
+        "execution_time_ms": 0.000125030055642128,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      }
+    ],
+    "bridge_integration": [
+      {
+        "variant_name": "bridge_integration",
+        "test_name": "bridge_variants_integration",
+        "success": false,
+        "execution_time_ms": 1.395750092342496,
+        "ttl_compliant": true,
+        "error_message": "Cannot connect to host localhost:3100 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 3100), [Errno 61] Connect call failed ('::1', 3100, 0, 0)]",
+        "metrics": null
+      }
+    ],
+    "end_to_end_flow": [
+      {
+        "variant_name": "end_to_end_flow",
+        "test_name": "end_to_end_data_flow",
+        "success": true,
+        "execution_time_ms": 0.0009168870747089386,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      }
+    ],
+    "security_validation": [
+      {
+        "variant_name": "security_validation",
+        "test_name": "input_validation",
+        "success": true,
+        "execution_time_ms": 0.008541857823729515,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "malicious_inputs_tested": 3
+        }
+      },
+      {
+        "variant_name": "security_validation",
+        "test_name": "ttl_security",
+        "success": true,
+        "execution_time_ms": 1.0353750549256802,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      },
+      {
+        "variant_name": "security_validation",
+        "test_name": "websocket_security",
+        "success": true,
+        "execution_time_ms": 0.0004169996827840805,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      },
+      {
+        "variant_name": "security_validation",
+        "test_name": "api_security",
+        "success": true,
+        "execution_time_ms": 8.381903171539307e-05,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      }
+    ],
+    "interoperability": [
+      {
+        "variant_name": "interoperability",
+        "test_name": "variant_data_exchange",
+        "success": true,
+        "execution_time_ms": 0.000125030055642128,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      },
+      {
+        "variant_name": "interoperability",
+        "test_name": "shared_state_management",
+        "success": true,
+        "execution_time_ms": 8.288770914077759e-05,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      },
+      {
+        "variant_name": "interoperability",
+        "test_name": "event_propagation",
+        "success": true,
+        "execution_time_ms": 8.312053978443146e-05,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      }
+    ],
+    "end_to_end": [
+      {
+        "variant_name": "end_to_end",
+        "test_name": "full_pipeline_execution",
+        "success": false,
+        "execution_time_ms": 1.0841249022632837,
+        "ttl_compliant": true,
+        "error_message": "Cannot connect to host localhost:3100 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 3100), [Errno 61] Connect call failed ('::1', 3100, 0, 0)]",
+        "metrics": {
+          "stages_executed": 8
+        }
+      },
+      {
+        "variant_name": "end_to_end",
+        "test_name": "complete_user_journey",
+        "success": true,
+        "execution_time_ms": 6.427458021789789,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "journey_steps": 5
+        }
+      },
+      {
+        "variant_name": "end_to_end",
+        "test_name": "system_stress",
+        "success": false,
+        "execution_time_ms": 3.5032499581575394,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "concurrent_requests": 10
+        }
+      }
+    ]
+  }
+}

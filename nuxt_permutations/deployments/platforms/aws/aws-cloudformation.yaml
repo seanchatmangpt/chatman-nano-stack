@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  CloudFrontDistribution:
+    Properties:
+      DistributionConfig:
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+        Enabled: true
+        Origins:
+        - DomainName:
+            Fn::GetAtt:
+            - S3Bucket
+            - DomainName
+          Id: S3Origin
+          S3OriginConfig: {}
+    Type: AWS::CloudFront::Distribution
+  S3Bucket:
+    Properties:
+      BucketName: cns-forge-nuxt-app
+      WebsiteConfiguration:
+        IndexDocument: index.html
+    Type: AWS::S3::Bucket

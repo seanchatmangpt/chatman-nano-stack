@@ -1,0 +1,195 @@
+{
+  "suite_name": "BitActor Nuxt.js Variants Validation - validation_1753515254",
+  "total_tests": 16,
+  "passed_tests": 15,
+  "failed_tests": 1,
+  "total_execution_time_ms": 12.392997741699219,
+  "ttl_violations": 0,
+  "performance_metrics": {
+    "avg_execution_time_ms": 0.3859251116712888,
+    "min_execution_time_ms": 4.190951585769653e-05,
+    "max_execution_time_ms": 5.785125074908137,
+    "total_execution_time_ms": 12.392997741699219,
+    "success_rate_percent": 93.75,
+    "ttl_compliance_rate_percent": 100.0
+  },
+  "variant_results": {
+    "ttl_enforcement": [
+      {
+        "variant_name": "ttl_enforcement",
+        "test_name": "enforcement_strict",
+        "success": true,
+        "execution_time_ms": 0.0002919696271419525,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "enforcement_mode": "strict"
+        }
+      },
+      {
+        "variant_name": "ttl_enforcement",
+        "test_name": "enforcement_graceful",
+        "success": true,
+        "execution_time_ms": 0.0003341119736433029,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "enforcement_mode": "graceful"
+        }
+      }
+    ],
+    "timing_precision": [
+      {
+        "variant_name": "timing_precision",
+        "test_name": "nanosecond_precision",
+        "success": false,
+        "execution_time_ms": 1.20975,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "expected_ms": 1.0,
+          "actual_ms": 1.20975,
+          "precision_error_ms": 0.2097500000000001,
+          "execution_time_ns": 1209750
+        }
+      }
+    ],
+    "ssr_websocket_integration": [
+      {
+        "variant_name": "ssr_websocket_integration",
+        "test_name": "ssr_websocket_integration",
+        "success": true,
+        "execution_time_ms": 4.190951585769653e-05,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      }
+    ],
+    "components_layouts_integration": [
+      {
+        "variant_name": "components_layouts_integration",
+        "test_name": "components_layouts_integration",
+        "success": true,
+        "execution_time_ms": 0.000125030055642128,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      }
+    ],
+    "end_to_end_flow": [
+      {
+        "variant_name": "end_to_end_flow",
+        "test_name": "end_to_end_data_flow",
+        "success": true,
+        "execution_time_ms": 0.00020815059542655945,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      }
+    ],
+    "security_validation": [
+      {
+        "variant_name": "security_validation",
+        "test_name": "input_validation",
+        "success": true,
+        "execution_time_ms": 0.0015418045222759247,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "malicious_inputs_tested": 3
+        }
+      },
+      {
+        "variant_name": "security_validation",
+        "test_name": "ttl_security",
+        "success": true,
+        "execution_time_ms": 0.000250060111284256,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      },
+      {
+        "variant_name": "security_validation",
+        "test_name": "websocket_security",
+        "success": true,
+        "execution_time_ms": 0.00020791776478290558,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      },
+      {
+        "variant_name": "security_validation",
+        "test_name": "api_security",
+        "success": true,
+        "execution_time_ms": 4.190951585769653e-05,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      }
+    ],
+    "interoperability": [
+      {
+        "variant_name": "interoperability",
+        "test_name": "variant_data_exchange",
+        "success": true,
+        "execution_time_ms": 4.190951585769653e-05,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      },
+      {
+        "variant_name": "interoperability",
+        "test_name": "shared_state_management",
+        "success": true,
+        "execution_time_ms": 8.288770914077759e-05,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      },
+      {
+        "variant_name": "interoperability",
+        "test_name": "event_propagation",
+        "success": true,
+        "execution_time_ms": 4.190951585769653e-05,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": null
+      }
+    ],
+    "end_to_end": [
+      {
+        "variant_name": "end_to_end",
+        "test_name": "full_pipeline_execution",
+        "success": true,
+        "execution_time_ms": 0.0001671724021434784,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "stages_executed": 8
+        }
+      },
+      {
+        "variant_name": "end_to_end",
+        "test_name": "complete_user_journey",
+        "success": true,
+        "execution_time_ms": 5.785125074908137,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "journey_steps": 5
+        }
+      },
+      {
+        "variant_name": "end_to_end",
+        "test_name": "system_stress",
+        "success": true,
+        "execution_time_ms": 0.0003748573362827301,
+        "ttl_compliant": true,
+        "error_message": null,
+        "metrics": {
+          "concurrent_requests": 10
+        }
+      }
+    ]
+  }
+}

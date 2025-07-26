@@ -1,0 +1,21 @@
+{
+  "name": "nuxt-ui-semantic-playground",
+  "version": "1.0.0",
+  "description": "Interactive semantic modeling and testing environment",
+  "scripts": {
+    "dev": "nuxt dev --port 3040",
+    "build": "nuxt build",
+    "preview": "nuxt preview"
+  },
+  "dependencies": {
+    "nuxt": "^3.8.0",
+    "@nuxt/ui": "^2.12.0",
+    "@vueuse/nuxt": "^10.7.0",
+    "@pinia/nuxt": "^0.5.1",
+    "monaco-editor": "^0.45.0",
+    "cytoscape": "^3.26.0",
+    "cytoscape-dagre": "^2.5.0",
+    "cytoscape-cola": "^2.5.1",
+    "rdflib": "^2.2.33"
+  }
+}

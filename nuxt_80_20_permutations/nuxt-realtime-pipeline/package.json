@@ -1,0 +1,18 @@
+{
+  "name": "nuxt-realtime-pipeline",
+  "version": "1.0.0",
+  "description": "Real-time pipeline monitoring dashboard",
+  "scripts": {
+    "dev": "nuxt dev --port 3010",
+    "build": "nuxt build",
+    "preview": "nuxt preview"
+  },
+  "dependencies": {
+    "nuxt": "^3.8.0",
+    "@nuxtjs/tailwindcss": "^6.8.0",
+    "@pinia/nuxt": "^0.5.1",
+    "@vueuse/nuxt": "^10.7.0",
+    "vis-network": "^9.1.9",
+    "chart.js": "^4.4.0"
+  }
+}

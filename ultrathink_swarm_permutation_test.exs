@@ -133,6 +133,15 @@ defmodule UltraThinkSwarmPermutationTest do
             result: nil,
             error: reason
           }
+          
+        execution_result ->
+          %{
+            scenario: scenario.name,
+            pattern: pattern,
+            success: true,
+            result: execution_result,
+            error: nil
+          }
       end
       
       end_time = System.monotonic_time(:microsecond)

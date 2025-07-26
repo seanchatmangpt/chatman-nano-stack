@@ -1,0 +1,136 @@
+/* Semantic Playground Styles */
+.monaco-editor {
+  border-radius: 0;
+}
+
+/* Graph visualization */
+#cy {
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+/* Validation panel */
+.validation-panel {
+  background: rgba(239, 68, 68, 0.95);
+  backdrop-filter: blur(8px);
+  border-radius: 8px;
+  color: white;
+}
+
+/* Property editor */
+.property-editor {
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 13px;
+}
+
+/* Tab styling */
+.tab-content {
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Tree view styling */
+.semantic-tree {
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 14px;
+}
+
+.tree-node {
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.tree-node:hover {
+  background-color: #f3f4f6;
+}
+
+.tree-node.selected {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* Table styling */
+.semantic-table {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pipeline stage indicators */
+.pipeline-stage {
+  border-left: 4px solid #3b82f6;
+  background: #f8fafc;
+}
+
+.pipeline-stage.active {
+  border-left-color: #10b981;
+  background: #f0fdfa;
+}
+
+.pipeline-stage.error {
+  border-left-color: #ef4444;
+  background: #fef2f2;
+}
+
+/* Animation for live updates */
+@keyframes highlight-update {
+  0% { background-color: #fef3c7; }
+  100% { background-color: transparent; }
+}
+
+.live-update {
+  animation: highlight-update 1s ease-out;
+}
+
+/* Format selector styling */
+.format-selector {
+  min-width: 120px;
+}
+
+/* Progress indicators */
+.transformation-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-step {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.progress-step.pending {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.progress-step.running {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.progress-step.completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.progress-step.error {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .playground-layout {
+    flex-direction: column;
+  }
+  
+  .editor-panel,
+  .visualization-panel {
+    width: 100%;
+    height: 50vh;
+  }
+}

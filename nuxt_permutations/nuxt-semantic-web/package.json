@@ -1,0 +1,23 @@
+{
+  "name": "nuxt-semantic-web",
+  "version": "1.0.0", 
+  "description": "Nuxt.js SSR/SSG application for semantic web ontologies",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev --port 3002",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@nuxtjs/robots": "^3.0.0",
+    "@nuxtjs/sitemap": "^4.2.0", 
+    "@nuxtjs/tailwindcss": "^6.8.4",
+    "nuxt": "^3.8.0"
+  },
+  "dependencies": {
+    "rdflib": "^2.2.33"
+  }
+}

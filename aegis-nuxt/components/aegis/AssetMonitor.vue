@@ -59,7 +59,7 @@
   </div>
 </template>
 
-<script setup lang="js">
+<script setup lang="ts">
 // Generated from TTL ontology on 2025-07-24T20:14:09.967768
 import { useAegisFabric } from '~/composables/useAegisFabric'
 import type { Asset } from '~/types/aegis'

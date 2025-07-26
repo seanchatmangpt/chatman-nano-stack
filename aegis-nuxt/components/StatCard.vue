@@ -20,7 +20,7 @@
   </div>
 </template>
 
-<script setup lang="js">
+<script setup lang="ts">
 interface Props {
   label: string;
   value: number;

@@ -1,0 +1,8 @@
+{
+  "status": "success",
+  "data": {
+    "processed": 1250,
+    "efficiency": 88.5,
+    "output": "typed_data.json"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "nuxt-ash-graphql",
+  "version": "1.0.0",
+  "description": "Nuxt.js frontend with Ash GraphQL integration",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev --port 3000",
+    "generate": "nuxt generate", 
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@nuxtjs/tailwindcss": "^6.8.4",
+    "nuxt": "^3.8.0"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.8.7",
+    "@nuxtjs/apollo": "^5.0.0-alpha.14",
+    "@pinia/nuxt": "^0.5.1",
+    "@vue/apollo-composable": "^4.0.0-beta.11",
+    "graphql": "^16.8.1",
+    "graphql-tag": "^2.12.6",
+    "pinia": "^2.1.7"
+  }
+}
