@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.SIEMTest do
         status: :active
       }
       
-      assert {:ok, siem} = Ash.create(SIEM, attrs)
+      SIEM.init_storage()
+      assert {:ok, siem} = SIEM.create(attrs)
       assert siem.name == "Test SIEM"
       assert siem.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.SIEMTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(SIEM, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = SIEM.create(SIEM, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.SIEMTest do
     test "reads existing siem" do
       siem = TestHelper.create_test_data(SIEM)
       
-      assert {:ok, found_siem} = Ash.get(SIEM, siem.id)
+      assert {:ok, found_siem} = SIEM.get(SIEM, siem.id)
       assert found_siem.id == siem.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.SIEMTest do
       TestHelper.create_test_data(SIEM, %{name: "SIEM 1"})
       TestHelper.create_test_data(SIEM, %{name: "SIEM 2"})
       
-      assert {:ok, siems} = Ash.read(SIEM)
+      assert {:ok, siems} = SIEM.list(SIEM)
       assert length(siems) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.SIEMTest do
       active_siem = TestHelper.create_test_data(SIEM, %{status: :active})
       _inactive_siem = TestHelper.create_test_data(SIEM, %{status: :inactive})
       
-      assert {:ok, [siem]} = Ash.read(SIEM, action: :by_status, status: :active)
+      assert {:ok, [siem]} = SIEM.list(SIEM, action: :by_status, status: :active)
       assert siem.id == active_siem.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.SIEMTest do
     test "updates siem attributes" do
       siem = TestHelper.create_test_data(SIEM)
       
-      assert {:ok, updated_siem} = Ash.update(siem, %{name: "Updated Name"})
+      assert {:ok, updated_siem} = SIEM.update(siem, %{name: "Updated Name"})
       assert updated_siem.name == "Updated Name"
     end
     
     test "activates siem" do
       siem = TestHelper.create_test_data(SIEM, %{status: :inactive})
       
-      assert {:ok, activated_siem} = Ash.update(siem, action: :activate)
+      assert {:ok, activated_siem} = SIEM.update(siem, action: :activate)
       assert activated_siem.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.SIEMTest do
     test "destroys existing siem" do
       siem = TestHelper.create_test_data(SIEM)
       
-      assert :ok = Ash.destroy(siem)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(SIEM, siem.id)
+      assert :ok = SIEM.delete(siem)
+      assert {:error, %Ash.Error.Invalid{}} = SIEM.get(SIEM, siem.id)
     end
   end
 end

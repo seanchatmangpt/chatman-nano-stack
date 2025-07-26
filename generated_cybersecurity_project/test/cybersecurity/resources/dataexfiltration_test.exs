@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.DataExfiltrationTest do
         status: :active
       }
       
-      assert {:ok, dataexfiltration} = Ash.create(DataExfiltration, attrs)
+      DataExfiltration.init_storage()
+      assert {:ok, dataexfiltration} = DataExfiltration.create(attrs)
       assert dataexfiltration.name == "Test DataExfiltration"
       assert dataexfiltration.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.DataExfiltrationTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(DataExfiltration, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = DataExfiltration.create(DataExfiltration, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.DataExfiltrationTest do
     test "reads existing dataexfiltration" do
       dataexfiltration = TestHelper.create_test_data(DataExfiltration)
       
-      assert {:ok, found_dataexfiltration} = Ash.get(DataExfiltration, dataexfiltration.id)
+      assert {:ok, found_dataexfiltration} = DataExfiltration.get(DataExfiltration, dataexfiltration.id)
       assert found_dataexfiltration.id == dataexfiltration.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.DataExfiltrationTest do
       TestHelper.create_test_data(DataExfiltration, %{name: "DataExfiltration 1"})
       TestHelper.create_test_data(DataExfiltration, %{name: "DataExfiltration 2"})
       
-      assert {:ok, dataexfiltrations} = Ash.read(DataExfiltration)
+      assert {:ok, dataexfiltrations} = DataExfiltration.list(DataExfiltration)
       assert length(dataexfiltrations) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.DataExfiltrationTest do
       active_dataexfiltration = TestHelper.create_test_data(DataExfiltration, %{status: :active})
       _inactive_dataexfiltration = TestHelper.create_test_data(DataExfiltration, %{status: :inactive})
       
-      assert {:ok, [dataexfiltration]} = Ash.read(DataExfiltration, action: :by_status, status: :active)
+      assert {:ok, [dataexfiltration]} = DataExfiltration.list(DataExfiltration, action: :by_status, status: :active)
       assert dataexfiltration.id == active_dataexfiltration.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.DataExfiltrationTest do
     test "updates dataexfiltration attributes" do
       dataexfiltration = TestHelper.create_test_data(DataExfiltration)
       
-      assert {:ok, updated_dataexfiltration} = Ash.update(dataexfiltration, %{name: "Updated Name"})
+      assert {:ok, updated_dataexfiltration} = DataExfiltration.update(dataexfiltration, %{name: "Updated Name"})
       assert updated_dataexfiltration.name == "Updated Name"
     end
     
     test "activates dataexfiltration" do
       dataexfiltration = TestHelper.create_test_data(DataExfiltration, %{status: :inactive})
       
-      assert {:ok, activated_dataexfiltration} = Ash.update(dataexfiltration, action: :activate)
+      assert {:ok, activated_dataexfiltration} = DataExfiltration.update(dataexfiltration, action: :activate)
       assert activated_dataexfiltration.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.DataExfiltrationTest do
     test "destroys existing dataexfiltration" do
       dataexfiltration = TestHelper.create_test_data(DataExfiltration)
       
-      assert :ok = Ash.destroy(dataexfiltration)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(DataExfiltration, dataexfiltration.id)
+      assert :ok = DataExfiltration.delete(dataexfiltration)
+      assert {:error, %Ash.Error.Invalid{}} = DataExfiltration.get(DataExfiltration, dataexfiltration.id)
     end
   end
 end

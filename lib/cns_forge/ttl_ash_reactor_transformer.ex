@@ -14,20 +14,6 @@ defmodule CnsForge.TTLAshReactorTransformer do
   
   @doc """
   Transform TTL ontology into complete Ash.Reactor system
-  
-  ## Example
-      iex> ttl = '''
-      ...> @prefix cns: <http://cns-forge.org/ontology#> .
-      ...> @prefix owl: <http://www.w3.org/2002/07/owl#> .
-      ...> 
-      ...> cns:BitActor a owl:Class .
-      ...> cns:Signal a owl:Class .
-      ...> cns:processes a owl:ObjectProperty ;
-      ...>   owl:domain cns:BitActor ;
-      ...>   owl:range cns:Signal .
-      ...> '''
-      iex> CnsForge.TTLAshReactorTransformer.transform_ttl(ttl)
-      {:ok, %{resources: [...], reactors: [...], domain: "..."}}
   """
   def transform_ttl(ttl_content) when is_binary(ttl_content) do
     Logger.info("Starting TTL → Ash.Reactor transformation")
@@ -103,44 +89,44 @@ defmodule CnsForge.TTLAshReactorTransformer do
   end
   
   @doc "Generate Ash.Domain that orchestrates resources and reactors"
-  def generate_ash_domain(resources, reactors) do
+  def generate_ash_domain(resources, _reactors) do
     domain_code = """
-    defmodule CnsForge.TTLDomain do
-      @moduledoc \"\"\"
-      Auto-generated Ash.Domain from TTL ontology transformation
-      Orchestrates all resources and reactors for ontology processing
-      \"\"\"
+defmodule CnsForge.TTLDomain do
+  @moduledoc \"\"\"
+  Auto-generated Ash.Domain from TTL ontology transformation
+  Orchestrates all resources and reactors for ontology processing
+  \"\"\"
+  
+  use Ash.Domain
+  
+  resources do
+#{Enum.map_join(resources, "\n", fn resource -> "    resource #{resource.module_name}" end)}
+  end
+  
+  authorization do
+    authorize :when_requested
+  end
+  
+  # TTL-bounded execution context
+  def process_ontology_with_ttl_bounds(input_data, ttl_constraints \\\\ %{}) do
+    context = %{
+      ttl_constraints: ttl_constraints,
+      execution_start: System.monotonic_time(:nanosecond),
+      max_execution_ns: Map.get(ttl_constraints, :max_execution_ns, 1_000_000_000)
+    }
+    
+    case Reactor.run(CnsForge.TTLMainReactor, input_data, context) do
+      {:ok, result} -> 
+        execution_time = System.monotonic_time(:nanosecond) - context.execution_start
+        Logger.info("TTL ontology processed in \#{execution_time}ns")
+        {:ok, Map.put(result, :execution_time_ns, execution_time)}
       
-      use Ash.Domain
-      
-      resources do
-    #{Enum.map_join(resources, "\n", fn resource -> "    resource #{resource.module_name}" end)}
-      end
-      
-      authorization do
-        authorize :when_requested
-      end
-      
-      # TTL-bounded execution context
-      def process_ontology_with_ttl_bounds(input_data, ttl_constraints \\\\ %{}) do
-        context = %{
-          ttl_constraints: ttl_constraints,
-          execution_start: System.monotonic_time(:nanosecond),
-          max_execution_ns: Map.get(ttl_constraints, :max_execution_ns, 1_000_000_000)
-        }
-        
-        case Reactor.run(CnsForge.TTLMainReactor, input_data, context) do
-          {:ok, result} -> 
-            execution_time = System.monotonic_time(:nanosecond) - context.execution_start
-            Logger.info("TTL ontology processed in \#{execution_time}ns")
-            {:ok, Map.put(result, :execution_time_ns, execution_time)}
-          
-          {:error, reason} -> 
-            {:error, reason}
-        end
-      end
+      {:error, reason} -> 
+        {:error, reason}
     end
-    """
+  end
+end
+"""
     
     {:ok, domain_code}
   end
@@ -155,7 +141,7 @@ defmodule CnsForge.TTLAshReactorTransformer do
     |> Enum.into(%{}, fn [_, prefix, uri] -> {prefix, uri} end)
   end
   
-  defp extract_classes(ttl_content, prefixes) do
+  defp extract_classes(ttl_content, _prefixes) do
     # Extract owl:Class declarations
     class_regex = ~r/(\w+:\w+)\s+(?:rdf:type|a)\s+owl:Class/
     
@@ -170,7 +156,7 @@ defmodule CnsForge.TTLAshReactorTransformer do
     end)
   end
   
-  defp extract_properties(ttl_content, prefixes) do
+  defp extract_properties(ttl_content, _prefixes) do
     # Extract owl:ObjectProperty and owl:DatatypeProperty
     property_regex = ~r/(\w+:\w+)\s+(?:rdf:type|a)\s+owl:(?:Object|Datatype)Property/
     
@@ -246,86 +232,86 @@ defmodule CnsForge.TTLAshReactorTransformer do
     end)
     
     resource_code = """
-    defmodule #{class.module_name} do
-      @moduledoc \"\"\"
-      Auto-generated Ash.Resource for TTL class: #{class.uri}
-      Represents semantic concept with TTL-bounded execution
-      \"\"\"
+defmodule #{class.module_name} do
+  @moduledoc \"\"\"
+  Auto-generated Ash.Resource for TTL class: #{class.uri}
+  Represents semantic concept with TTL-bounded execution
+  \"\"\"
+  
+  use Ash.Resource,
+    domain: CnsForge.TTLDomain,
+    data_layer: Ash.DataLayer.Ets
+    
+  ets do
+    table :ttl_#{String.downcase(class.name)}s
+  end
+  
+  actions do
+    defaults [:read, :destroy]
+    
+    create :create_from_ttl do
+      accept [:ttl_uri]
       
-      use Ash.Resource,
-        domain: CnsForge.TTLDomain,
-        data_layer: Ash.DataLayer.Ets
-        
-      ets do
-        table :ttl_#{String.downcase(class.name)}s
-      end
-      
-      actions do
-        defaults [:read, :destroy]
-        
-        create :create_from_ttl do
-          accept [:ttl_uri]
-          
-          change fn changeset, _context ->
-            changeset
-            |> Ash.Changeset.force_change_attribute(:created_at, DateTime.utc_now())
-            |> Ash.Changeset.force_change_attribute(:updated_at, DateTime.utc_now())
-          end
-        end
-        
-        update :process_semantics do
-          accept []
-          
-          change fn changeset, context ->
-            # TTL-bounded semantic processing
-            ttl_constraints = get_in(context, [:private, :ttl_constraints]) || %{}
-            max_processing_ns = Map.get(ttl_constraints, :max_processing_ns, 1_000_000)
-            
-            start_time = System.monotonic_time(:nanosecond)
-            
-            # Simulate semantic processing (replace with actual logic)
-            :timer.sleep(1) # Minimal processing time
-            
-            processing_time = System.monotonic_time(:nanosecond) - start_time
-            
-            if processing_time > max_processing_ns do
-              Ash.Changeset.add_error(changeset, 
-                field: :base, 
-                message: "TTL constraint violation: processing took \#{processing_time}ns, max allowed \#{max_processing_ns}ns"
-              )
-            else
-              changeset
-              |> Ash.Changeset.force_change_attribute(:updated_at, DateTime.utc_now())
-            end
-          end
-        end
-      end
-      
-      attributes do
-    #{Enum.map_join(class.attributes, "\n", &generate_attribute/1)}
-      end
-      
-    #{generate_relationships(class_relationships, class.name)}
-      
-      # TTL semantic validation
-      validations do
-        validate present(:ttl_uri), message: "TTL URI is required for semantic binding"
-      end
-      
-      # Telemetry for TTL processing
-      changes do
-        change after_action(fn changeset, result, _context ->
-          :telemetry.execute(
-            [:cns_forge, :ttl, :resource_processed],
-            %{processing_time: 1},
-            %{resource: "#{class.name}", action: changeset.action.name}
-          )
-          
-          {:ok, result}
-        end)
+      change fn changeset, _context ->
+        changeset
+        |> Ash.Changeset.force_change_attribute(:created_at, DateTime.utc_now())
+        |> Ash.Changeset.force_change_attribute(:updated_at, DateTime.utc_now())
       end
     end
-    """
+    
+    update :process_semantics do
+      accept []
+      
+      change fn changeset, context ->
+        # TTL-bounded semantic processing
+        ttl_constraints = get_in(context, [:private, :ttl_constraints]) || %{}
+        max_processing_ns = Map.get(ttl_constraints, :max_processing_ns, 1_000_000)
+        
+        start_time = System.monotonic_time(:nanosecond)
+        
+        # Simulate semantic processing (replace with actual logic)
+        :timer.sleep(1) # Minimal processing time
+        
+        processing_time = System.monotonic_time(:nanosecond) - start_time
+        
+        if processing_time > max_processing_ns do
+          Ash.Changeset.add_error(changeset, 
+            field: :base, 
+            message: "TTL constraint violation: processing took \#{processing_time}ns, max allowed \#{max_processing_ns}ns"
+          )
+        else
+          changeset
+          |> Ash.Changeset.force_change_attribute(:updated_at, DateTime.utc_now())
+        end
+      end
+    end
+  end
+  
+  attributes do
+#{Enum.map_join(class.attributes, "\n", &generate_attribute/1)}
+  end
+  
+#{generate_relationships(class_relationships, class.name)}
+  
+  # TTL semantic validation
+  validations do
+    validate present(:ttl_uri), message: "TTL URI is required for semantic binding"
+  end
+  
+  # Telemetry for TTL processing
+  changes do
+    change after_action(fn changeset, result, _context ->
+      :telemetry.execute(
+        [:cns_forge, :ttl, :resource_processed],
+        %{processing_time: 1},
+        %{resource: "#{class.name}", action: changeset.action.name}
+      )
+      
+      {:ok, result}
+    end)
+  end
+end
+"""
     
     %{
       class: class,
@@ -355,139 +341,136 @@ defmodule CnsForge.TTLAshReactorTransformer do
     end
   end
   
-  defp generate_main_reactor(classes, properties, resources) do
-    reactor_code = """
-    defmodule CnsForge.TTLMainReactor do
-      @moduledoc \"\"\"
-      Main Ash.Reactor workflow for TTL ontology processing
-      Orchestrates semantic processing with TTL-bounded execution
-      \"\"\"
+  defp generate_main_reactor(classes, _properties, _resources) do
+    main_reactor_code = """
+defmodule CnsForge.TTLMainReactor do
+  @moduledoc \"\"\"
+  Main Ash.Reactor workflow for TTL ontology processing
+  Orchestrates semantic processing with TTL-bounded execution
+  \"\"\"
+  
+  use Reactor
+  
+  input :ontology_data
+  input :ttl_constraints, default: %{}
+  
+  # Initialize TTL execution context
+  step :initialize_ttl_context do
+    argument :constraints, input(:ttl_constraints)
+    
+    run fn %{constraints: constraints}, context ->
+      ttl_context = %{
+        max_total_execution_ns: Map.get(constraints, :max_total_execution_ns, 10_000_000_000),
+        max_step_execution_ns: Map.get(constraints, :max_step_execution_ns, 1_000_000_000),
+        execution_start: System.monotonic_time(:nanosecond),
+        processed_classes: []
+      }
       
-      use Reactor
-      
-      input :ontology_data
-      input :ttl_constraints, default: %{}
-      
-      # Initialize TTL execution context
-      step :initialize_ttl_context do
-        argument :constraints, input(:ttl_constraints)
-        
-        run fn %{constraints: constraints}, context ->
-          ttl_context = %{
-            max_total_execution_ns: Map.get(constraints, :max_total_execution_ns, 10_000_000_000),
-            max_step_execution_ns: Map.get(constraints, :max_step_execution_ns, 1_000_000_000),
-            execution_start: System.monotonic_time(:nanosecond),
-            processed_classes: []
-          }
-          
-          {:ok, ttl_context}
-        end
-      end
-      
-      # Validate ontology structure
-      step :validate_ontology do
-        argument :data, input(:ontology_data)
-        argument :context, result(:initialize_ttl_context)
-        
-        run fn %{data: data, context: ttl_context}, _context ->
-          step_start = System.monotonic_time(:nanosecond)
-          
-          # Basic ontology validation
-          valid = is_map(data) and Map.has_key?(data, :classes)
-          
-          step_time = System.monotonic_time(:nanosecond) - step_start
-          
-          if step_time > ttl_context.max_step_execution_ns do
-            {:error, "TTL constraint violation in ontology validation: \#{step_time}ns > \#{ttl_context.max_step_execution_ns}ns"}
-          else
-            {:ok, %{valid: valid, validation_time_ns: step_time}}
-          end
-        end
-      end
-      
-    #{Enum.map_join(classes, "\n", &generate_class_processing_step/1)}
-      
-      # Aggregate results with TTL bounds check
-      step :aggregate_results do
-        argument :validation, result(:validate_ontology)
-    #{Enum.map_join(classes, "\n", fn class -> "    argument :#{String.downcase(class.name)}_result, result(:process_#{String.downcase(class.name)})" end)}
-        argument :ttl_context, result(:initialize_ttl_context)
-        
-        run fn arguments, _context ->
-          total_execution_time = System.monotonic_time(:nanosecond) - arguments.ttl_context.execution_start
-          
-          results = %{
-            validation: arguments.validation,
-    #{Enum.map_join(classes, ",\n", fn class -> "        #{String.downcase(class.name)}: arguments.#{String.downcase(class.name)}_result" end)},
-            total_execution_time_ns: total_execution_time,
-            ttl_compliance: total_execution_time <= arguments.ttl_context.max_total_execution_ns
-          }
-          
-          if results.ttl_compliance do
-            {:ok, results}
-          else
-            {:error, "TTL constraint violation: total execution \#{total_execution_time}ns > \#{arguments.ttl_context.max_total_execution_ns}ns"}
-          end
-        end
-      end
-      
-      return :aggregate_results
+      {:ok, ttl_context}
     end
-    """
+  end
+  
+  # Validate ontology structure
+  step :validate_ontology do
+    argument :data, input(:ontology_data)
+    argument :context, result(:initialize_ttl_context)
+    
+    run fn %{data: data, context: ttl_context}, _context ->
+      step_start = System.monotonic_time(:nanosecond)
+      
+      # Basic ontology validation
+      valid = is_map(data) and Map.has_key?(data, :classes)
+      
+      step_time = System.monotonic_time(:nanosecond) - step_start
+      
+      if step_time > ttl_context.max_step_execution_ns do
+        {:error, "TTL constraint violation in ontology validation: \#{step_time}ns > \#{ttl_context.max_step_execution_ns}ns"}
+      else
+        {:ok, %{valid: valid, validation_time_ns: step_time}}
+      end
+    end
+  end
+  
+#{Enum.map_join(classes, "\n", &generate_class_processing_step/1)}
+  
+  # Aggregate results with TTL bounds check
+  step :aggregate_results do
+    argument :validation, result(:validate_ontology)
+#{Enum.map_join(classes, "\n", fn class -> "    argument :#{String.downcase(class.name)}_result, result(:process_#{String.downcase(class.name)})" end)}
+    argument :ttl_context, result(:initialize_ttl_context)
+    
+    run fn arguments, _context ->
+      total_execution_time = System.monotonic_time(:nanosecond) - arguments.ttl_context.execution_start
+      
+      results = %{
+        validation: arguments.validation,
+#{Enum.map_join(classes, ",\n", fn class -> "        #{String.downcase(class.name)}: arguments.#{String.downcase(class.name)}_result" end)},
+        total_execution_time_ns: total_execution_time,
+        ttl_compliance: total_execution_time <= arguments.ttl_context.max_total_execution_ns
+      }
+      
+      if results.ttl_compliance do
+        {:ok, results}
+      else
+        {:error, "TTL constraint violation: total execution \#{total_execution_time}ns > \#{arguments.ttl_context.max_total_execution_ns}ns"}
+      end
+    end
+  end
+  
+  return :aggregate_results
+end
+"""
     
     %{
       name: "CnsForge.TTLMainReactor",
-      code: reactor_code
+      code: main_reactor_code
     }
   end
   
   defp generate_class_processing_step(class) do
     """
-      # Process #{class.name} with TTL bounds
-      step :process_#{String.downcase(class.name)} do
-        argument :ontology_data, input(:ontology_data)
-        argument :ttl_context, result(:initialize_ttl_context)
-        depends_on :validate_ontology
-        
-        run fn %{ontology_data: data, ttl_context: context}, _reactor_context ->
-          step_start = System.monotonic_time(:nanosecond)
-          
-          # Create resource instance for #{class.name}
-          case Ash.create(#{class.module_name}, %{ttl_uri: "#{class.uri}"}, 
-                         domain: CnsForge.TTLDomain,
-                         private: %{ttl_constraints: %{max_processing_ns: context.max_step_execution_ns}}) do
-            {:ok, instance} ->
-              # Process semantics with TTL bounds
-              case Ash.update(instance, :process_semantics, %{}, domain: CnsForge.TTLDomain) do
-                {:ok, processed_instance} ->
-                  step_time = System.monotonic_time(:nanosecond) - step_start
-                  
-                  result = %{
-                    instance: processed_instance,
-                    processing_time_ns: step_time,
-                    ttl_compliant: step_time <= context.max_step_execution_ns
-                  }
-                  
-                  {:ok, result}
-                
-                {:error, reason} ->
-                  {:error, "Failed to process #{class.name} semantics: \#{inspect(reason)}"}
-              end
+  # Process #{class.name} with TTL bounds
+  step :process_#{String.downcase(class.name)} do
+    argument :ontology_data, input(:ontology_data)
+    argument :ttl_context, result(:initialize_ttl_context)
+    depends_on :validate_ontology
+    
+    run fn %{ontology_data: data, ttl_context: context}, _reactor_context ->
+      step_start = System.monotonic_time(:nanosecond)
+      
+      # Create resource instance for #{class.name}
+      case Ash.create(#{class.module_name}, %{ttl_uri: "#{class.uri}"}, 
+                     domain: CnsForge.TTLDomain,
+                     private: %{ttl_constraints: %{max_processing_ns: context.max_step_execution_ns}}) do
+        {:ok, instance} ->
+          # Process semantics with TTL bounds
+          case Ash.update(instance, :process_semantics, %{}, domain: CnsForge.TTLDomain) do
+            {:ok, processed_instance} ->
+              step_time = System.monotonic_time(:nanosecond) - step_start
+              
+              result = %{
+                instance: processed_instance,
+                processing_time_ns: step_time,
+                ttl_compliant: step_time <= context.max_step_execution_ns
+              }
+              
+              {:ok, result}
             
             {:error, reason} ->
-              {:error, "Failed to create #{class.name} instance: \#{inspect(reason)}"}
+              {:error, "Failed to process #{class.name} semantics: \#{inspect(reason)}"}
           end
-        end
-      end"""
+        
+        {:error, reason} ->
+          {:error, "Failed to create #{class.name} instance: \#{inspect(reason)}"}
+      end
+    end
+  end"""
   end
   
   defp generate_class_reactor(class, _properties, _resources) do
-    reactor_code = """
+    code_content = """
 defmodule CnsForge.TTL#{class.name}Reactor do
-  @moduledoc \"\"\"
-  Specialized Ash.Reactor for #{class.name} semantic processing
-  Focuses on class-specific TTL-bounded operations
-  \"\"\"
+  @moduledoc "Specialized Ash.Reactor for #{class.name} semantic processing"
   
   use Reactor
   
@@ -503,7 +486,6 @@ defmodule CnsForge.TTL#{class.name}Reactor do
       start_time = System.monotonic_time(:nanosecond)
       
       # Specific semantic processing for #{class.name}
-      # This would be customized based on the class semantics
       result = %{
         processed_data: data,
         semantic_type: "#{class.name}",
@@ -526,15 +508,13 @@ end
     
     %{
       name: "CnsForge.TTL#{class.name}Reactor",
-      code: reactor_code
+      code: code_content
     }
   end
   
   defp write_generated_files(resources, reactors, domain) do
     base_path = "/Users/sac/cns/lib/cns_forge/generated"
     File.mkdir_p!(base_path)
-    
-    files = []
     
     # Write resource files
     resource_files = Enum.map(resources, fn resource ->

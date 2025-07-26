@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.VPNTest do
         status: :active
       }
       
-      assert {:ok, vpn} = Ash.create(VPN, attrs)
+      VPN.init_storage()
+      assert {:ok, vpn} = VPN.create(attrs)
       assert vpn.name == "Test VPN"
       assert vpn.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.VPNTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(VPN, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = VPN.create(VPN, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.VPNTest do
     test "reads existing vpn" do
       vpn = TestHelper.create_test_data(VPN)
       
-      assert {:ok, found_vpn} = Ash.get(VPN, vpn.id)
+      assert {:ok, found_vpn} = VPN.get(VPN, vpn.id)
       assert found_vpn.id == vpn.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.VPNTest do
       TestHelper.create_test_data(VPN, %{name: "VPN 1"})
       TestHelper.create_test_data(VPN, %{name: "VPN 2"})
       
-      assert {:ok, vpns} = Ash.read(VPN)
+      assert {:ok, vpns} = VPN.list(VPN)
       assert length(vpns) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.VPNTest do
       active_vpn = TestHelper.create_test_data(VPN, %{status: :active})
       _inactive_vpn = TestHelper.create_test_data(VPN, %{status: :inactive})
       
-      assert {:ok, [vpn]} = Ash.read(VPN, action: :by_status, status: :active)
+      assert {:ok, [vpn]} = VPN.list(VPN, action: :by_status, status: :active)
       assert vpn.id == active_vpn.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.VPNTest do
     test "updates vpn attributes" do
       vpn = TestHelper.create_test_data(VPN)
       
-      assert {:ok, updated_vpn} = Ash.update(vpn, %{name: "Updated Name"})
+      assert {:ok, updated_vpn} = VPN.update(vpn, %{name: "Updated Name"})
       assert updated_vpn.name == "Updated Name"
     end
     
     test "activates vpn" do
       vpn = TestHelper.create_test_data(VPN, %{status: :inactive})
       
-      assert {:ok, activated_vpn} = Ash.update(vpn, action: :activate)
+      assert {:ok, activated_vpn} = VPN.update(vpn, action: :activate)
       assert activated_vpn.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.VPNTest do
     test "destroys existing vpn" do
       vpn = TestHelper.create_test_data(VPN)
       
-      assert :ok = Ash.destroy(vpn)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(VPN, vpn.id)
+      assert :ok = VPN.delete(vpn)
+      assert {:error, %Ash.Error.Invalid{}} = VPN.get(VPN, vpn.id)
     end
   end
 end

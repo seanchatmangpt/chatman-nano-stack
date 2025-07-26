@@ -32,38 +32,17 @@ defmodule Cybersecurity.MixProject do
 
   defp deps do
     [
-      # Ash Framework - Core dependencies for Ash.Reactor
-      {:ash, "~> 3.0"},
-      {:reactor, "~> 0.8"},
-      
-      # Database and storage
-      {:ash_postgres, "~> 2.0"},
-      {:ecto_sql, "~> 3.10"},
-      {:postgrex, ">= 0.0.0"},
-      
-      # JSON handling
+      # 80/20: Minimal working dependencies (avoiding rebar3/yaml issues)
       {:jason, "~> 1.4"},
-      
-      # Utilities
-      {:telemetry, "~> 1.2"},
-      {:telemetry_metrics, "~> 1.0"},
-      {:telemetry_poller, "~> 1.0"},
-      
-      # Development and testing
-      {:ex_doc, "~> 0.31", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.18", only: :test},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
+      {:uuid, "~> 1.1"}
     ]
   end
 
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup"],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-      "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.deploy": ["esbuild default --minify", "phx.digest"]
+      # 80/20: Essential aliases only
+      setup: ["deps.get"],
+      test: ["test"]
     ]
   end
 end

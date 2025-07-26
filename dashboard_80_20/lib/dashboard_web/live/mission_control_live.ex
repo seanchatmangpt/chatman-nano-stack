@@ -1,0 +1,221 @@
+defmodule DashboardWeb.Mission_controlLive do
+  @moduledoc """
+  Mission_control LiveView for CNS Dashboard
+  Generated using Jinja2 template with 80/20 implementation strategy
+  """
+  
+  use DashboardWeb, :live_view
+  require Logger
+
+  @update_interval 100
+  @module_name "mission_control"
+
+  @impl true
+  def mount(_params, _session, socket) do
+    Logger.info("Mounting #{@module_name} LiveView")
+    
+    if connected?(socket) do
+      :timer.send_interval(@update_interval, self(), :update_metrics)
+      BitActorBridge.subscribe_telemetry(@module_name)
+      
+      # OpenTelemetry instrumentation
+      :telemetry.execute([:dashboard, :liveview, :mount], %{}, %{
+        module: @module_name,
+        session_id: socket.id
+      })
+    end
+    
+    initial_state = get_initial_state()
+    
+    {:ok, assign(socket, initial_state)}
+  end
+
+  @impl true  
+  def handle_info(:update_metrics, socket) do
+    start_time = System.monotonic_time()
+    
+    try do
+      metrics = BitActorBridge.get_metrics_for(@module_name)
+      updated_socket = update_dashboard_state(socket, metrics)
+      
+      # Performance telemetry
+      duration = System.monotonic_time() - start_time
+      :telemetry.execute([:dashboard, :update, :duration], %{duration: duration}, %{
+        module: @module_name
+      })
+      
+      {:noreply, updated_socket}
+    rescue
+      error ->
+        Logger.error("Error updating #{@module_name} metrics: #{inspect(error)}")
+        
+        :telemetry.execute([:dashboard, :update, :error], %{}, %{
+          module: @module_name,
+          error: inspect(error)
+        })
+        
+        {:noreply, assign(socket, :error_state, true)}
+    end
+  end
+
+  @impl true
+  def handle_info({:bitactor_update, data}, socket) do
+    # Real-time BitActor updates
+    {:noreply, assign(socket, :realtime_data, data)}
+  end
+
+  @impl true
+  def render(assigns) do
+    ~H"""
+    <div class="dashboard-module mission_control" 
+         phx-hook="DashboardModule" 
+         id="mission_control-container">
+      
+      <.header>
+        <%= @page_title %>
+        <:subtitle>Real-time mission_control monitoring</:subtitle>
+      </.header>
+
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <%= if @error_state do %>
+          <.alert type="error">
+            Connection to BitActor lost. Attempting to reconnect...
+          </.alert>
+        <% else %>
+          <.metric_card 
+            title="Status" 
+            value={@status} 
+            trend={@status_trend}
+            color="green" />
+          
+          <.metric_card 
+            title="Performance" 
+            value={@performance_metric} 
+            trend={@performance_trend}
+            color="blue" />
+          
+          <.metric_card 
+            title="Throughput" 
+            value={@throughput} 
+            trend={@throughput_trend}
+            color="purple" />
+        <% end %>
+      </div>
+
+      <%= if @realtime_enabled do %>
+        <div class="mt-8">
+          <.live_chart 
+            data={@chart_data} 
+            type="line" 
+            height="300"
+            update_interval={@update_interval} />
+        </div>
+      <% end %>
+
+      <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <.data_table 
+          rows={@table_data} 
+          sortable={true}
+          filterable={true} />
+        
+        <.performance_indicators 
+          indicators={@kpi_data}
+          thresholds={@thresholds} />
+      </div>
+    </div>
+    """
+  end
+
+  # Private functions
+  defp get_initial_state do
+    %{
+      page_title: "Mission_control Dashboard",
+      status: "Initializing...",
+      status_trend: :neutral,
+      performance_metric: 0,
+      performance_trend: :neutral, 
+      throughput: 0,
+      throughput_trend: :neutral,
+      chart_data: [],
+      table_data: [],
+      kpi_data: [],
+      thresholds: get_default_thresholds(),
+      realtime_data: %{},
+      realtime_enabled: true,
+      error_state: false
+    }
+  end
+
+  defp update_dashboard_state(socket, metrics) do
+    socket
+    |> assign(:status, metrics.status)
+    |> assign(:status_trend, calculate_trend(socket.assigns.status, metrics.status))
+    |> assign(:performance_metric, metrics.performance)
+    |> assign(:performance_trend, calculate_trend(socket.assigns.performance_metric, metrics.performance))
+    |> assign(:throughput, metrics.throughput)
+    |> assign(:throughput_trend, calculate_trend(socket.assigns.throughput, metrics.throughput))
+    |> assign(:chart_data, update_chart_data(socket.assigns.chart_data, metrics))
+    |> assign(:table_data, format_table_data(metrics.details))
+    |> assign(:kpi_data, calculate_kpis(metrics))
+    |> assign(:error_state, false)
+  end
+
+  defp calculate_trend(old_value, new_value) when is_number(old_value) and is_number(new_value) do
+    cond do
+      new_value > old_value -> :up
+      new_value < old_value -> :down
+      true -> :neutral
+    end
+  end
+  defp calculate_trend(_, _), do: :neutral
+
+  defp update_chart_data(current_data, metrics) do
+    new_point = %{
+      timestamp: DateTime.utc_now(),
+      value: metrics.performance,
+      throughput: metrics.throughput
+    }
+    
+    [new_point | current_data]
+    |> Enum.take(150) # Keep last 150 points for smooth charts
+  end
+
+  defp format_table_data(details) when is_map(details) do
+    details
+    |> Enum.map(fn {key, value} ->
+      %{
+        metric: key |> to_string() |> String.replace("_", " ") |> String.capitalize(),
+        value: format_value(value),
+        timestamp: DateTime.utc_now()
+      }
+    end)
+  end
+  defp format_table_data(_), do: []
+
+  defp calculate_kpis(metrics) do
+    [
+      %{name: "Availability", value: metrics.availability || 0, target: 99.9, unit: "%"},
+      %{name: "Latency P99", value: metrics.latency_p99 || 0, target: 100, unit: "ms"},
+      %{name: "Error Rate", value: metrics.error_rate || 0, target: 0.1, unit: "%"},
+      %{name: "Throughput", value: metrics.throughput || 0, target: 10000, unit: "req/s"}
+    ]
+  end
+
+  defp format_value(value) when is_number(value) do
+    cond do
+      value > 1_000_000 -> "#{Float.round(value / 1_000_000, 1)}M"
+      value > 1_000 -> "#{Float.round(value / 1_000, 1)}K"
+      true -> to_string(value)
+    end
+  end
+  defp format_value(value), do: to_string(value)
+
+  defp get_default_thresholds do
+    %{
+      performance: %{warning: 80, critical: 90},
+      throughput: %{warning: 8000, critical: 5000},
+      latency: %{warning: 100, critical: 200},
+      availability: %{warning: 99.0, critical: 95.0}
+    }
+  end
+end

@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.AlertTest do
         status: :active
       }
       
-      assert {:ok, alert} = Ash.create(Alert, attrs)
+      Alert.init_storage()
+      assert {:ok, alert} = Alert.create(attrs)
       assert alert.name == "Test Alert"
       assert alert.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.AlertTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(Alert, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = Alert.create(Alert, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.AlertTest do
     test "reads existing alert" do
       alert = TestHelper.create_test_data(Alert)
       
-      assert {:ok, found_alert} = Ash.get(Alert, alert.id)
+      assert {:ok, found_alert} = Alert.get(Alert, alert.id)
       assert found_alert.id == alert.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.AlertTest do
       TestHelper.create_test_data(Alert, %{name: "Alert 1"})
       TestHelper.create_test_data(Alert, %{name: "Alert 2"})
       
-      assert {:ok, alerts} = Ash.read(Alert)
+      assert {:ok, alerts} = Alert.list(Alert)
       assert length(alerts) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.AlertTest do
       active_alert = TestHelper.create_test_data(Alert, %{status: :active})
       _inactive_alert = TestHelper.create_test_data(Alert, %{status: :inactive})
       
-      assert {:ok, [alert]} = Ash.read(Alert, action: :by_status, status: :active)
+      assert {:ok, [alert]} = Alert.list(Alert, action: :by_status, status: :active)
       assert alert.id == active_alert.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.AlertTest do
     test "updates alert attributes" do
       alert = TestHelper.create_test_data(Alert)
       
-      assert {:ok, updated_alert} = Ash.update(alert, %{name: "Updated Name"})
+      assert {:ok, updated_alert} = Alert.update(alert, %{name: "Updated Name"})
       assert updated_alert.name == "Updated Name"
     end
     
     test "activates alert" do
       alert = TestHelper.create_test_data(Alert, %{status: :inactive})
       
-      assert {:ok, activated_alert} = Ash.update(alert, action: :activate)
+      assert {:ok, activated_alert} = Alert.update(alert, action: :activate)
       assert activated_alert.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.AlertTest do
     test "destroys existing alert" do
       alert = TestHelper.create_test_data(Alert)
       
-      assert :ok = Ash.destroy(alert)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(Alert, alert.id)
+      assert :ok = Alert.delete(alert)
+      assert {:error, %Ash.Error.Invalid{}} = Alert.get(Alert, alert.id)
     end
   end
 end

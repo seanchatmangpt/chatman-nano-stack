@@ -553,24 +553,190 @@ defmodule CNSForge.ProjectScaffolder do
     "{:#{name}, \"#{version}\", #{opts_str}}"
   end
 
-  # Stub implementations for remaining generator functions
-  defp generate_readme(_project_spec), do: {:ok, :readme}
-  defp generate_gitignore(_project_spec), do: {:ok, :gitignore}
-  defp generate_formatter_config(_project_spec), do: {:ok, :formatter}
-  defp generate_config_files(_project_spec), do: {:ok, :config}
-  defp generate_test_helper(_project_spec), do: {:ok, :test_helper}
-  defp generate_application_test(_project_spec), do: {:ok, :app_test}
-  defp generate_reactor_tests(_project_spec), do: {:ok, :reactor_tests}
-  defp generate_workflow_tests(_project_spec), do: {:ok, :workflow_tests}
-  defp generate_integration_tests(_project_spec), do: {:ok, :integration_tests}
-  defp generate_dockerfile(_project_spec), do: {:ok, :dockerfile}
-  defp generate_k8s_manifests(_project_spec), do: {:ok, :k8s}
-  defp generate_terraform_config(_project_spec), do: {:ok, :terraform}
-  defp generate_api_docs(_project_spec), do: {:ok, :api_docs}
-  defp generate_deployment_guide(_project_spec), do: {:ok, :deployment_guide}
-  defp generate_workflow_docs(_project_spec), do: {:ok, :workflow_docs}
-  defp generate_middleware_declarations(_middleware), do: ""
-  defp generate_input_declarations(_inputs), do: ""
-  defp generate_step_declarations(_project_spec, _steps), do: ""
+  # Complete implementations for all generator functions
+  
+  defp generate_readme(project_spec) do
+    content = TemplateEngine.render_readme(project_spec)
+    file_path = Path.join(project_spec.output_directory, "README.md")
+    File.write(file_path, content)
+  end
+
+  defp generate_gitignore(project_spec) do
+    content = TemplateEngine.render_gitignore(project_spec)
+    file_path = Path.join(project_spec.output_directory, ".gitignore")
+    File.write(file_path, content)
+  end
+
+  defp generate_formatter_config(project_spec) do
+    content = TemplateEngine.render_formatter_config(project_spec)
+    file_path = Path.join(project_spec.output_directory, ".formatter.exs")
+    File.write(file_path, content)
+  end
+
+  defp generate_config_files(project_spec) do
+    config_dir = Path.join(project_spec.output_directory, "config")
+    File.mkdir_p(config_dir)
+    
+    configs = [
+      {"config.exs", TemplateEngine.render_config(project_spec, :config)},
+      {"dev.exs", TemplateEngine.render_config(project_spec, :dev)},
+      {"prod.exs", TemplateEngine.render_config(project_spec, :prod)},
+      {"test.exs", TemplateEngine.render_config(project_spec, :test)},
+      {"runtime.exs", TemplateEngine.render_config(project_spec, :runtime)}
+    ]
+    
+    Enum.each(configs, fn {filename, content} ->
+      file_path = Path.join(config_dir, filename)
+      File.write(file_path, content)
+    end)
+    
+    {:ok, :config_files}
+  end
+
+  defp generate_test_helper(project_spec) do
+    content = TemplateEngine.render_test_helper(project_spec)
+    test_dir = Path.join(project_spec.output_directory, "test")
+    File.mkdir_p(test_dir)
+    file_path = Path.join(test_dir, "test_helper.exs")
+    File.write(file_path, content)
+  end
+
+  defp generate_application_test(project_spec) do
+    content = TemplateEngine.render_application_test(project_spec)
+    test_dir = Path.join(project_spec.output_directory, "test")
+    File.mkdir_p(test_dir)
+    file_path = Path.join(test_dir, "#{project_spec.app_name}_test.exs")
+    File.write(file_path, content)
+  end
+
+  defp generate_reactor_tests(project_spec) do
+    reactors_test_dir = Path.join([project_spec.output_directory, "test", "reactors"])
+    File.mkdir_p(reactors_test_dir)
+    
+    Enum.each(project_spec.reactors, fn reactor_spec ->
+      content = TemplateEngine.render_reactor_test(project_spec, reactor_spec)
+      file_path = Path.join(reactors_test_dir, "#{reactor_spec.name}_reactor_test.exs")
+      File.write(file_path, content)
+    end)
+    
+    {:ok, :reactor_tests}
+  end
+
+  defp generate_workflow_tests(project_spec) do
+    workflows_test_dir = Path.join([project_spec.output_directory, "test", "workflows"])
+    File.mkdir_p(workflows_test_dir)
+    
+    Enum.each(project_spec.workflows, fn workflow_spec ->
+      content = TemplateEngine.render_workflow_test(project_spec, workflow_spec)
+      file_path = Path.join(workflows_test_dir, "#{workflow_spec.name}_workflow_test.exs")
+      File.write(file_path, content)
+    end)
+    
+    {:ok, :workflow_tests}
+  end
+
+  defp generate_integration_tests(project_spec) do
+    content = TemplateEngine.render_integration_tests(project_spec)
+    test_dir = Path.join([project_spec.output_directory, "test", "integration"])
+    File.mkdir_p(test_dir)
+    file_path = Path.join(test_dir, "end_to_end_test.exs")
+    File.write(file_path, content)
+  end
+
+  defp generate_dockerfile(project_spec) do
+    content = TemplateEngine.render_dockerfile(project_spec)
+    file_path = Path.join(project_spec.output_directory, "Dockerfile")
+    File.write(file_path, content)
+  end
+
+  defp generate_k8s_manifests(project_spec) do
+    k8s_dir = Path.join(project_spec.output_directory, "k8s")
+    File.mkdir_p(k8s_dir)
+    
+    manifests = [
+      {"deployment.yaml", TemplateEngine.render_k8s_deployment(project_spec)},
+      {"service.yaml", TemplateEngine.render_k8s_service(project_spec)},
+      {"configmap.yaml", TemplateEngine.render_k8s_configmap(project_spec)},
+      {"ingress.yaml", TemplateEngine.render_k8s_ingress(project_spec)}
+    ]
+    
+    Enum.each(manifests, fn {filename, content} ->
+      file_path = Path.join(k8s_dir, filename)
+      File.write(file_path, content)
+    end)
+    
+    {:ok, :k8s_manifests}
+  end
+
+  defp generate_terraform_config(project_spec) do
+    terraform_dir = Path.join(project_spec.output_directory, "terraform")
+    File.mkdir_p(terraform_dir)
+    
+    configs = [
+      {"main.tf", TemplateEngine.render_terraform_main(project_spec)},
+      {"variables.tf", TemplateEngine.render_terraform_variables(project_spec)},
+      {"outputs.tf", TemplateEngine.render_terraform_outputs(project_spec)}
+    ]
+    
+    Enum.each(configs, fn {filename, content} ->
+      file_path = Path.join(terraform_dir, filename)
+      File.write(file_path, content)
+    end)
+    
+    {:ok, :terraform_config}
+  end
+
+  defp generate_api_docs(project_spec) do
+    docs_dir = Path.join([project_spec.output_directory, "docs", "api"])
+    File.mkdir_p(docs_dir)
+    
+    content = TemplateEngine.render_api_documentation(project_spec)
+    file_path = Path.join(docs_dir, "README.md")
+    File.write(file_path, content)
+  end
+
+  defp generate_deployment_guide(project_spec) do
+    docs_dir = Path.join([project_spec.output_directory, "docs"])
+    File.mkdir_p(docs_dir)
+    
+    content = TemplateEngine.render_deployment_guide(project_spec)
+    file_path = Path.join(docs_dir, "DEPLOYMENT.md")
+    File.write(file_path, content)
+  end
+
+  defp generate_workflow_docs(project_spec) do
+    docs_dir = Path.join([project_spec.output_directory, "docs", "workflows"])
+    File.mkdir_p(docs_dir)
+    
+    Enum.each(project_spec.workflows, fn workflow_spec ->
+      content = TemplateEngine.render_workflow_documentation(project_spec, workflow_spec)
+      file_path = Path.join(docs_dir, "#{workflow_spec.name}.md")
+      File.write(file_path, content)
+    end)
+    
+    {:ok, :workflow_docs}
+  end
+
+  defp generate_middleware_declarations(middleware) do
+    middleware
+    |> Enum.map(&"middleware #{TemplateEngine.render_middleware(&1)}")
+    |> Enum.join("\n      ")
+  end
+
+  defp generate_input_declarations(inputs) do
+    inputs
+    |> Enum.map(fn input ->
+      type_part = if input[:type], do: ", type: #{inspect(input.type)}", else: ""
+      "input :#{input.name}#{type_part}"
+    end)
+    |> Enum.join("\n      ")
+  end
+
+  defp generate_step_declarations(project_spec, steps) do
+    steps
+    |> Enum.map(&TemplateEngine.render_step(&1, project_spec.module_name))
+    |> Enum.join("\n\n      ")
+  end
+
   defp generate_secret_key, do: Base.encode64(:crypto.strong_rand_bytes(32))
 end

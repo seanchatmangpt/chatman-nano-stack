@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.DMZTest do
         status: :active
       }
       
-      assert {:ok, dmz} = Ash.create(DMZ, attrs)
+      DMZ.init_storage()
+      assert {:ok, dmz} = DMZ.create(attrs)
       assert dmz.name == "Test DMZ"
       assert dmz.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.DMZTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(DMZ, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = DMZ.create(DMZ, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.DMZTest do
     test "reads existing dmz" do
       dmz = TestHelper.create_test_data(DMZ)
       
-      assert {:ok, found_dmz} = Ash.get(DMZ, dmz.id)
+      assert {:ok, found_dmz} = DMZ.get(DMZ, dmz.id)
       assert found_dmz.id == dmz.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.DMZTest do
       TestHelper.create_test_data(DMZ, %{name: "DMZ 1"})
       TestHelper.create_test_data(DMZ, %{name: "DMZ 2"})
       
-      assert {:ok, dmzs} = Ash.read(DMZ)
+      assert {:ok, dmzs} = DMZ.list(DMZ)
       assert length(dmzs) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.DMZTest do
       active_dmz = TestHelper.create_test_data(DMZ, %{status: :active})
       _inactive_dmz = TestHelper.create_test_data(DMZ, %{status: :inactive})
       
-      assert {:ok, [dmz]} = Ash.read(DMZ, action: :by_status, status: :active)
+      assert {:ok, [dmz]} = DMZ.list(DMZ, action: :by_status, status: :active)
       assert dmz.id == active_dmz.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.DMZTest do
     test "updates dmz attributes" do
       dmz = TestHelper.create_test_data(DMZ)
       
-      assert {:ok, updated_dmz} = Ash.update(dmz, %{name: "Updated Name"})
+      assert {:ok, updated_dmz} = DMZ.update(dmz, %{name: "Updated Name"})
       assert updated_dmz.name == "Updated Name"
     end
     
     test "activates dmz" do
       dmz = TestHelper.create_test_data(DMZ, %{status: :inactive})
       
-      assert {:ok, activated_dmz} = Ash.update(dmz, action: :activate)
+      assert {:ok, activated_dmz} = DMZ.update(dmz, action: :activate)
       assert activated_dmz.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.DMZTest do
     test "destroys existing dmz" do
       dmz = TestHelper.create_test_data(DMZ)
       
-      assert :ok = Ash.destroy(dmz)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(DMZ, dmz.id)
+      assert :ok = DMZ.delete(dmz)
+      assert {:error, %Ash.Error.Invalid{}} = DMZ.get(DMZ, dmz.id)
     end
   end
 end

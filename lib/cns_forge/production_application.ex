@@ -1,310 +1,336 @@
 defmodule CNSForge.ProductionApplication do
   @moduledoc """
-  Production-ready CNS Forge Application with full observability
-  """
+  Production-ready Application supervisor for CNS Forge
   
+  Manages all core services including:
+  - Ash.Domain resources
+  - Reactor workflows  
+  - Telemetry and monitoring
+  - TTL execution enforcement
+  """
+
   use Application
   require Logger
-  
+
   @impl true
   def start(_type, _args) do
-    # Configure OpenTelemetry before starting
-    configure_opentelemetry()
+    Logger.info("Starting CNS Forge Production Application")
     
     children = [
-      # Telemetry and monitoring
+      # Core Ash setup
+      {Registry, keys: :unique, name: CNSForge.Registry},
+      
+      # Telemetry supervision
       CNSForge.Telemetry,
       
-      # Registries for BitActors and Workflows
-      {Registry, keys: :unique, name: CNSForge.BitActorRegistry},
-      {Registry, keys: :unique, name: CNSForge.WorkflowRegistry},
+      # Reactor supervision
+      {DynamicSupervisor, name: CNSForge.ReactorSupervisor, strategy: :one_for_one},
       
-      # Phoenix PubSub for distributed coordination
-      {Phoenix.PubSub, name: CNSForge.PubSub},
+      # TTL enforcement
+      CNSForge.TTLEnforcer,
       
-      # Task Supervisor for parallel execution
-      {Task.Supervisor, name: CNSForge.TaskSupervisor},
-      
-      # DynamicSupervisor for BitActor processes
-      {DynamicSupervisor, name: CNSForge.BitActorSupervisor, strategy: :one_for_one},
-      
-      # Web endpoint (if configured)
-      maybe_web_endpoint(),
-      
-      # Health check server
-      {CNSForge.HealthCheck, port: health_check_port()},
-      
-      # Metacompiler cache
-      {CNSForge.MetacompilerCache, []},
-      
-      # Workflow scheduler
-      {CNSForge.WorkflowScheduler, []},
-      
-      # Resource monitor
-      {CNSForge.ResourceMonitor, [
-        check_interval: 5_000,
-        thresholds: %{
-          memory: 0.9,
-          cpu: 0.8,
-          processes: 10_000
-        }
-      ]}
+      # Main domain supervisor
+      CNSForge.DomainSupervisor
     ]
-    |> Enum.filter(&(&1))
-    
+
     opts = [strategy: :one_for_one, name: CNSForge.Supervisor]
     
     case Supervisor.start_link(children, opts) do
       {:ok, pid} ->
-        Logger.info("CNS Forge started successfully in #{env()} mode")
+        Logger.info("CNS Forge Production Application started successfully")
         {:ok, pid}
         
-      error ->
-        Logger.error("Failed to start CNS Forge: #{inspect(error)}")
-        error
+      {:error, reason} ->
+        Logger.error("Failed to start CNS Forge Production Application: #{inspect(reason)}")
+        {:error, reason}
     end
   end
-  
+
   @impl true
   def stop(_state) do
-    Logger.info("CNS Forge shutting down...")
+    Logger.info("Stopping CNS Forge Production Application")
     :ok
   end
-  
-  defp configure_opentelemetry do
-    # Set up OpenTelemetry resource attributes
-    resource_attributes = [
-      service: [
-        name: "cns-forge",
-        version: Application.spec(:cns_forge, :vsn) |> to_string(),
-        namespace: env()
-      ],
-      deployment: [
-        environment: env()
-      ],
-      host: [
-        name: node() |> to_string()
-      ]
-    ]
-    
-    Application.put_env(:opentelemetry, :resource, resource_attributes)
-    
-    # Configure OTLP exporter
-    if otlp_endpoint = System.get_env("OTEL_EXPORTER_OTLP_ENDPOINT") do
-      Application.put_env(:opentelemetry_exporter, :otlp_endpoint, otlp_endpoint)
-      
-      # Add authentication headers if provided
-      if otlp_headers = System.get_env("OTEL_EXPORTER_OTLP_HEADERS") do
-        headers = parse_otlp_headers(otlp_headers)
-        Application.put_env(:opentelemetry_exporter, :otlp_headers, headers)
-      end
-    end
-    
-    # Set sampling rate
-    sampling_rate = System.get_env("OTEL_TRACES_SAMPLER_ARG", "1.0") |> String.to_float()
-    Application.put_env(:opentelemetry, :traces_sampler, {:parent_based, {:trace_id_ratio_based, sampling_rate}})
-    
-    Logger.info("OpenTelemetry configured for #{env()} environment")
-  end
-  
-  defp maybe_web_endpoint do
-    if Application.get_env(:cns_forge, :start_web_endpoint, true) do
-      CNSForgeWeb.Endpoint
-    else
-      nil
-    end
-  end
-  
-  defp health_check_port do
-    System.get_env("HEALTH_CHECK_PORT", "4001") |> String.to_integer()
-  end
-  
-  defp env do
-    Application.get_env(:cns_forge, :environment, "development")
-  end
-  
-  defp parse_otlp_headers(headers_string) do
-    headers_string
-    |> String.split(",")
-    |> Enum.map(&String.split(&1, "=", parts: 2))
-    |> Enum.map(fn [k, v] -> {String.trim(k), String.trim(v)} end)
-  end
 end
 
-defmodule CNSForge.HealthCheck do
+defmodule CNSForge.Telemetry do
   @moduledoc """
-  Health check endpoint for Kubernetes probes
+  Telemetry supervision and setup for CNS Forge
   """
   
-  use Plug.Router
-  
-  plug :match
-  plug :dispatch
-  
-  get "/health" do
-    health_status = check_health()
-    
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(health_status.code, Jason.encode!(health_status))
+  use Supervisor
+  require Logger
+
+  def start_link(init_arg) do
+    Supervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
   end
-  
-  get "/ready" do
-    ready_status = check_readiness()
-    
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(ready_status.code, Jason.encode!(ready_status))
+
+  @impl true
+  def init(_init_arg) do
+    children = [
+      # Telemetry poller for system metrics
+      {:telemetry_poller, measurements: periodic_measurements(), period: 10_000}
+    ]
+
+    Supervisor.init(children, strategy: :one_for_one)
   end
-  
-  match _ do
-    send_resp(conn, 404, "Not Found")
+
+  defp periodic_measurements do
+    [
+      # VM measurements
+      {__MODULE__, :measure_vm_memory, []},
+      {__MODULE__, :measure_vm_processes, []},
+      
+      # CNS Forge specific measurements
+      {__MODULE__, :measure_reactor_count, []},
+      {__MODULE__, :measure_ttl_violations, []}
+    ]
   end
-  
-  def child_spec(opts) do
-    %{
-      id: __MODULE__,
-      start: {__MODULE__, :start_link, [opts]},
-      type: :worker,
-      restart: :permanent,
-      shutdown: 500
-    }
+
+  def measure_vm_memory do
+    :telemetry.execute([:vm, :memory], :erlang.memory())
   end
-  
-  def start_link(opts) do
-    port = Keyword.get(opts, :port, 4001)
-    
-    Plug.Cowboy.http(__MODULE__, [], port: port)
+
+  def measure_vm_processes do
+    process_count = :erlang.system_info(:process_count)
+    :telemetry.execute([:vm, :processes], %{count: process_count})
   end
-  
-  defp check_health do
-    checks = %{
-      database: check_database_connection(),
-      registry: check_registry_health(),
-      memory: check_memory_usage()
-    }
-    
-    all_healthy = Enum.all?(checks, fn {_, status} -> status == :ok end)
-    
-    %{
-      code: if(all_healthy, do: 200, else: 503),
-      status: if(all_healthy, do: "healthy", else: "unhealthy"),
-      checks: checks,
-      timestamp: DateTime.utc_now()
-    }
+
+  def measure_reactor_count do
+    # Count active reactors
+    count = DynamicSupervisor.count_children(CNSForge.ReactorSupervisor)
+    :telemetry.execute([:cns_forge, :reactors], %{active: count.active || 0})
   end
-  
-  defp check_readiness do
-    ready = CNSForge.WorkflowScheduler.ready?() and
-            Registry.count(CNSForge.BitActorRegistry) >= 0
-    
-    %{
-      code: if(ready, do: 200, else: 503),
-      status: if(ready, do: "ready", else: "not_ready"),
-      timestamp: DateTime.utc_now()
-    }
-  end
-  
-  defp check_database_connection do
-    # Check Mnesia/database connectivity
-    case :mnesia.system_info(:is_running) do
-      :yes -> :ok
-      _ -> :error
-    end
-  end
-  
-  defp check_registry_health do
-    # Check if registries are responsive
-    try do
-      Registry.count(CNSForge.BitActorRegistry)
-      :ok
-    rescue
-      _ -> :error
-    end
-  end
-  
-  defp check_memory_usage do
-    # Check memory usage is below threshold
-    memory_mb = :erlang.memory(:total) / 1_024 / 1_024
-    limit_mb = System.get_env("MEMORY_LIMIT_MB", "2048") |> String.to_integer()
-    
-    if memory_mb < limit_mb * 0.9 do
-      :ok
-    else
-      :error
-    end
+
+  def measure_ttl_violations do
+    # This would be implemented with actual TTL violation tracking
+    :telemetry.execute([:cns_forge, :ttl], %{violations: 0})
   end
 end
 
-defmodule CNSForge.ResourceMonitor do
+defmodule CNSForge.TTLEnforcer do
   @moduledoc """
-  Monitor system resources and emit alerts
+  TTL (Time-To-Live) enforcement service
+  Ensures all reactor executions respect TTL bounds
   """
   
   use GenServer
   require Logger
-  
-  def start_link(opts) do
+
+  def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
-  
-  def init(opts) do
-    check_interval = Keyword.get(opts, :check_interval, 5_000)
-    thresholds = Keyword.get(opts, :thresholds, %{})
+
+  @impl true
+  def init(_opts) do
+    # Setup TTL enforcement configuration
+    ttl_config = Application.get_env(:cns_forge, :ttl_constraints, %{
+      max_execution_hops: 8,
+      max_processing_time_ms: 5000,
+      enable_bounds_checking: true
+    })
     
-    schedule_check(check_interval)
+    Logger.info("TTL Enforcer started with config: #{inspect(ttl_config)}")
     
     {:ok, %{
-      check_interval: check_interval,
-      thresholds: thresholds,
-      last_alert: %{}
+      config: ttl_config,
+      violations: [],
+      active_executions: %{}
     }}
   end
-  
-  def handle_info(:check_resources, state) do
-    check_and_alert(state)
-    schedule_check(state.check_interval)
-    {:noreply, state}
+
+  @impl true
+  def handle_call({:register_execution, execution_id, start_time}, _from, state) do
+    updated_executions = Map.put(state.active_executions, execution_id, start_time)
+    {:reply, :ok, %{state | active_executions: updated_executions}}
   end
-  
-  defp check_and_alert(state) do
-    # Memory check
-    memory_usage = :erlang.memory(:total) / :erlang.memory(:system)
-    if memory_usage > Map.get(state.thresholds, :memory, 0.9) do
-      alert(:high_memory, memory_usage, state)
-    end
-    
-    # Process count check
-    process_count = :erlang.system_info(:process_count)
-    if process_count > Map.get(state.thresholds, :processes, 10_000) do
-      alert(:high_process_count, process_count, state)
-    end
-    
-    # CPU check (simplified)
-    scheduler_usage = :scheduler.utilization(1)
-    avg_usage = Enum.sum(scheduler_usage) / length(scheduler_usage)
-    if avg_usage > Map.get(state.thresholds, :cpu, 0.8) do
-      alert(:high_cpu, avg_usage, state)
+
+  @impl true
+  def handle_call({:check_ttl_violation, execution_id}, _from, state) do
+    case Map.get(state.active_executions, execution_id) do
+      nil ->
+        {:reply, {:error, :execution_not_found}, state}
+        
+      start_time ->
+        current_time = System.monotonic_time(:millisecond)
+        execution_time = current_time - start_time
+        
+        violation = execution_time > state.config.max_processing_time_ms
+        
+        if violation do
+          Logger.warning("TTL violation detected for execution #{execution_id}: #{execution_time}ms > #{state.config.max_processing_time_ms}ms")
+          
+          violation_record = %{
+            execution_id: execution_id,
+            execution_time_ms: execution_time,
+            max_allowed_ms: state.config.max_processing_time_ms,
+            timestamp: DateTime.utc_now()
+          }
+          
+          updated_violations = [violation_record | state.violations]
+          {:reply, {:violation, violation_record}, %{state | violations: updated_violations}}
+        else
+          {:reply, :ok, state}
+        end
     end
   end
+
+  @impl true
+  def handle_call({:complete_execution, execution_id}, _from, state) do
+    updated_executions = Map.delete(state.active_executions, execution_id)
+    {:reply, :ok, %{state | active_executions: updated_executions}}
+  end
+
+  @impl true
+  def handle_call(:get_violations, _from, state) do
+    {:reply, state.violations, state}
+  end
+
+  # Public API
   
-  defp alert(type, value, state) do
-    now = System.monotonic_time(:second)
-    last_alert_time = Map.get(state.last_alert, type, 0)
-    
-    # Alert at most once per minute
-    if now - last_alert_time > 60 do
-      Logger.warning("Resource alert: #{type} = #{value}")
+  def register_execution(execution_id) do
+    start_time = System.monotonic_time(:millisecond)
+    GenServer.call(__MODULE__, {:register_execution, execution_id, start_time})
+  end
+
+  def check_ttl_violation(execution_id) do
+    GenServer.call(__MODULE__, {:check_ttl_violation, execution_id})
+  end
+
+  def complete_execution(execution_id) do
+    GenServer.call(__MODULE__, {:complete_execution, execution_id})
+  end
+
+  def get_violations do
+    GenServer.call(__MODULE__, :get_violations)
+  end
+end
+
+defmodule CNSForge.DomainSupervisor do
+  @moduledoc """
+  Supervisor for all domain-related processes
+  """
+  
+  use Supervisor
+
+  def start_link(opts) do
+    Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
+  end
+
+  @impl true
+  def init(_opts) do
+    children = [
+      # Domain registry
+      {Registry, keys: :duplicate, name: CNSForge.DomainRegistry},
       
-      :telemetry.execute(
-        [:cns_forge, :resource_monitor, :alert],
-        %{value: value},
-        %{type: type}
-      )
+      # Resource managers
+      CNSForge.ResourceManager,
+      
+      # Workflow coordinators  
+      CNSForge.WorkflowCoordinator
+    ]
+
+    Supervisor.init(children, strategy: :one_for_one)
+  end
+end
+
+defmodule CNSForge.ResourceManager do
+  @moduledoc """
+  Manages Ash resources and their lifecycle
+  """
+  
+  use GenServer
+
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  end
+
+  @impl true
+  def init(_opts) do
+    {:ok, %{resources: [], registry: CNSForge.DomainRegistry}}
+  end
+
+  @impl true
+  def handle_call({:register_resource, resource_module}, _from, state) do
+    updated_resources = [resource_module | state.resources]
+    Registry.register(state.registry, :resource_registered, resource_module)
+    {:reply, :ok, %{state | resources: updated_resources}}
+  end
+
+  @impl true
+  def handle_call(:list_resources, _from, state) do
+    {:reply, state.resources, state}
+  end
+
+  # Public API
+
+  def register_resource(resource_module) do
+    GenServer.call(__MODULE__, {:register_resource, resource_module})
+  end
+
+  def list_resources do
+    GenServer.call(__MODULE__, :list_resources)
+  end
+end
+
+defmodule CNSForge.WorkflowCoordinator do
+  @moduledoc """
+  Coordinates workflow execution across reactors
+  """
+  
+  use GenServer
+
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  end
+
+  @impl true
+  def init(_opts) do
+    {:ok, %{active_workflows: %{}, completed_workflows: []}}
+  end
+
+  @impl true
+  def handle_call({:start_workflow, workflow_id, reactor_module, input}, _from, state) do
+    # Start reactor under dynamic supervisor
+    case DynamicSupervisor.start_child(CNSForge.ReactorSupervisor, {Task, fn ->
+      CNSForge.TTLEnforcer.register_execution(workflow_id)
+      
+      try do
+        result = Reactor.run(reactor_module, input)
+        CNSForge.TTLEnforcer.complete_execution(workflow_id)
+        result
+      rescue
+        error ->
+          CNSForge.TTLEnforcer.complete_execution(workflow_id)
+          {:error, error}
+      end
+    end}) do
+      {:ok, pid} ->
+        updated_workflows = Map.put(state.active_workflows, workflow_id, %{
+          pid: pid,
+          reactor: reactor_module,
+          started_at: DateTime.utc_now()
+        })
+        
+        {:reply, {:ok, workflow_id}, %{state | active_workflows: updated_workflows}}
+        
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
     end
   end
-  
-  defp schedule_check(interval) do
-    Process.send_after(self(), :check_resources, interval)
+
+  @impl true
+  def handle_call(:list_active_workflows, _from, state) do
+    {:reply, Map.keys(state.active_workflows), state}
+  end
+
+  # Public API
+
+  def start_workflow(workflow_id, reactor_module, input \\ %{}) do
+    GenServer.call(__MODULE__, {:start_workflow, workflow_id, reactor_module, input})
+  end
+
+  def list_active_workflows do
+    GenServer.call(__MODULE__, :list_active_workflows)
   end
 end

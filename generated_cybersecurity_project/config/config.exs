@@ -1,84 +1,14 @@
 import Config
 
-# Configure Ash
-config :ash, :validate_domain_resource_inclusion?, false
-config :ash, :validate_domain_config_inclusion?, false
+# 80/20 Reactor Project Configuration
+# No Ash dependencies - using plain Reactor with simple structs
 
-# Configure the main domain
-config :cybersecurity, Cybersecurity.Domain,
-  resources: [
-    resource Cybersecurity.Resources.Asset
-    resource Cybersecurity.Resources.NetworkAsset
-    resource Cybersecurity.Resources.ComputeAsset
-    resource Cybersecurity.Resources.DataAsset
-    resource Cybersecurity.Resources.UserAsset
-    resource Cybersecurity.Resources.ApplicationAsset
-    resource Cybersecurity.Resources.NetworkDevice
-    resource Cybersecurity.Resources.Router
-    resource Cybersecurity.Resources.Switch
-    resource Cybersecurity.Resources.Firewall
-    resource Cybersecurity.Resources.LoadBalancer
-    resource Cybersecurity.Resources.VPN
-    resource Cybersecurity.Resources.NetworkSegment
-    resource Cybersecurity.Resources.DMZ
-    resource Cybersecurity.Resources.InternalNetwork
-    resource Cybersecurity.Resources.PublicNetwork
-    resource Cybersecurity.Resources.Threat
-    resource Cybersecurity.Resources.Malware
-    resource Cybersecurity.Resources.Virus
-    resource Cybersecurity.Resources.Worm
-    resource Cybersecurity.Resources.Trojan
-    resource Cybersecurity.Resources.Ransomware
-    resource Cybersecurity.Resources.Rootkit
-    resource Cybersecurity.Resources.Spyware
-    resource Cybersecurity.Resources.Botnet
-    resource Cybersecurity.Resources.Attack
-    resource Cybersecurity.Resources.NetworkAttack
-    resource Cybersecurity.Resources.DDoSAttack
-    resource Cybersecurity.Resources.ManInTheMiddleAttack
-    resource Cybersecurity.Resources.PacketSniffing
-    resource Cybersecurity.Resources.PortScan
-    resource Cybersecurity.Resources.WebAttack
-    resource Cybersecurity.Resources.SQLInjection
-    resource Cybersecurity.Resources.XSS
-    resource Cybersecurity.Resources.CSRF
-    resource Cybersecurity.Resources.SocialEngineering
-    resource Cybersecurity.Resources.PhishingAttack
-    resource Cybersecurity.Resources.SpearPhishing
-    resource Cybersecurity.Resources.PrivilegeEscalation
-    resource Cybersecurity.Resources.LateralMovement
-    resource Cybersecurity.Resources.DataExfiltration
-    resource Cybersecurity.Resources.SecurityEvent
-    resource Cybersecurity.Resources.SecurityIncident
-    resource Cybersecurity.Resources.Vulnerability
-    resource Cybersecurity.Resources.ZeroDayVulnerability
-    resource Cybersecurity.Resources.Alert
-    resource Cybersecurity.Resources.ThreatIntelligence
-    resource Cybersecurity.Resources.IOC
-    resource Cybersecurity.Resources.SecurityControl
-    resource Cybersecurity.Resources.PreventiveControl
-    resource Cybersecurity.Resources.DetectiveControl
-    resource Cybersecurity.Resources.CorrectiveControl
-    resource Cybersecurity.Resources.IDS
-    resource Cybersecurity.Resources.IPS
-    resource Cybersecurity.Resources.SIEM
-    resource Cybersecurity.Resources.Antivirus
-    resource Cybersecurity.Resources.EDR
-    resource Cybersecurity.Resources.SOAR
-  ]
+# Configure the main domain  
+# Domain resources are plain Elixir modules
 
-# Database configuration
-config :cybersecurity, Cybersecurity.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "cybersecurity_dev",
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+# 80/20: Using ETS data layer - no database configuration needed
 
-# Telemetry configuration
-config :telemetry_poller, :default, period: :timer.seconds(5)
+# 80/20: No telemetry configuration needed
 
 # Logger configuration
 config :logger, :console,

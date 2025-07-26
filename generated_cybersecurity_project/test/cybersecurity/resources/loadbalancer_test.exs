@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.LoadBalancerTest do
         status: :active
       }
       
-      assert {:ok, loadbalancer} = Ash.create(LoadBalancer, attrs)
+      LoadBalancer.init_storage()
+      assert {:ok, loadbalancer} = LoadBalancer.create(attrs)
       assert loadbalancer.name == "Test LoadBalancer"
       assert loadbalancer.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.LoadBalancerTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(LoadBalancer, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = LoadBalancer.create(LoadBalancer, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.LoadBalancerTest do
     test "reads existing loadbalancer" do
       loadbalancer = TestHelper.create_test_data(LoadBalancer)
       
-      assert {:ok, found_loadbalancer} = Ash.get(LoadBalancer, loadbalancer.id)
+      assert {:ok, found_loadbalancer} = LoadBalancer.get(LoadBalancer, loadbalancer.id)
       assert found_loadbalancer.id == loadbalancer.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.LoadBalancerTest do
       TestHelper.create_test_data(LoadBalancer, %{name: "LoadBalancer 1"})
       TestHelper.create_test_data(LoadBalancer, %{name: "LoadBalancer 2"})
       
-      assert {:ok, loadbalancers} = Ash.read(LoadBalancer)
+      assert {:ok, loadbalancers} = LoadBalancer.list(LoadBalancer)
       assert length(loadbalancers) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.LoadBalancerTest do
       active_loadbalancer = TestHelper.create_test_data(LoadBalancer, %{status: :active})
       _inactive_loadbalancer = TestHelper.create_test_data(LoadBalancer, %{status: :inactive})
       
-      assert {:ok, [loadbalancer]} = Ash.read(LoadBalancer, action: :by_status, status: :active)
+      assert {:ok, [loadbalancer]} = LoadBalancer.list(LoadBalancer, action: :by_status, status: :active)
       assert loadbalancer.id == active_loadbalancer.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.LoadBalancerTest do
     test "updates loadbalancer attributes" do
       loadbalancer = TestHelper.create_test_data(LoadBalancer)
       
-      assert {:ok, updated_loadbalancer} = Ash.update(loadbalancer, %{name: "Updated Name"})
+      assert {:ok, updated_loadbalancer} = LoadBalancer.update(loadbalancer, %{name: "Updated Name"})
       assert updated_loadbalancer.name == "Updated Name"
     end
     
     test "activates loadbalancer" do
       loadbalancer = TestHelper.create_test_data(LoadBalancer, %{status: :inactive})
       
-      assert {:ok, activated_loadbalancer} = Ash.update(loadbalancer, action: :activate)
+      assert {:ok, activated_loadbalancer} = LoadBalancer.update(loadbalancer, action: :activate)
       assert activated_loadbalancer.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.LoadBalancerTest do
     test "destroys existing loadbalancer" do
       loadbalancer = TestHelper.create_test_data(LoadBalancer)
       
-      assert :ok = Ash.destroy(loadbalancer)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(LoadBalancer, loadbalancer.id)
+      assert :ok = LoadBalancer.delete(loadbalancer)
+      assert {:error, %Ash.Error.Invalid{}} = LoadBalancer.get(LoadBalancer, loadbalancer.id)
     end
   end
 end

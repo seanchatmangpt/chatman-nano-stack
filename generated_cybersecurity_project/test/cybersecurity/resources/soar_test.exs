@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.SOARTest do
         status: :active
       }
       
-      assert {:ok, soar} = Ash.create(SOAR, attrs)
+      SOAR.init_storage()
+      assert {:ok, soar} = SOAR.create(attrs)
       assert soar.name == "Test SOAR"
       assert soar.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.SOARTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(SOAR, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = SOAR.create(SOAR, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.SOARTest do
     test "reads existing soar" do
       soar = TestHelper.create_test_data(SOAR)
       
-      assert {:ok, found_soar} = Ash.get(SOAR, soar.id)
+      assert {:ok, found_soar} = SOAR.get(SOAR, soar.id)
       assert found_soar.id == soar.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.SOARTest do
       TestHelper.create_test_data(SOAR, %{name: "SOAR 1"})
       TestHelper.create_test_data(SOAR, %{name: "SOAR 2"})
       
-      assert {:ok, soars} = Ash.read(SOAR)
+      assert {:ok, soars} = SOAR.list(SOAR)
       assert length(soars) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.SOARTest do
       active_soar = TestHelper.create_test_data(SOAR, %{status: :active})
       _inactive_soar = TestHelper.create_test_data(SOAR, %{status: :inactive})
       
-      assert {:ok, [soar]} = Ash.read(SOAR, action: :by_status, status: :active)
+      assert {:ok, [soar]} = SOAR.list(SOAR, action: :by_status, status: :active)
       assert soar.id == active_soar.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.SOARTest do
     test "updates soar attributes" do
       soar = TestHelper.create_test_data(SOAR)
       
-      assert {:ok, updated_soar} = Ash.update(soar, %{name: "Updated Name"})
+      assert {:ok, updated_soar} = SOAR.update(soar, %{name: "Updated Name"})
       assert updated_soar.name == "Updated Name"
     end
     
     test "activates soar" do
       soar = TestHelper.create_test_data(SOAR, %{status: :inactive})
       
-      assert {:ok, activated_soar} = Ash.update(soar, action: :activate)
+      assert {:ok, activated_soar} = SOAR.update(soar, action: :activate)
       assert activated_soar.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.SOARTest do
     test "destroys existing soar" do
       soar = TestHelper.create_test_data(SOAR)
       
-      assert :ok = Ash.destroy(soar)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(SOAR, soar.id)
+      assert :ok = SOAR.delete(soar)
+      assert {:error, %Ash.Error.Invalid{}} = SOAR.get(SOAR, soar.id)
     end
   end
 end

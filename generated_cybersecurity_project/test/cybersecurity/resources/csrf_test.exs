@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.CSRFTest do
         status: :active
       }
       
-      assert {:ok, csrf} = Ash.create(CSRF, attrs)
+      CSRF.init_storage()
+      assert {:ok, csrf} = CSRF.create(attrs)
       assert csrf.name == "Test CSRF"
       assert csrf.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.CSRFTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(CSRF, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = CSRF.create(CSRF, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.CSRFTest do
     test "reads existing csrf" do
       csrf = TestHelper.create_test_data(CSRF)
       
-      assert {:ok, found_csrf} = Ash.get(CSRF, csrf.id)
+      assert {:ok, found_csrf} = CSRF.get(CSRF, csrf.id)
       assert found_csrf.id == csrf.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.CSRFTest do
       TestHelper.create_test_data(CSRF, %{name: "CSRF 1"})
       TestHelper.create_test_data(CSRF, %{name: "CSRF 2"})
       
-      assert {:ok, csrfs} = Ash.read(CSRF)
+      assert {:ok, csrfs} = CSRF.list(CSRF)
       assert length(csrfs) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.CSRFTest do
       active_csrf = TestHelper.create_test_data(CSRF, %{status: :active})
       _inactive_csrf = TestHelper.create_test_data(CSRF, %{status: :inactive})
       
-      assert {:ok, [csrf]} = Ash.read(CSRF, action: :by_status, status: :active)
+      assert {:ok, [csrf]} = CSRF.list(CSRF, action: :by_status, status: :active)
       assert csrf.id == active_csrf.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.CSRFTest do
     test "updates csrf attributes" do
       csrf = TestHelper.create_test_data(CSRF)
       
-      assert {:ok, updated_csrf} = Ash.update(csrf, %{name: "Updated Name"})
+      assert {:ok, updated_csrf} = CSRF.update(csrf, %{name: "Updated Name"})
       assert updated_csrf.name == "Updated Name"
     end
     
     test "activates csrf" do
       csrf = TestHelper.create_test_data(CSRF, %{status: :inactive})
       
-      assert {:ok, activated_csrf} = Ash.update(csrf, action: :activate)
+      assert {:ok, activated_csrf} = CSRF.update(csrf, action: :activate)
       assert activated_csrf.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.CSRFTest do
     test "destroys existing csrf" do
       csrf = TestHelper.create_test_data(CSRF)
       
-      assert :ok = Ash.destroy(csrf)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(CSRF, csrf.id)
+      assert :ok = CSRF.delete(csrf)
+      assert {:error, %Ash.Error.Invalid{}} = CSRF.get(CSRF, csrf.id)
     end
   end
 end

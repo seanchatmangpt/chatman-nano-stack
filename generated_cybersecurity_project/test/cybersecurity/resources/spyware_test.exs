@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.SpywareTest do
         status: :active
       }
       
-      assert {:ok, spyware} = Ash.create(Spyware, attrs)
+      Spyware.init_storage()
+      assert {:ok, spyware} = Spyware.create(attrs)
       assert spyware.name == "Test Spyware"
       assert spyware.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.SpywareTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(Spyware, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = Spyware.create(Spyware, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.SpywareTest do
     test "reads existing spyware" do
       spyware = TestHelper.create_test_data(Spyware)
       
-      assert {:ok, found_spyware} = Ash.get(Spyware, spyware.id)
+      assert {:ok, found_spyware} = Spyware.get(Spyware, spyware.id)
       assert found_spyware.id == spyware.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.SpywareTest do
       TestHelper.create_test_data(Spyware, %{name: "Spyware 1"})
       TestHelper.create_test_data(Spyware, %{name: "Spyware 2"})
       
-      assert {:ok, spywares} = Ash.read(Spyware)
+      assert {:ok, spywares} = Spyware.list(Spyware)
       assert length(spywares) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.SpywareTest do
       active_spyware = TestHelper.create_test_data(Spyware, %{status: :active})
       _inactive_spyware = TestHelper.create_test_data(Spyware, %{status: :inactive})
       
-      assert {:ok, [spyware]} = Ash.read(Spyware, action: :by_status, status: :active)
+      assert {:ok, [spyware]} = Spyware.list(Spyware, action: :by_status, status: :active)
       assert spyware.id == active_spyware.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.SpywareTest do
     test "updates spyware attributes" do
       spyware = TestHelper.create_test_data(Spyware)
       
-      assert {:ok, updated_spyware} = Ash.update(spyware, %{name: "Updated Name"})
+      assert {:ok, updated_spyware} = Spyware.update(spyware, %{name: "Updated Name"})
       assert updated_spyware.name == "Updated Name"
     end
     
     test "activates spyware" do
       spyware = TestHelper.create_test_data(Spyware, %{status: :inactive})
       
-      assert {:ok, activated_spyware} = Ash.update(spyware, action: :activate)
+      assert {:ok, activated_spyware} = Spyware.update(spyware, action: :activate)
       assert activated_spyware.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.SpywareTest do
     test "destroys existing spyware" do
       spyware = TestHelper.create_test_data(Spyware)
       
-      assert :ok = Ash.destroy(spyware)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(Spyware, spyware.id)
+      assert :ok = Spyware.delete(spyware)
+      assert {:error, %Ash.Error.Invalid{}} = Spyware.get(Spyware, spyware.id)
     end
   end
 end

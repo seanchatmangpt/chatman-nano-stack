@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.CorrectiveControlTest do
         status: :active
       }
       
-      assert {:ok, correctivecontrol} = Ash.create(CorrectiveControl, attrs)
+      CorrectiveControl.init_storage()
+      assert {:ok, correctivecontrol} = CorrectiveControl.create(attrs)
       assert correctivecontrol.name == "Test CorrectiveControl"
       assert correctivecontrol.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.CorrectiveControlTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(CorrectiveControl, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = CorrectiveControl.create(CorrectiveControl, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.CorrectiveControlTest do
     test "reads existing correctivecontrol" do
       correctivecontrol = TestHelper.create_test_data(CorrectiveControl)
       
-      assert {:ok, found_correctivecontrol} = Ash.get(CorrectiveControl, correctivecontrol.id)
+      assert {:ok, found_correctivecontrol} = CorrectiveControl.get(CorrectiveControl, correctivecontrol.id)
       assert found_correctivecontrol.id == correctivecontrol.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.CorrectiveControlTest do
       TestHelper.create_test_data(CorrectiveControl, %{name: "CorrectiveControl 1"})
       TestHelper.create_test_data(CorrectiveControl, %{name: "CorrectiveControl 2"})
       
-      assert {:ok, correctivecontrols} = Ash.read(CorrectiveControl)
+      assert {:ok, correctivecontrols} = CorrectiveControl.list(CorrectiveControl)
       assert length(correctivecontrols) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.CorrectiveControlTest do
       active_correctivecontrol = TestHelper.create_test_data(CorrectiveControl, %{status: :active})
       _inactive_correctivecontrol = TestHelper.create_test_data(CorrectiveControl, %{status: :inactive})
       
-      assert {:ok, [correctivecontrol]} = Ash.read(CorrectiveControl, action: :by_status, status: :active)
+      assert {:ok, [correctivecontrol]} = CorrectiveControl.list(CorrectiveControl, action: :by_status, status: :active)
       assert correctivecontrol.id == active_correctivecontrol.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.CorrectiveControlTest do
     test "updates correctivecontrol attributes" do
       correctivecontrol = TestHelper.create_test_data(CorrectiveControl)
       
-      assert {:ok, updated_correctivecontrol} = Ash.update(correctivecontrol, %{name: "Updated Name"})
+      assert {:ok, updated_correctivecontrol} = CorrectiveControl.update(correctivecontrol, %{name: "Updated Name"})
       assert updated_correctivecontrol.name == "Updated Name"
     end
     
     test "activates correctivecontrol" do
       correctivecontrol = TestHelper.create_test_data(CorrectiveControl, %{status: :inactive})
       
-      assert {:ok, activated_correctivecontrol} = Ash.update(correctivecontrol, action: :activate)
+      assert {:ok, activated_correctivecontrol} = CorrectiveControl.update(correctivecontrol, action: :activate)
       assert activated_correctivecontrol.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.CorrectiveControlTest do
     test "destroys existing correctivecontrol" do
       correctivecontrol = TestHelper.create_test_data(CorrectiveControl)
       
-      assert :ok = Ash.destroy(correctivecontrol)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(CorrectiveControl, correctivecontrol.id)
+      assert :ok = CorrectiveControl.delete(correctivecontrol)
+      assert {:error, %Ash.Error.Invalid{}} = CorrectiveControl.get(CorrectiveControl, correctivecontrol.id)
     end
   end
 end

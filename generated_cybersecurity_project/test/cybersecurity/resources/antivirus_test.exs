@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.AntivirusTest do
         status: :active
       }
       
-      assert {:ok, antivirus} = Ash.create(Antivirus, attrs)
+      Antivirus.init_storage()
+      assert {:ok, antivirus} = Antivirus.create(attrs)
       assert antivirus.name == "Test Antivirus"
       assert antivirus.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.AntivirusTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(Antivirus, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = Antivirus.create(Antivirus, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.AntivirusTest do
     test "reads existing antivirus" do
       antivirus = TestHelper.create_test_data(Antivirus)
       
-      assert {:ok, found_antivirus} = Ash.get(Antivirus, antivirus.id)
+      assert {:ok, found_antivirus} = Antivirus.get(Antivirus, antivirus.id)
       assert found_antivirus.id == antivirus.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.AntivirusTest do
       TestHelper.create_test_data(Antivirus, %{name: "Antivirus 1"})
       TestHelper.create_test_data(Antivirus, %{name: "Antivirus 2"})
       
-      assert {:ok, antiviruss} = Ash.read(Antivirus)
+      assert {:ok, antiviruss} = Antivirus.list(Antivirus)
       assert length(antiviruss) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.AntivirusTest do
       active_antivirus = TestHelper.create_test_data(Antivirus, %{status: :active})
       _inactive_antivirus = TestHelper.create_test_data(Antivirus, %{status: :inactive})
       
-      assert {:ok, [antivirus]} = Ash.read(Antivirus, action: :by_status, status: :active)
+      assert {:ok, [antivirus]} = Antivirus.list(Antivirus, action: :by_status, status: :active)
       assert antivirus.id == active_antivirus.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.AntivirusTest do
     test "updates antivirus attributes" do
       antivirus = TestHelper.create_test_data(Antivirus)
       
-      assert {:ok, updated_antivirus} = Ash.update(antivirus, %{name: "Updated Name"})
+      assert {:ok, updated_antivirus} = Antivirus.update(antivirus, %{name: "Updated Name"})
       assert updated_antivirus.name == "Updated Name"
     end
     
     test "activates antivirus" do
       antivirus = TestHelper.create_test_data(Antivirus, %{status: :inactive})
       
-      assert {:ok, activated_antivirus} = Ash.update(antivirus, action: :activate)
+      assert {:ok, activated_antivirus} = Antivirus.update(antivirus, action: :activate)
       assert activated_antivirus.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.AntivirusTest do
     test "destroys existing antivirus" do
       antivirus = TestHelper.create_test_data(Antivirus)
       
-      assert :ok = Ash.destroy(antivirus)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(Antivirus, antivirus.id)
+      assert :ok = Antivirus.delete(antivirus)
+      assert {:error, %Ash.Error.Invalid{}} = Antivirus.get(Antivirus, antivirus.id)
     end
   end
 end

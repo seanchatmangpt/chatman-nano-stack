@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.RootkitTest do
         status: :active
       }
       
-      assert {:ok, rootkit} = Ash.create(Rootkit, attrs)
+      Rootkit.init_storage()
+      assert {:ok, rootkit} = Rootkit.create(attrs)
       assert rootkit.name == "Test Rootkit"
       assert rootkit.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.RootkitTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(Rootkit, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = Rootkit.create(Rootkit, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.RootkitTest do
     test "reads existing rootkit" do
       rootkit = TestHelper.create_test_data(Rootkit)
       
-      assert {:ok, found_rootkit} = Ash.get(Rootkit, rootkit.id)
+      assert {:ok, found_rootkit} = Rootkit.get(Rootkit, rootkit.id)
       assert found_rootkit.id == rootkit.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.RootkitTest do
       TestHelper.create_test_data(Rootkit, %{name: "Rootkit 1"})
       TestHelper.create_test_data(Rootkit, %{name: "Rootkit 2"})
       
-      assert {:ok, rootkits} = Ash.read(Rootkit)
+      assert {:ok, rootkits} = Rootkit.list(Rootkit)
       assert length(rootkits) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.RootkitTest do
       active_rootkit = TestHelper.create_test_data(Rootkit, %{status: :active})
       _inactive_rootkit = TestHelper.create_test_data(Rootkit, %{status: :inactive})
       
-      assert {:ok, [rootkit]} = Ash.read(Rootkit, action: :by_status, status: :active)
+      assert {:ok, [rootkit]} = Rootkit.list(Rootkit, action: :by_status, status: :active)
       assert rootkit.id == active_rootkit.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.RootkitTest do
     test "updates rootkit attributes" do
       rootkit = TestHelper.create_test_data(Rootkit)
       
-      assert {:ok, updated_rootkit} = Ash.update(rootkit, %{name: "Updated Name"})
+      assert {:ok, updated_rootkit} = Rootkit.update(rootkit, %{name: "Updated Name"})
       assert updated_rootkit.name == "Updated Name"
     end
     
     test "activates rootkit" do
       rootkit = TestHelper.create_test_data(Rootkit, %{status: :inactive})
       
-      assert {:ok, activated_rootkit} = Ash.update(rootkit, action: :activate)
+      assert {:ok, activated_rootkit} = Rootkit.update(rootkit, action: :activate)
       assert activated_rootkit.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.RootkitTest do
     test "destroys existing rootkit" do
       rootkit = TestHelper.create_test_data(Rootkit)
       
-      assert :ok = Ash.destroy(rootkit)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(Rootkit, rootkit.id)
+      assert :ok = Rootkit.delete(rootkit)
+      assert {:error, %Ash.Error.Invalid{}} = Rootkit.get(Rootkit, rootkit.id)
     end
   end
 end

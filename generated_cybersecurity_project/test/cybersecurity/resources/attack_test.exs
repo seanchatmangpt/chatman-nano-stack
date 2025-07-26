@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.AttackTest do
         status: :active
       }
       
-      assert {:ok, attack} = Ash.create(Attack, attrs)
+      Attack.init_storage()
+      assert {:ok, attack} = Attack.create(attrs)
       assert attack.name == "Test Attack"
       assert attack.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.AttackTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(Attack, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = Attack.create(Attack, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.AttackTest do
     test "reads existing attack" do
       attack = TestHelper.create_test_data(Attack)
       
-      assert {:ok, found_attack} = Ash.get(Attack, attack.id)
+      assert {:ok, found_attack} = Attack.get(Attack, attack.id)
       assert found_attack.id == attack.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.AttackTest do
       TestHelper.create_test_data(Attack, %{name: "Attack 1"})
       TestHelper.create_test_data(Attack, %{name: "Attack 2"})
       
-      assert {:ok, attacks} = Ash.read(Attack)
+      assert {:ok, attacks} = Attack.list(Attack)
       assert length(attacks) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.AttackTest do
       active_attack = TestHelper.create_test_data(Attack, %{status: :active})
       _inactive_attack = TestHelper.create_test_data(Attack, %{status: :inactive})
       
-      assert {:ok, [attack]} = Ash.read(Attack, action: :by_status, status: :active)
+      assert {:ok, [attack]} = Attack.list(Attack, action: :by_status, status: :active)
       assert attack.id == active_attack.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.AttackTest do
     test "updates attack attributes" do
       attack = TestHelper.create_test_data(Attack)
       
-      assert {:ok, updated_attack} = Ash.update(attack, %{name: "Updated Name"})
+      assert {:ok, updated_attack} = Attack.update(attack, %{name: "Updated Name"})
       assert updated_attack.name == "Updated Name"
     end
     
     test "activates attack" do
       attack = TestHelper.create_test_data(Attack, %{status: :inactive})
       
-      assert {:ok, activated_attack} = Ash.update(attack, action: :activate)
+      assert {:ok, activated_attack} = Attack.update(attack, action: :activate)
       assert activated_attack.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.AttackTest do
     test "destroys existing attack" do
       attack = TestHelper.create_test_data(Attack)
       
-      assert :ok = Ash.destroy(attack)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(Attack, attack.id)
+      assert :ok = Attack.delete(attack)
+      assert {:error, %Ash.Error.Invalid{}} = Attack.get(Attack, attack.id)
     end
   end
 end

@@ -1,0 +1,173 @@
+{
+  "swarm_coordination_success": true,
+  "intelligence_analysis": {
+    "intelligence_analysis_success": false,
+    "error": "[Errno 2] No such file or directory: '/nonexistent/path/fake.ttl'"
+  },
+  "coordination_results": {
+    "elixir_transformer": {
+      "success": false,
+      "error": "[Errno 2] No such file or directory: '/nonexistent/path/fake.ttl'",
+      "node_type": "elixir_transformer",
+      "ttl_consumed": 0,
+      "ttl_compliant": true
+    },
+    "c_compiler": {
+      "success": true,
+      "binaries_generated": 0,
+      "compilation_artifacts": [],
+      "node_type": "c_compiler",
+      "performance_optimized": true,
+      "ttl_consumed": 0,
+      "ttl_compliant": true
+    },
+    "infrastructure": {
+      "success": true,
+      "terraform_files": 0,
+      "kubernetes_files": 0,
+      "infrastructure_ready": false,
+      "node_type": "infrastructure",
+      "ttl_consumed": 0,
+      "ttl_compliant": true
+    },
+    "python_generator": {
+      "success": false,
+      "error": "",
+      "node_type": "python_generator",
+      "ttl_consumed": 0,
+      "ttl_compliant": true
+    }
+  },
+  "emergent_behavior": {
+    "emergent_behaviors": [
+      {
+        "name": "Adaptive Component Coordination",
+        "description": "Swarm adapts to compilation failures by routing through working components",
+        "emergence_level": 0.5
+      },
+      {
+        "name": "TTL-Bounded Collective Intelligence",
+        "description": "All nodes coordinate within TTL constraints for hyper-performance",
+        "emergence_level": 1.0
+      },
+      {
+        "name": "Compilation-Resilient Architecture",
+        "description": "Swarm continues functioning even with individual component failures",
+        "emergence_level": 0.2
+      }
+    ],
+    "emergence_factor": 0.5,
+    "swarm_efficiency": 1.0,
+    "collective_intelligence_achieved": false
+  },
+  "validation": {
+    "validation_success": false,
+    "error": "Project directory not found"
+  },
+  "swarm_intelligence_quotient": 414,
+  "execution_time": 0.03580808639526367,
+  "ttl_compliance": {
+    "global_ttl_compliance": true,
+    "total_budget": 11,
+    "total_consumed": 0,
+    "efficiency_ratio": 1.0,
+    "node_compliance": {
+      "python_generator": true,
+      "elixir_transformer": true,
+      "c_compiler": true,
+      "infrastructure": true
+    }
+  },
+  "swarm_nodes_status": {
+    "python_generator": {
+      "node_id": "python_generator",
+      "node_type": "python_generator",
+      "capabilities": [
+        "ttl_parsing",
+        "project_generation",
+        "ontology_processing"
+      ],
+      "status": "completed",
+      "ttl_budget": 3,
+      "ttl_consumed": 0,
+      "last_heartbeat": 1753475282.933439,
+      "output_data": {
+        "success": false,
+        "error": "",
+        "node_type": "python_generator",
+        "ttl_consumed": 0,
+        "ttl_compliant": true
+      },
+      "error_log": null
+    },
+    "elixir_transformer": {
+      "node_id": "elixir_transformer",
+      "node_type": "elixir_transformer",
+      "capabilities": [
+        "ttl_transformation",
+        "ash_resource_generation",
+        "reactor_orchestration"
+      ],
+      "status": "completed",
+      "ttl_budget": 5,
+      "ttl_consumed": 0,
+      "last_heartbeat": 1753475282.934624,
+      "output_data": {
+        "success": false,
+        "error": "[Errno 2] No such file or directory: '/nonexistent/path/fake.ttl'",
+        "node_type": "elixir_transformer",
+        "ttl_consumed": 0,
+        "ttl_compliant": true
+      },
+      "error_log": null
+    },
+    "c_compiler": {
+      "node_id": "c_compiler",
+      "node_type": "c_compiler",
+      "capabilities": [
+        "bitactor_compilation",
+        "performance_optimization",
+        "binary_generation"
+      ],
+      "status": "completed",
+      "ttl_budget": 2,
+      "ttl_consumed": 0,
+      "last_heartbeat": 1753475282.934751,
+      "output_data": {
+        "success": true,
+        "binaries_generated": 0,
+        "compilation_artifacts": [],
+        "node_type": "c_compiler",
+        "performance_optimized": true,
+        "ttl_consumed": 0,
+        "ttl_compliant": true
+      },
+      "error_log": null
+    },
+    "infrastructure": {
+      "node_id": "infrastructure",
+      "node_type": "infrastructure",
+      "capabilities": [
+        "terraform_generation",
+        "kubernetes_deployment",
+        "otel_configuration"
+      ],
+      "status": "completed",
+      "ttl_budget": 1,
+      "ttl_consumed": 0,
+      "last_heartbeat": 1753475282.9350321,
+      "output_data": {
+        "success": true,
+        "terraform_files": 0,
+        "kubernetes_files": 0,
+        "infrastructure_ready": false,
+        "node_type": "infrastructure",
+        "ttl_consumed": 0,
+        "ttl_compliant": true
+      },
+      "error_log": null
+    }
+  },
+  "coordination_method": "ARTIFICIAL_HYPER_INTELLIGENCE_SWARM",
+  "adversarial_hardening": "PROCESS_BASED_COORDINATION_BYPASS_COMPILATION"
+}

@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.EDRTest do
         status: :active
       }
       
-      assert {:ok, edr} = Ash.create(EDR, attrs)
+      EDR.init_storage()
+      assert {:ok, edr} = EDR.create(attrs)
       assert edr.name == "Test EDR"
       assert edr.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.EDRTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(EDR, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = EDR.create(EDR, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.EDRTest do
     test "reads existing edr" do
       edr = TestHelper.create_test_data(EDR)
       
-      assert {:ok, found_edr} = Ash.get(EDR, edr.id)
+      assert {:ok, found_edr} = EDR.get(EDR, edr.id)
       assert found_edr.id == edr.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.EDRTest do
       TestHelper.create_test_data(EDR, %{name: "EDR 1"})
       TestHelper.create_test_data(EDR, %{name: "EDR 2"})
       
-      assert {:ok, edrs} = Ash.read(EDR)
+      assert {:ok, edrs} = EDR.list(EDR)
       assert length(edrs) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.EDRTest do
       active_edr = TestHelper.create_test_data(EDR, %{status: :active})
       _inactive_edr = TestHelper.create_test_data(EDR, %{status: :inactive})
       
-      assert {:ok, [edr]} = Ash.read(EDR, action: :by_status, status: :active)
+      assert {:ok, [edr]} = EDR.list(EDR, action: :by_status, status: :active)
       assert edr.id == active_edr.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.EDRTest do
     test "updates edr attributes" do
       edr = TestHelper.create_test_data(EDR)
       
-      assert {:ok, updated_edr} = Ash.update(edr, %{name: "Updated Name"})
+      assert {:ok, updated_edr} = EDR.update(edr, %{name: "Updated Name"})
       assert updated_edr.name == "Updated Name"
     end
     
     test "activates edr" do
       edr = TestHelper.create_test_data(EDR, %{status: :inactive})
       
-      assert {:ok, activated_edr} = Ash.update(edr, action: :activate)
+      assert {:ok, activated_edr} = EDR.update(edr, action: :activate)
       assert activated_edr.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.EDRTest do
     test "destroys existing edr" do
       edr = TestHelper.create_test_data(EDR)
       
-      assert :ok = Ash.destroy(edr)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(EDR, edr.id)
+      assert :ok = EDR.delete(edr)
+      assert {:error, %Ash.Error.Invalid{}} = EDR.get(EDR, edr.id)
     end
   end
 end

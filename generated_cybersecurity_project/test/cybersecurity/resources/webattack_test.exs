@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.WebAttackTest do
         status: :active
       }
       
-      assert {:ok, webattack} = Ash.create(WebAttack, attrs)
+      WebAttack.init_storage()
+      assert {:ok, webattack} = WebAttack.create(attrs)
       assert webattack.name == "Test WebAttack"
       assert webattack.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.WebAttackTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(WebAttack, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = WebAttack.create(WebAttack, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.WebAttackTest do
     test "reads existing webattack" do
       webattack = TestHelper.create_test_data(WebAttack)
       
-      assert {:ok, found_webattack} = Ash.get(WebAttack, webattack.id)
+      assert {:ok, found_webattack} = WebAttack.get(WebAttack, webattack.id)
       assert found_webattack.id == webattack.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.WebAttackTest do
       TestHelper.create_test_data(WebAttack, %{name: "WebAttack 1"})
       TestHelper.create_test_data(WebAttack, %{name: "WebAttack 2"})
       
-      assert {:ok, webattacks} = Ash.read(WebAttack)
+      assert {:ok, webattacks} = WebAttack.list(WebAttack)
       assert length(webattacks) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.WebAttackTest do
       active_webattack = TestHelper.create_test_data(WebAttack, %{status: :active})
       _inactive_webattack = TestHelper.create_test_data(WebAttack, %{status: :inactive})
       
-      assert {:ok, [webattack]} = Ash.read(WebAttack, action: :by_status, status: :active)
+      assert {:ok, [webattack]} = WebAttack.list(WebAttack, action: :by_status, status: :active)
       assert webattack.id == active_webattack.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.WebAttackTest do
     test "updates webattack attributes" do
       webattack = TestHelper.create_test_data(WebAttack)
       
-      assert {:ok, updated_webattack} = Ash.update(webattack, %{name: "Updated Name"})
+      assert {:ok, updated_webattack} = WebAttack.update(webattack, %{name: "Updated Name"})
       assert updated_webattack.name == "Updated Name"
     end
     
     test "activates webattack" do
       webattack = TestHelper.create_test_data(WebAttack, %{status: :inactive})
       
-      assert {:ok, activated_webattack} = Ash.update(webattack, action: :activate)
+      assert {:ok, activated_webattack} = WebAttack.update(webattack, action: :activate)
       assert activated_webattack.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.WebAttackTest do
     test "destroys existing webattack" do
       webattack = TestHelper.create_test_data(WebAttack)
       
-      assert :ok = Ash.destroy(webattack)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(WebAttack, webattack.id)
+      assert :ok = WebAttack.delete(webattack)
+      assert {:error, %Ash.Error.Invalid{}} = WebAttack.get(WebAttack, webattack.id)
     end
   end
 end

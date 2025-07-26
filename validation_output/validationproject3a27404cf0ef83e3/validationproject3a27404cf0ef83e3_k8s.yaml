@@ -1,0 +1,96 @@
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: validationproject3a27404cf0ef83e3
+  labels:
+    app: validationproject3a27404cf0ef83e3
+    workflow-type: cybersecurity_mesh
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: validationproject3a27404cf0ef83e3-reactor
+  namespace: validationproject3a27404cf0ef83e3
+  labels:
+    app: validationproject3a27404cf0ef83e3
+    component: reactor-workflow
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: validationproject3a27404cf0ef83e3
+      component: reactor-workflow
+  template:
+    metadata:
+      labels:
+        app: validationproject3a27404cf0ef83e3
+        component: reactor-workflow
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+    spec:
+      containers:
+      - name: reactor-workflow
+        image: validationproject3a27404cf0ef83e3/reactor:latest
+        ports:
+        - containerPort: 4000
+          name: http
+        - containerPort: 9090
+          name: metrics
+        env:
+        - name: WORKFLOW_TYPE
+          value: "cybersecurity_mesh"
+        - name: BITACTOR_INTEGRATION
+          value: "true"
+        - name: PERFORMANCE_MODE
+          value: "optimized"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 4000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: validationproject3a27404cf0ef83e3-service
+  namespace: validationproject3a27404cf0ef83e3
+spec:
+  selector:
+    app: validationproject3a27404cf0ef83e3
+    component: reactor-workflow
+  ports:
+  - name: http
+    port: 80
+    targetPort: 4000
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: validationproject3a27404cf0ef83e3-metrics
+  namespace: validationproject3a27404cf0ef83e3
+spec:
+  selector:
+    matchLabels:
+      app: validationproject3a27404cf0ef83e3
+  endpoints:
+  - port: metrics
+    interval: 15s

@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.ManInTheMiddleAttackTest do
         status: :active
       }
       
-      assert {:ok, maninthemiddleattack} = Ash.create(ManInTheMiddleAttack, attrs)
+      ManInTheMiddleAttack.init_storage()
+      assert {:ok, maninthemiddleattack} = ManInTheMiddleAttack.create(attrs)
       assert maninthemiddleattack.name == "Test ManInTheMiddleAttack"
       assert maninthemiddleattack.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.ManInTheMiddleAttackTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(ManInTheMiddleAttack, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = ManInTheMiddleAttack.create(ManInTheMiddleAttack, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.ManInTheMiddleAttackTest do
     test "reads existing maninthemiddleattack" do
       maninthemiddleattack = TestHelper.create_test_data(ManInTheMiddleAttack)
       
-      assert {:ok, found_maninthemiddleattack} = Ash.get(ManInTheMiddleAttack, maninthemiddleattack.id)
+      assert {:ok, found_maninthemiddleattack} = ManInTheMiddleAttack.get(ManInTheMiddleAttack, maninthemiddleattack.id)
       assert found_maninthemiddleattack.id == maninthemiddleattack.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.ManInTheMiddleAttackTest do
       TestHelper.create_test_data(ManInTheMiddleAttack, %{name: "ManInTheMiddleAttack 1"})
       TestHelper.create_test_data(ManInTheMiddleAttack, %{name: "ManInTheMiddleAttack 2"})
       
-      assert {:ok, maninthemiddleattacks} = Ash.read(ManInTheMiddleAttack)
+      assert {:ok, maninthemiddleattacks} = ManInTheMiddleAttack.list(ManInTheMiddleAttack)
       assert length(maninthemiddleattacks) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.ManInTheMiddleAttackTest do
       active_maninthemiddleattack = TestHelper.create_test_data(ManInTheMiddleAttack, %{status: :active})
       _inactive_maninthemiddleattack = TestHelper.create_test_data(ManInTheMiddleAttack, %{status: :inactive})
       
-      assert {:ok, [maninthemiddleattack]} = Ash.read(ManInTheMiddleAttack, action: :by_status, status: :active)
+      assert {:ok, [maninthemiddleattack]} = ManInTheMiddleAttack.list(ManInTheMiddleAttack, action: :by_status, status: :active)
       assert maninthemiddleattack.id == active_maninthemiddleattack.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.ManInTheMiddleAttackTest do
     test "updates maninthemiddleattack attributes" do
       maninthemiddleattack = TestHelper.create_test_data(ManInTheMiddleAttack)
       
-      assert {:ok, updated_maninthemiddleattack} = Ash.update(maninthemiddleattack, %{name: "Updated Name"})
+      assert {:ok, updated_maninthemiddleattack} = ManInTheMiddleAttack.update(maninthemiddleattack, %{name: "Updated Name"})
       assert updated_maninthemiddleattack.name == "Updated Name"
     end
     
     test "activates maninthemiddleattack" do
       maninthemiddleattack = TestHelper.create_test_data(ManInTheMiddleAttack, %{status: :inactive})
       
-      assert {:ok, activated_maninthemiddleattack} = Ash.update(maninthemiddleattack, action: :activate)
+      assert {:ok, activated_maninthemiddleattack} = ManInTheMiddleAttack.update(maninthemiddleattack, action: :activate)
       assert activated_maninthemiddleattack.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.ManInTheMiddleAttackTest do
     test "destroys existing maninthemiddleattack" do
       maninthemiddleattack = TestHelper.create_test_data(ManInTheMiddleAttack)
       
-      assert :ok = Ash.destroy(maninthemiddleattack)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(ManInTheMiddleAttack, maninthemiddleattack.id)
+      assert :ok = ManInTheMiddleAttack.delete(maninthemiddleattack)
+      assert {:error, %Ash.Error.Invalid{}} = ManInTheMiddleAttack.get(ManInTheMiddleAttack, maninthemiddleattack.id)
     end
   end
 end

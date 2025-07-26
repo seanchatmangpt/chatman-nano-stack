@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.TrojanTest do
         status: :active
       }
       
-      assert {:ok, trojan} = Ash.create(Trojan, attrs)
+      Trojan.init_storage()
+      assert {:ok, trojan} = Trojan.create(attrs)
       assert trojan.name == "Test Trojan"
       assert trojan.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.TrojanTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(Trojan, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = Trojan.create(Trojan, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.TrojanTest do
     test "reads existing trojan" do
       trojan = TestHelper.create_test_data(Trojan)
       
-      assert {:ok, found_trojan} = Ash.get(Trojan, trojan.id)
+      assert {:ok, found_trojan} = Trojan.get(Trojan, trojan.id)
       assert found_trojan.id == trojan.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.TrojanTest do
       TestHelper.create_test_data(Trojan, %{name: "Trojan 1"})
       TestHelper.create_test_data(Trojan, %{name: "Trojan 2"})
       
-      assert {:ok, trojans} = Ash.read(Trojan)
+      assert {:ok, trojans} = Trojan.list(Trojan)
       assert length(trojans) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.TrojanTest do
       active_trojan = TestHelper.create_test_data(Trojan, %{status: :active})
       _inactive_trojan = TestHelper.create_test_data(Trojan, %{status: :inactive})
       
-      assert {:ok, [trojan]} = Ash.read(Trojan, action: :by_status, status: :active)
+      assert {:ok, [trojan]} = Trojan.list(Trojan, action: :by_status, status: :active)
       assert trojan.id == active_trojan.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.TrojanTest do
     test "updates trojan attributes" do
       trojan = TestHelper.create_test_data(Trojan)
       
-      assert {:ok, updated_trojan} = Ash.update(trojan, %{name: "Updated Name"})
+      assert {:ok, updated_trojan} = Trojan.update(trojan, %{name: "Updated Name"})
       assert updated_trojan.name == "Updated Name"
     end
     
     test "activates trojan" do
       trojan = TestHelper.create_test_data(Trojan, %{status: :inactive})
       
-      assert {:ok, activated_trojan} = Ash.update(trojan, action: :activate)
+      assert {:ok, activated_trojan} = Trojan.update(trojan, action: :activate)
       assert activated_trojan.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.TrojanTest do
     test "destroys existing trojan" do
       trojan = TestHelper.create_test_data(Trojan)
       
-      assert :ok = Ash.destroy(trojan)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(Trojan, trojan.id)
+      assert :ok = Trojan.delete(trojan)
+      assert {:error, %Ash.Error.Invalid{}} = Trojan.get(Trojan, trojan.id)
     end
   end
 end

@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.SecurityIncidentTest do
         status: :active
       }
       
-      assert {:ok, securityincident} = Ash.create(SecurityIncident, attrs)
+      SecurityIncident.init_storage()
+      assert {:ok, securityincident} = SecurityIncident.create(attrs)
       assert securityincident.name == "Test SecurityIncident"
       assert securityincident.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.SecurityIncidentTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(SecurityIncident, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = SecurityIncident.create(SecurityIncident, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.SecurityIncidentTest do
     test "reads existing securityincident" do
       securityincident = TestHelper.create_test_data(SecurityIncident)
       
-      assert {:ok, found_securityincident} = Ash.get(SecurityIncident, securityincident.id)
+      assert {:ok, found_securityincident} = SecurityIncident.get(SecurityIncident, securityincident.id)
       assert found_securityincident.id == securityincident.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.SecurityIncidentTest do
       TestHelper.create_test_data(SecurityIncident, %{name: "SecurityIncident 1"})
       TestHelper.create_test_data(SecurityIncident, %{name: "SecurityIncident 2"})
       
-      assert {:ok, securityincidents} = Ash.read(SecurityIncident)
+      assert {:ok, securityincidents} = SecurityIncident.list(SecurityIncident)
       assert length(securityincidents) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.SecurityIncidentTest do
       active_securityincident = TestHelper.create_test_data(SecurityIncident, %{status: :active})
       _inactive_securityincident = TestHelper.create_test_data(SecurityIncident, %{status: :inactive})
       
-      assert {:ok, [securityincident]} = Ash.read(SecurityIncident, action: :by_status, status: :active)
+      assert {:ok, [securityincident]} = SecurityIncident.list(SecurityIncident, action: :by_status, status: :active)
       assert securityincident.id == active_securityincident.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.SecurityIncidentTest do
     test "updates securityincident attributes" do
       securityincident = TestHelper.create_test_data(SecurityIncident)
       
-      assert {:ok, updated_securityincident} = Ash.update(securityincident, %{name: "Updated Name"})
+      assert {:ok, updated_securityincident} = SecurityIncident.update(securityincident, %{name: "Updated Name"})
       assert updated_securityincident.name == "Updated Name"
     end
     
     test "activates securityincident" do
       securityincident = TestHelper.create_test_data(SecurityIncident, %{status: :inactive})
       
-      assert {:ok, activated_securityincident} = Ash.update(securityincident, action: :activate)
+      assert {:ok, activated_securityincident} = SecurityIncident.update(securityincident, action: :activate)
       assert activated_securityincident.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.SecurityIncidentTest do
     test "destroys existing securityincident" do
       securityincident = TestHelper.create_test_data(SecurityIncident)
       
-      assert :ok = Ash.destroy(securityincident)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(SecurityIncident, securityincident.id)
+      assert :ok = SecurityIncident.delete(securityincident)
+      assert {:error, %Ash.Error.Invalid{}} = SecurityIncident.get(SecurityIncident, securityincident.id)
     end
   end
 end

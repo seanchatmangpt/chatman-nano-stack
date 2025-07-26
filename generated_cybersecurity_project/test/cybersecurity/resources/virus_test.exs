@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.VirusTest do
         status: :active
       }
       
-      assert {:ok, virus} = Ash.create(Virus, attrs)
+      Virus.init_storage()
+      assert {:ok, virus} = Virus.create(attrs)
       assert virus.name == "Test Virus"
       assert virus.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.VirusTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(Virus, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = Virus.create(Virus, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.VirusTest do
     test "reads existing virus" do
       virus = TestHelper.create_test_data(Virus)
       
-      assert {:ok, found_virus} = Ash.get(Virus, virus.id)
+      assert {:ok, found_virus} = Virus.get(Virus, virus.id)
       assert found_virus.id == virus.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.VirusTest do
       TestHelper.create_test_data(Virus, %{name: "Virus 1"})
       TestHelper.create_test_data(Virus, %{name: "Virus 2"})
       
-      assert {:ok, viruss} = Ash.read(Virus)
+      assert {:ok, viruss} = Virus.list(Virus)
       assert length(viruss) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.VirusTest do
       active_virus = TestHelper.create_test_data(Virus, %{status: :active})
       _inactive_virus = TestHelper.create_test_data(Virus, %{status: :inactive})
       
-      assert {:ok, [virus]} = Ash.read(Virus, action: :by_status, status: :active)
+      assert {:ok, [virus]} = Virus.list(Virus, action: :by_status, status: :active)
       assert virus.id == active_virus.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.VirusTest do
     test "updates virus attributes" do
       virus = TestHelper.create_test_data(Virus)
       
-      assert {:ok, updated_virus} = Ash.update(virus, %{name: "Updated Name"})
+      assert {:ok, updated_virus} = Virus.update(virus, %{name: "Updated Name"})
       assert updated_virus.name == "Updated Name"
     end
     
     test "activates virus" do
       virus = TestHelper.create_test_data(Virus, %{status: :inactive})
       
-      assert {:ok, activated_virus} = Ash.update(virus, action: :activate)
+      assert {:ok, activated_virus} = Virus.update(virus, action: :activate)
       assert activated_virus.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.VirusTest do
     test "destroys existing virus" do
       virus = TestHelper.create_test_data(Virus)
       
-      assert :ok = Ash.destroy(virus)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(Virus, virus.id)
+      assert :ok = Virus.delete(virus)
+      assert {:error, %Ash.Error.Invalid{}} = Virus.get(Virus, virus.id)
     end
   end
 end

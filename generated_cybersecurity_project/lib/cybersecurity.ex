@@ -7,10 +7,10 @@ defmodule Cybersecurity do
   """
 
   @doc """
-  Execute a reactor workflow with the given input
+  Execute a workflow with the given input (80/20: plain Elixir implementation)
   """
-  def run_workflow(workflow_module, input \\ %{}) do
-    Reactor.run(workflow_module, input)
+  def run_workflow(workflow_module, operation, data \\ %{}, context \\ %{}) do
+    workflow_module.execute(operation, data, context)
   end
 
   @doc """

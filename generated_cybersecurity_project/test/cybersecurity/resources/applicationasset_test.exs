@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.ApplicationAssetTest do
         status: :active
       }
       
-      assert {:ok, applicationasset} = Ash.create(ApplicationAsset, attrs)
+      ApplicationAsset.init_storage()
+      assert {:ok, applicationasset} = ApplicationAsset.create(attrs)
       assert applicationasset.name == "Test ApplicationAsset"
       assert applicationasset.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.ApplicationAssetTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(ApplicationAsset, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = ApplicationAsset.create(ApplicationAsset, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.ApplicationAssetTest do
     test "reads existing applicationasset" do
       applicationasset = TestHelper.create_test_data(ApplicationAsset)
       
-      assert {:ok, found_applicationasset} = Ash.get(ApplicationAsset, applicationasset.id)
+      assert {:ok, found_applicationasset} = ApplicationAsset.get(ApplicationAsset, applicationasset.id)
       assert found_applicationasset.id == applicationasset.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.ApplicationAssetTest do
       TestHelper.create_test_data(ApplicationAsset, %{name: "ApplicationAsset 1"})
       TestHelper.create_test_data(ApplicationAsset, %{name: "ApplicationAsset 2"})
       
-      assert {:ok, applicationassets} = Ash.read(ApplicationAsset)
+      assert {:ok, applicationassets} = ApplicationAsset.list(ApplicationAsset)
       assert length(applicationassets) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.ApplicationAssetTest do
       active_applicationasset = TestHelper.create_test_data(ApplicationAsset, %{status: :active})
       _inactive_applicationasset = TestHelper.create_test_data(ApplicationAsset, %{status: :inactive})
       
-      assert {:ok, [applicationasset]} = Ash.read(ApplicationAsset, action: :by_status, status: :active)
+      assert {:ok, [applicationasset]} = ApplicationAsset.list(ApplicationAsset, action: :by_status, status: :active)
       assert applicationasset.id == active_applicationasset.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.ApplicationAssetTest do
     test "updates applicationasset attributes" do
       applicationasset = TestHelper.create_test_data(ApplicationAsset)
       
-      assert {:ok, updated_applicationasset} = Ash.update(applicationasset, %{name: "Updated Name"})
+      assert {:ok, updated_applicationasset} = ApplicationAsset.update(applicationasset, %{name: "Updated Name"})
       assert updated_applicationasset.name == "Updated Name"
     end
     
     test "activates applicationasset" do
       applicationasset = TestHelper.create_test_data(ApplicationAsset, %{status: :inactive})
       
-      assert {:ok, activated_applicationasset} = Ash.update(applicationasset, action: :activate)
+      assert {:ok, activated_applicationasset} = ApplicationAsset.update(applicationasset, action: :activate)
       assert activated_applicationasset.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.ApplicationAssetTest do
     test "destroys existing applicationasset" do
       applicationasset = TestHelper.create_test_data(ApplicationAsset)
       
-      assert :ok = Ash.destroy(applicationasset)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(ApplicationAsset, applicationasset.id)
+      assert :ok = ApplicationAsset.delete(applicationasset)
+      assert {:error, %Ash.Error.Invalid{}} = ApplicationAsset.get(ApplicationAsset, applicationasset.id)
     end
   end
 end

@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.RansomwareTest do
         status: :active
       }
       
-      assert {:ok, ransomware} = Ash.create(Ransomware, attrs)
+      Ransomware.init_storage()
+      assert {:ok, ransomware} = Ransomware.create(attrs)
       assert ransomware.name == "Test Ransomware"
       assert ransomware.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.RansomwareTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(Ransomware, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = Ransomware.create(Ransomware, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.RansomwareTest do
     test "reads existing ransomware" do
       ransomware = TestHelper.create_test_data(Ransomware)
       
-      assert {:ok, found_ransomware} = Ash.get(Ransomware, ransomware.id)
+      assert {:ok, found_ransomware} = Ransomware.get(Ransomware, ransomware.id)
       assert found_ransomware.id == ransomware.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.RansomwareTest do
       TestHelper.create_test_data(Ransomware, %{name: "Ransomware 1"})
       TestHelper.create_test_data(Ransomware, %{name: "Ransomware 2"})
       
-      assert {:ok, ransomwares} = Ash.read(Ransomware)
+      assert {:ok, ransomwares} = Ransomware.list(Ransomware)
       assert length(ransomwares) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.RansomwareTest do
       active_ransomware = TestHelper.create_test_data(Ransomware, %{status: :active})
       _inactive_ransomware = TestHelper.create_test_data(Ransomware, %{status: :inactive})
       
-      assert {:ok, [ransomware]} = Ash.read(Ransomware, action: :by_status, status: :active)
+      assert {:ok, [ransomware]} = Ransomware.list(Ransomware, action: :by_status, status: :active)
       assert ransomware.id == active_ransomware.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.RansomwareTest do
     test "updates ransomware attributes" do
       ransomware = TestHelper.create_test_data(Ransomware)
       
-      assert {:ok, updated_ransomware} = Ash.update(ransomware, %{name: "Updated Name"})
+      assert {:ok, updated_ransomware} = Ransomware.update(ransomware, %{name: "Updated Name"})
       assert updated_ransomware.name == "Updated Name"
     end
     
     test "activates ransomware" do
       ransomware = TestHelper.create_test_data(Ransomware, %{status: :inactive})
       
-      assert {:ok, activated_ransomware} = Ash.update(ransomware, action: :activate)
+      assert {:ok, activated_ransomware} = Ransomware.update(ransomware, action: :activate)
       assert activated_ransomware.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.RansomwareTest do
     test "destroys existing ransomware" do
       ransomware = TestHelper.create_test_data(Ransomware)
       
-      assert :ok = Ash.destroy(ransomware)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(Ransomware, ransomware.id)
+      assert :ok = Ransomware.delete(ransomware)
+      assert {:error, %Ash.Error.Invalid{}} = Ransomware.get(Ransomware, ransomware.id)
     end
   end
 end

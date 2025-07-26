@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.PacketSniffingTest do
         status: :active
       }
       
-      assert {:ok, packetsniffing} = Ash.create(PacketSniffing, attrs)
+      PacketSniffing.init_storage()
+      assert {:ok, packetsniffing} = PacketSniffing.create(attrs)
       assert packetsniffing.name == "Test PacketSniffing"
       assert packetsniffing.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.PacketSniffingTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(PacketSniffing, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = PacketSniffing.create(PacketSniffing, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.PacketSniffingTest do
     test "reads existing packetsniffing" do
       packetsniffing = TestHelper.create_test_data(PacketSniffing)
       
-      assert {:ok, found_packetsniffing} = Ash.get(PacketSniffing, packetsniffing.id)
+      assert {:ok, found_packetsniffing} = PacketSniffing.get(PacketSniffing, packetsniffing.id)
       assert found_packetsniffing.id == packetsniffing.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.PacketSniffingTest do
       TestHelper.create_test_data(PacketSniffing, %{name: "PacketSniffing 1"})
       TestHelper.create_test_data(PacketSniffing, %{name: "PacketSniffing 2"})
       
-      assert {:ok, packetsniffings} = Ash.read(PacketSniffing)
+      assert {:ok, packetsniffings} = PacketSniffing.list(PacketSniffing)
       assert length(packetsniffings) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.PacketSniffingTest do
       active_packetsniffing = TestHelper.create_test_data(PacketSniffing, %{status: :active})
       _inactive_packetsniffing = TestHelper.create_test_data(PacketSniffing, %{status: :inactive})
       
-      assert {:ok, [packetsniffing]} = Ash.read(PacketSniffing, action: :by_status, status: :active)
+      assert {:ok, [packetsniffing]} = PacketSniffing.list(PacketSniffing, action: :by_status, status: :active)
       assert packetsniffing.id == active_packetsniffing.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.PacketSniffingTest do
     test "updates packetsniffing attributes" do
       packetsniffing = TestHelper.create_test_data(PacketSniffing)
       
-      assert {:ok, updated_packetsniffing} = Ash.update(packetsniffing, %{name: "Updated Name"})
+      assert {:ok, updated_packetsniffing} = PacketSniffing.update(packetsniffing, %{name: "Updated Name"})
       assert updated_packetsniffing.name == "Updated Name"
     end
     
     test "activates packetsniffing" do
       packetsniffing = TestHelper.create_test_data(PacketSniffing, %{status: :inactive})
       
-      assert {:ok, activated_packetsniffing} = Ash.update(packetsniffing, action: :activate)
+      assert {:ok, activated_packetsniffing} = PacketSniffing.update(packetsniffing, action: :activate)
       assert activated_packetsniffing.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.PacketSniffingTest do
     test "destroys existing packetsniffing" do
       packetsniffing = TestHelper.create_test_data(PacketSniffing)
       
-      assert :ok = Ash.destroy(packetsniffing)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(PacketSniffing, packetsniffing.id)
+      assert :ok = PacketSniffing.delete(packetsniffing)
+      assert {:error, %Ash.Error.Invalid{}} = PacketSniffing.get(PacketSniffing, packetsniffing.id)
     end
   end
 end

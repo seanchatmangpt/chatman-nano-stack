@@ -3,55 +3,44 @@ defmodule Cybersecurity.Workflows.MainWorkflow do
   Main workflow orchestrating cybersecurity domain operations
   """
 
-  use Ash.Reactor
-
-  input :operation
-  input :data, default: %{}
-  input :context, default: %{}
-
-  step :validate_operation do
-    argument :operation, input(:operation)
-    
-    run fn %{operation: op} ->
-      if op in [:create, :read, :update, :delete, :process] do
-        {:ok, %{validated_operation: op}}
-      else
-        {:error, :invalid_operation}
-      end
+  # 80/20: Plain Elixir workflow implementation (no external dependencies)
+  
+  @doc """
+  Execute a domain workflow operation
+  """
+  def execute(operation, data \\ %{}, context \\ %{}) do
+    with {:ok, validated_op} <- validate_operation(operation),
+         {:ok, result} <- execute_operation(validated_op, data, context) do
+      finalize_result(result, validated_op)
     end
   end
-
-  step :execute_operation do
-    argument :operation, result(:validate_operation, [:validated_operation])
-    argument :data, input(:data)
-    argument :context, input(:context)
-    
-    run fn %{operation: op, data: data, context: ctx} ->
-      case op do
-        :process -> process_domain_data(data, ctx)
-        :create -> create_resources(data, ctx)
-        :read -> read_resources(data, ctx)
-        :update -> update_resources(data, ctx)
-        :delete -> delete_resources(data, ctx)
-      end
+  
+  defp validate_operation(operation) do
+    if operation in [:create, :read, :update, :delete, :process] do
+      {:ok, operation}
+    else
+      {:error, :invalid_operation}
     end
   end
-
-  step :finalize_result do
-    argument :result, result(:execute_operation)
-    argument :operation, result(:validate_operation, [:validated_operation])
-    
-    run fn %{result: result, operation: op} ->
-      {:ok, %{
-        operation: op,
-        result: result,
-        completed_at: DateTime.utc_now(),
-        status: :success
-      }}
+  
+  defp execute_operation(operation, data, context) do
+    case operation do
+      :process -> process_domain_data(data, context)
+      :create -> create_resources(data, context)
+      :read -> read_resources(data, context)
+      :update -> update_resources(data, context)
+      :delete -> delete_resources(data, context)
     end
   end
-
-  return :finalize_result
+  
+  defp finalize_result(result, operation) do
+    {:ok, %{
+      operation: operation,
+      result: result,
+      completed_at: DateTime.utc_now(),
+      status: :success
+    }}
+  end
 
   # Helper functions
   defp process_domain_data(data, context) do

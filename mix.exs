@@ -42,6 +42,10 @@ defmodule CNSForge.MixProject do
       {:jason, "~> 1.4"},
       {:telemetry, "~> 1.2"},
       
+      # Database and storage (without yamerl dependency)
+      {:ecto, "~> 3.10"},
+      {:ecto_sql, "~> 3.10"},
+      
       # Testing and validation dependencies
       {:excoveralls, "~> 0.18", only: :test},
       {:ex_unit_notifier, "~> 1.3", only: :test},

@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.PortScanTest do
         status: :active
       }
       
-      assert {:ok, portscan} = Ash.create(PortScan, attrs)
+      PortScan.init_storage()
+      assert {:ok, portscan} = PortScan.create(attrs)
       assert portscan.name == "Test PortScan"
       assert portscan.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.PortScanTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(PortScan, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = PortScan.create(PortScan, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.PortScanTest do
     test "reads existing portscan" do
       portscan = TestHelper.create_test_data(PortScan)
       
-      assert {:ok, found_portscan} = Ash.get(PortScan, portscan.id)
+      assert {:ok, found_portscan} = PortScan.get(PortScan, portscan.id)
       assert found_portscan.id == portscan.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.PortScanTest do
       TestHelper.create_test_data(PortScan, %{name: "PortScan 1"})
       TestHelper.create_test_data(PortScan, %{name: "PortScan 2"})
       
-      assert {:ok, portscans} = Ash.read(PortScan)
+      assert {:ok, portscans} = PortScan.list(PortScan)
       assert length(portscans) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.PortScanTest do
       active_portscan = TestHelper.create_test_data(PortScan, %{status: :active})
       _inactive_portscan = TestHelper.create_test_data(PortScan, %{status: :inactive})
       
-      assert {:ok, [portscan]} = Ash.read(PortScan, action: :by_status, status: :active)
+      assert {:ok, [portscan]} = PortScan.list(PortScan, action: :by_status, status: :active)
       assert portscan.id == active_portscan.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.PortScanTest do
     test "updates portscan attributes" do
       portscan = TestHelper.create_test_data(PortScan)
       
-      assert {:ok, updated_portscan} = Ash.update(portscan, %{name: "Updated Name"})
+      assert {:ok, updated_portscan} = PortScan.update(portscan, %{name: "Updated Name"})
       assert updated_portscan.name == "Updated Name"
     end
     
     test "activates portscan" do
       portscan = TestHelper.create_test_data(PortScan, %{status: :inactive})
       
-      assert {:ok, activated_portscan} = Ash.update(portscan, action: :activate)
+      assert {:ok, activated_portscan} = PortScan.update(portscan, action: :activate)
       assert activated_portscan.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.PortScanTest do
     test "destroys existing portscan" do
       portscan = TestHelper.create_test_data(PortScan)
       
-      assert :ok = Ash.destroy(portscan)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(PortScan, portscan.id)
+      assert :ok = PortScan.delete(portscan)
+      assert {:error, %Ash.Error.Invalid{}} = PortScan.get(PortScan, portscan.id)
     end
   end
 end

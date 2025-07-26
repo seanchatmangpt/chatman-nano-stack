@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.AssetTest do
         status: :active
       }
       
-      assert {:ok, asset} = Ash.create(Asset, attrs)
+      Asset.init_storage()
+      assert {:ok, asset} = Asset.create(attrs)
       assert asset.name == "Test Asset"
       assert asset.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.AssetTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(Asset, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = Asset.create(Asset, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.AssetTest do
     test "reads existing asset" do
       asset = TestHelper.create_test_data(Asset)
       
-      assert {:ok, found_asset} = Ash.get(Asset, asset.id)
+      assert {:ok, found_asset} = Asset.get(Asset, asset.id)
       assert found_asset.id == asset.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.AssetTest do
       TestHelper.create_test_data(Asset, %{name: "Asset 1"})
       TestHelper.create_test_data(Asset, %{name: "Asset 2"})
       
-      assert {:ok, assets} = Ash.read(Asset)
+      assert {:ok, assets} = Asset.list(Asset)
       assert length(assets) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.AssetTest do
       active_asset = TestHelper.create_test_data(Asset, %{status: :active})
       _inactive_asset = TestHelper.create_test_data(Asset, %{status: :inactive})
       
-      assert {:ok, [asset]} = Ash.read(Asset, action: :by_status, status: :active)
+      assert {:ok, [asset]} = Asset.list(Asset, action: :by_status, status: :active)
       assert asset.id == active_asset.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.AssetTest do
     test "updates asset attributes" do
       asset = TestHelper.create_test_data(Asset)
       
-      assert {:ok, updated_asset} = Ash.update(asset, %{name: "Updated Name"})
+      assert {:ok, updated_asset} = Asset.update(asset, %{name: "Updated Name"})
       assert updated_asset.name == "Updated Name"
     end
     
     test "activates asset" do
       asset = TestHelper.create_test_data(Asset, %{status: :inactive})
       
-      assert {:ok, activated_asset} = Ash.update(asset, action: :activate)
+      assert {:ok, activated_asset} = Asset.update(asset, action: :activate)
       assert activated_asset.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.AssetTest do
     test "destroys existing asset" do
       asset = TestHelper.create_test_data(Asset)
       
-      assert :ok = Ash.destroy(asset)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(Asset, asset.id)
+      assert :ok = Asset.delete(asset)
+      assert {:error, %Ash.Error.Invalid{}} = Asset.get(Asset, asset.id)
     end
   end
 end

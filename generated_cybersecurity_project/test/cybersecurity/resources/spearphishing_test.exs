@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.SpearPhishingTest do
         status: :active
       }
       
-      assert {:ok, spearphishing} = Ash.create(SpearPhishing, attrs)
+      SpearPhishing.init_storage()
+      assert {:ok, spearphishing} = SpearPhishing.create(attrs)
       assert spearphishing.name == "Test SpearPhishing"
       assert spearphishing.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.SpearPhishingTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(SpearPhishing, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = SpearPhishing.create(SpearPhishing, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.SpearPhishingTest do
     test "reads existing spearphishing" do
       spearphishing = TestHelper.create_test_data(SpearPhishing)
       
-      assert {:ok, found_spearphishing} = Ash.get(SpearPhishing, spearphishing.id)
+      assert {:ok, found_spearphishing} = SpearPhishing.get(SpearPhishing, spearphishing.id)
       assert found_spearphishing.id == spearphishing.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.SpearPhishingTest do
       TestHelper.create_test_data(SpearPhishing, %{name: "SpearPhishing 1"})
       TestHelper.create_test_data(SpearPhishing, %{name: "SpearPhishing 2"})
       
-      assert {:ok, spearphishings} = Ash.read(SpearPhishing)
+      assert {:ok, spearphishings} = SpearPhishing.list(SpearPhishing)
       assert length(spearphishings) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.SpearPhishingTest do
       active_spearphishing = TestHelper.create_test_data(SpearPhishing, %{status: :active})
       _inactive_spearphishing = TestHelper.create_test_data(SpearPhishing, %{status: :inactive})
       
-      assert {:ok, [spearphishing]} = Ash.read(SpearPhishing, action: :by_status, status: :active)
+      assert {:ok, [spearphishing]} = SpearPhishing.list(SpearPhishing, action: :by_status, status: :active)
       assert spearphishing.id == active_spearphishing.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.SpearPhishingTest do
     test "updates spearphishing attributes" do
       spearphishing = TestHelper.create_test_data(SpearPhishing)
       
-      assert {:ok, updated_spearphishing} = Ash.update(spearphishing, %{name: "Updated Name"})
+      assert {:ok, updated_spearphishing} = SpearPhishing.update(spearphishing, %{name: "Updated Name"})
       assert updated_spearphishing.name == "Updated Name"
     end
     
     test "activates spearphishing" do
       spearphishing = TestHelper.create_test_data(SpearPhishing, %{status: :inactive})
       
-      assert {:ok, activated_spearphishing} = Ash.update(spearphishing, action: :activate)
+      assert {:ok, activated_spearphishing} = SpearPhishing.update(spearphishing, action: :activate)
       assert activated_spearphishing.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.SpearPhishingTest do
     test "destroys existing spearphishing" do
       spearphishing = TestHelper.create_test_data(SpearPhishing)
       
-      assert :ok = Ash.destroy(spearphishing)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(SpearPhishing, spearphishing.id)
+      assert :ok = SpearPhishing.delete(spearphishing)
+      assert {:error, %Ash.Error.Invalid{}} = SpearPhishing.get(SpearPhishing, spearphishing.id)
     end
   end
 end

@@ -1,7 +1,6 @@
 ExUnit.start()
 
-# Set up Ecto for testing
-Ecto.Adapters.SQL.Sandbox.mode(Cybersecurity.Repo, :manual)
+# 80/20: No database setup needed for ETS-based resources
 
 defmodule Cybersecurity.TestHelper do
   @moduledoc """
@@ -9,11 +8,13 @@ defmodule Cybersecurity.TestHelper do
   """
 
   def start_sandbox do
-    Ecto.Adapters.SQL.Sandbox.start(Cybersecurity.Repo)
+    # No-op for ETS-based resources
+    :ok
   end
 
   def stop_sandbox do
-    Ecto.Adapters.SQL.Sandbox.stop(Cybersecurity.Repo)
+    # No-op for ETS-based resources  
+    :ok
   end
 
   def create_test_data(resource, attrs \\ %{}) do
@@ -24,6 +25,7 @@ defmodule Cybersecurity.TestHelper do
     }
     
     attrs = Map.merge(default_attrs, attrs)
-    Ash.create!(resource, attrs)
+    resource.init_storage()
+    resource.create(attrs)
   end
 end

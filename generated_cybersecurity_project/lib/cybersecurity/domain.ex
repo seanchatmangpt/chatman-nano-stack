@@ -4,66 +4,78 @@ defmodule Cybersecurity.Domain do
   Generated from ontology: cybersecurity
   """
 
-  use Ash.Domain
-
-  resources do
-    resource Cybersecurity.Resources.Asset
-    resource Cybersecurity.Resources.NetworkAsset
-    resource Cybersecurity.Resources.ComputeAsset
-    resource Cybersecurity.Resources.DataAsset
-    resource Cybersecurity.Resources.UserAsset
-    resource Cybersecurity.Resources.ApplicationAsset
-    resource Cybersecurity.Resources.NetworkDevice
-    resource Cybersecurity.Resources.Router
-    resource Cybersecurity.Resources.Switch
-    resource Cybersecurity.Resources.Firewall
-    resource Cybersecurity.Resources.LoadBalancer
-    resource Cybersecurity.Resources.VPN
-    resource Cybersecurity.Resources.NetworkSegment
-    resource Cybersecurity.Resources.DMZ
-    resource Cybersecurity.Resources.InternalNetwork
-    resource Cybersecurity.Resources.PublicNetwork
-    resource Cybersecurity.Resources.Threat
-    resource Cybersecurity.Resources.Malware
-    resource Cybersecurity.Resources.Virus
-    resource Cybersecurity.Resources.Worm
-    resource Cybersecurity.Resources.Trojan
-    resource Cybersecurity.Resources.Ransomware
-    resource Cybersecurity.Resources.Rootkit
-    resource Cybersecurity.Resources.Spyware
-    resource Cybersecurity.Resources.Botnet
-    resource Cybersecurity.Resources.Attack
-    resource Cybersecurity.Resources.NetworkAttack
-    resource Cybersecurity.Resources.DDoSAttack
-    resource Cybersecurity.Resources.ManInTheMiddleAttack
-    resource Cybersecurity.Resources.PacketSniffing
-    resource Cybersecurity.Resources.PortScan
-    resource Cybersecurity.Resources.WebAttack
-    resource Cybersecurity.Resources.SQLInjection
-    resource Cybersecurity.Resources.XSS
-    resource Cybersecurity.Resources.CSRF
-    resource Cybersecurity.Resources.SocialEngineering
-    resource Cybersecurity.Resources.PhishingAttack
-    resource Cybersecurity.Resources.SpearPhishing
-    resource Cybersecurity.Resources.PrivilegeEscalation
-    resource Cybersecurity.Resources.LateralMovement
-    resource Cybersecurity.Resources.DataExfiltration
-    resource Cybersecurity.Resources.SecurityEvent
-    resource Cybersecurity.Resources.SecurityIncident
-    resource Cybersecurity.Resources.Vulnerability
-    resource Cybersecurity.Resources.ZeroDayVulnerability
-    resource Cybersecurity.Resources.Alert
-    resource Cybersecurity.Resources.ThreatIntelligence
-    resource Cybersecurity.Resources.IOC
-    resource Cybersecurity.Resources.SecurityControl
-    resource Cybersecurity.Resources.PreventiveControl
-    resource Cybersecurity.Resources.DetectiveControl
-    resource Cybersecurity.Resources.CorrectiveControl
-    resource Cybersecurity.Resources.IDS
-    resource Cybersecurity.Resources.IPS
-    resource Cybersecurity.Resources.SIEM
-    resource Cybersecurity.Resources.Antivirus
-    resource Cybersecurity.Resources.EDR
-    resource Cybersecurity.Resources.SOAR
+  # 80/20: Plain Elixir domain module instead of Ash.Domain
+  
+  @resources [
+    Cybersecurity.Resources.Asset,
+    Cybersecurity.Resources.NetworkAsset,
+    Cybersecurity.Resources.ComputeAsset,
+    Cybersecurity.Resources.DataAsset,
+    Cybersecurity.Resources.UserAsset,
+    Cybersecurity.Resources.ApplicationAsset,
+    Cybersecurity.Resources.NetworkDevice,
+    Cybersecurity.Resources.Router,
+    Cybersecurity.Resources.Switch,
+    Cybersecurity.Resources.Firewall,
+    Cybersecurity.Resources.LoadBalancer,
+    Cybersecurity.Resources.VPN,
+    Cybersecurity.Resources.NetworkSegment,
+    Cybersecurity.Resources.DMZ,
+    Cybersecurity.Resources.InternalNetwork,
+    Cybersecurity.Resources.PublicNetwork,
+    Cybersecurity.Resources.Threat,
+    Cybersecurity.Resources.Malware,
+    Cybersecurity.Resources.Virus,
+    Cybersecurity.Resources.Worm,
+    Cybersecurity.Resources.Trojan,
+    Cybersecurity.Resources.Ransomware,
+    Cybersecurity.Resources.Rootkit,
+    Cybersecurity.Resources.Spyware,
+    Cybersecurity.Resources.Botnet,
+    Cybersecurity.Resources.Attack,
+    Cybersecurity.Resources.NetworkAttack,
+    Cybersecurity.Resources.DDoSAttack,
+    Cybersecurity.Resources.ManInTheMiddleAttack,
+    Cybersecurity.Resources.PacketSniffing,
+    Cybersecurity.Resources.PortScan,
+    Cybersecurity.Resources.WebAttack,
+    Cybersecurity.Resources.SQLInjection,
+    Cybersecurity.Resources.XSS,
+    Cybersecurity.Resources.CSRF,
+    Cybersecurity.Resources.SocialEngineering,
+    Cybersecurity.Resources.PhishingAttack,
+    Cybersecurity.Resources.SpearPhishing,
+    Cybersecurity.Resources.PrivilegeEscalation,
+    Cybersecurity.Resources.LateralMovement,
+    Cybersecurity.Resources.DataExfiltration,
+    Cybersecurity.Resources.SecurityEvent,
+    Cybersecurity.Resources.SecurityIncident,
+    Cybersecurity.Resources.Vulnerability,
+    Cybersecurity.Resources.ZeroDayVulnerability,
+    Cybersecurity.Resources.Alert,
+    Cybersecurity.Resources.ThreatIntelligence,
+    Cybersecurity.Resources.IOC,
+    Cybersecurity.Resources.SecurityControl,
+    Cybersecurity.Resources.PreventiveControl,
+    Cybersecurity.Resources.DetectiveControl,
+    Cybersecurity.Resources.CorrectiveControl,
+    Cybersecurity.Resources.IDS,
+    Cybersecurity.Resources.IPS,
+    Cybersecurity.Resources.SIEM,
+    Cybersecurity.Resources.Antivirus,
+    Cybersecurity.Resources.EDR,
+    Cybersecurity.Resources.SOAR
+  ]
+  
+  def resources, do: @resources
+  
+  def resource_names do
+    @resources
+    |> Enum.map(fn module ->
+      module
+      |> Module.split()
+      |> List.last()
+      |> String.downcase()
+    end)
   end
 end

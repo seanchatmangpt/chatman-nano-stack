@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.NetworkSegmentTest do
         status: :active
       }
       
-      assert {:ok, networksegment} = Ash.create(NetworkSegment, attrs)
+      NetworkSegment.init_storage()
+      assert {:ok, networksegment} = NetworkSegment.create(attrs)
       assert networksegment.name == "Test NetworkSegment"
       assert networksegment.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.NetworkSegmentTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(NetworkSegment, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = NetworkSegment.create(NetworkSegment, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.NetworkSegmentTest do
     test "reads existing networksegment" do
       networksegment = TestHelper.create_test_data(NetworkSegment)
       
-      assert {:ok, found_networksegment} = Ash.get(NetworkSegment, networksegment.id)
+      assert {:ok, found_networksegment} = NetworkSegment.get(NetworkSegment, networksegment.id)
       assert found_networksegment.id == networksegment.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.NetworkSegmentTest do
       TestHelper.create_test_data(NetworkSegment, %{name: "NetworkSegment 1"})
       TestHelper.create_test_data(NetworkSegment, %{name: "NetworkSegment 2"})
       
-      assert {:ok, networksegments} = Ash.read(NetworkSegment)
+      assert {:ok, networksegments} = NetworkSegment.list(NetworkSegment)
       assert length(networksegments) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.NetworkSegmentTest do
       active_networksegment = TestHelper.create_test_data(NetworkSegment, %{status: :active})
       _inactive_networksegment = TestHelper.create_test_data(NetworkSegment, %{status: :inactive})
       
-      assert {:ok, [networksegment]} = Ash.read(NetworkSegment, action: :by_status, status: :active)
+      assert {:ok, [networksegment]} = NetworkSegment.list(NetworkSegment, action: :by_status, status: :active)
       assert networksegment.id == active_networksegment.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.NetworkSegmentTest do
     test "updates networksegment attributes" do
       networksegment = TestHelper.create_test_data(NetworkSegment)
       
-      assert {:ok, updated_networksegment} = Ash.update(networksegment, %{name: "Updated Name"})
+      assert {:ok, updated_networksegment} = NetworkSegment.update(networksegment, %{name: "Updated Name"})
       assert updated_networksegment.name == "Updated Name"
     end
     
     test "activates networksegment" do
       networksegment = TestHelper.create_test_data(NetworkSegment, %{status: :inactive})
       
-      assert {:ok, activated_networksegment} = Ash.update(networksegment, action: :activate)
+      assert {:ok, activated_networksegment} = NetworkSegment.update(networksegment, action: :activate)
       assert activated_networksegment.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.NetworkSegmentTest do
     test "destroys existing networksegment" do
       networksegment = TestHelper.create_test_data(NetworkSegment)
       
-      assert :ok = Ash.destroy(networksegment)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(NetworkSegment, networksegment.id)
+      assert :ok = NetworkSegment.delete(networksegment)
+      assert {:error, %Ash.Error.Invalid{}} = NetworkSegment.get(NetworkSegment, networksegment.id)
     end
   end
 end

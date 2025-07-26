@@ -163,48 +163,43 @@ This project demonstrates a complete Ash.Reactor implementation that transforms 
 
 ```elixir
 # Create a resource
-{:ok, resource} = Ash.create(MyApp.Resources.SomeResource, %{
+MyApp.Resources.SomeResource.init_storage()
+{:ok, resource} = MyApp.Resources.SomeResource.create(%{
   name: "Example",
-  description: "Created via Ash"
+  description: "Created directly"
 })
 
 # Read resources
-{:ok, resources} = Ash.read(MyApp.Resources.SomeResource)
+{:ok, resources} = MyApp.Resources.SomeResource.list()
 
 # Update a resource
-{:ok, updated} = Ash.update(resource, %{name: "Updated Name"})
+{:ok, updated} = MyApp.Resources.SomeResource.update(resource.id, %{name: "Updated Name"})
 ```
 
 #### Using Reactor Workflows
 
 ```elixir
 # Run the main workflow
-{:ok, result} = Reactor.run(Cybersecurity.Workflows.MainWorkflow, %{
-  operation: :process,
-  data: %{key: "value"}
-})
+{:ok, result} = Cybersecurity.Workflows.MainWorkflow.execute(:process, %{key: "value"})
 
-# Run a resource-specific workflow
-{:ok, result} = Reactor.run(Cybersecurity.Workflows.SomeResourceWorkflow, %{
-  action: :create,
-  resource_data: %{name: "Example"}
-})
+# Run a resource-specific workflow  
+{:ok, result} = Cybersecurity.Workflows.SomeResourceWorkflow.execute(:create, %{name: "Example"})
 ```
 
 ## Architecture
 
-This application follows the Ash.Reactor pattern:
+This application follows a simple 80/20 approach:
 
-1. **Resources** define the domain model and available actions
-2. **Workflows** orchestrate complex business logic using Reactor
+1. **Resources** are plain Elixir structs with CRUD operations using ETS
+2. **Workflows** are plain Elixir modules with simple function-based orchestration
 3. **Domain** coordinates all resources and provides a unified interface
 
 ### Key Features
 
-- **Declarative Resources**: Domain logic defined as data
-- **Saga Pattern**: Distributed transaction support via Reactor
+- **Simple Structs**: Domain entities as plain Elixir structs
+- **ETS Storage**: In-memory storage with no database dependencies  
 - **Type Safety**: Comprehensive validation and error handling
-- **Observability**: Built-in telemetry and monitoring
+- **Minimal Dependencies**: Only Jason and UUID for maximum compatibility
 - **Test Coverage**: Comprehensive test suite
 
 ## Development
@@ -237,7 +232,7 @@ mix dialyzer
 
 This project was automatically generated from the `cybersecurity` ontology using the Ontology to Ash.Reactor Generator.
 
-**Generated at**: 2025-07-25T12:54:40.438648
+**Generated at**: 2025-07-25T14:21:20.246653
 
 ## License
 

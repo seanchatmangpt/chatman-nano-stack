@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.NetworkAttackTest do
         status: :active
       }
       
-      assert {:ok, networkattack} = Ash.create(NetworkAttack, attrs)
+      NetworkAttack.init_storage()
+      assert {:ok, networkattack} = NetworkAttack.create(attrs)
       assert networkattack.name == "Test NetworkAttack"
       assert networkattack.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.NetworkAttackTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(NetworkAttack, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = NetworkAttack.create(NetworkAttack, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.NetworkAttackTest do
     test "reads existing networkattack" do
       networkattack = TestHelper.create_test_data(NetworkAttack)
       
-      assert {:ok, found_networkattack} = Ash.get(NetworkAttack, networkattack.id)
+      assert {:ok, found_networkattack} = NetworkAttack.get(NetworkAttack, networkattack.id)
       assert found_networkattack.id == networkattack.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.NetworkAttackTest do
       TestHelper.create_test_data(NetworkAttack, %{name: "NetworkAttack 1"})
       TestHelper.create_test_data(NetworkAttack, %{name: "NetworkAttack 2"})
       
-      assert {:ok, networkattacks} = Ash.read(NetworkAttack)
+      assert {:ok, networkattacks} = NetworkAttack.list(NetworkAttack)
       assert length(networkattacks) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.NetworkAttackTest do
       active_networkattack = TestHelper.create_test_data(NetworkAttack, %{status: :active})
       _inactive_networkattack = TestHelper.create_test_data(NetworkAttack, %{status: :inactive})
       
-      assert {:ok, [networkattack]} = Ash.read(NetworkAttack, action: :by_status, status: :active)
+      assert {:ok, [networkattack]} = NetworkAttack.list(NetworkAttack, action: :by_status, status: :active)
       assert networkattack.id == active_networkattack.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.NetworkAttackTest do
     test "updates networkattack attributes" do
       networkattack = TestHelper.create_test_data(NetworkAttack)
       
-      assert {:ok, updated_networkattack} = Ash.update(networkattack, %{name: "Updated Name"})
+      assert {:ok, updated_networkattack} = NetworkAttack.update(networkattack, %{name: "Updated Name"})
       assert updated_networkattack.name == "Updated Name"
     end
     
     test "activates networkattack" do
       networkattack = TestHelper.create_test_data(NetworkAttack, %{status: :inactive})
       
-      assert {:ok, activated_networkattack} = Ash.update(networkattack, action: :activate)
+      assert {:ok, activated_networkattack} = NetworkAttack.update(networkattack, action: :activate)
       assert activated_networkattack.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.NetworkAttackTest do
     test "destroys existing networkattack" do
       networkattack = TestHelper.create_test_data(NetworkAttack)
       
-      assert :ok = Ash.destroy(networkattack)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(NetworkAttack, networkattack.id)
+      assert :ok = NetworkAttack.delete(networkattack)
+      assert {:error, %Ash.Error.Invalid{}} = NetworkAttack.get(NetworkAttack, networkattack.id)
     end
   end
 end

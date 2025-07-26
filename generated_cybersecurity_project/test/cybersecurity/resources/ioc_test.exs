@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.IOCTest do
         status: :active
       }
       
-      assert {:ok, ioc} = Ash.create(IOC, attrs)
+      IOC.init_storage()
+      assert {:ok, ioc} = IOC.create(attrs)
       assert ioc.name == "Test IOC"
       assert ioc.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.IOCTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(IOC, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = IOC.create(IOC, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.IOCTest do
     test "reads existing ioc" do
       ioc = TestHelper.create_test_data(IOC)
       
-      assert {:ok, found_ioc} = Ash.get(IOC, ioc.id)
+      assert {:ok, found_ioc} = IOC.get(IOC, ioc.id)
       assert found_ioc.id == ioc.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.IOCTest do
       TestHelper.create_test_data(IOC, %{name: "IOC 1"})
       TestHelper.create_test_data(IOC, %{name: "IOC 2"})
       
-      assert {:ok, iocs} = Ash.read(IOC)
+      assert {:ok, iocs} = IOC.list(IOC)
       assert length(iocs) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.IOCTest do
       active_ioc = TestHelper.create_test_data(IOC, %{status: :active})
       _inactive_ioc = TestHelper.create_test_data(IOC, %{status: :inactive})
       
-      assert {:ok, [ioc]} = Ash.read(IOC, action: :by_status, status: :active)
+      assert {:ok, [ioc]} = IOC.list(IOC, action: :by_status, status: :active)
       assert ioc.id == active_ioc.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.IOCTest do
     test "updates ioc attributes" do
       ioc = TestHelper.create_test_data(IOC)
       
-      assert {:ok, updated_ioc} = Ash.update(ioc, %{name: "Updated Name"})
+      assert {:ok, updated_ioc} = IOC.update(ioc, %{name: "Updated Name"})
       assert updated_ioc.name == "Updated Name"
     end
     
     test "activates ioc" do
       ioc = TestHelper.create_test_data(IOC, %{status: :inactive})
       
-      assert {:ok, activated_ioc} = Ash.update(ioc, action: :activate)
+      assert {:ok, activated_ioc} = IOC.update(ioc, action: :activate)
       assert activated_ioc.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.IOCTest do
     test "destroys existing ioc" do
       ioc = TestHelper.create_test_data(IOC)
       
-      assert :ok = Ash.destroy(ioc)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(IOC, ioc.id)
+      assert :ok = IOC.delete(ioc)
+      assert {:error, %Ash.Error.Invalid{}} = IOC.get(IOC, ioc.id)
     end
   end
 end

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cns_litigator
+  namespace: cns-forge
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cns_litigator
+  template:
+    metadata:
+      labels:
+        app: cns_litigator
+    spec:
+      containers:
+      - name: cns_litigator
+        image: cns-forge/cns_litigator:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        env:
+        - name: MAX_TTL_HOPS
+          value: "8"
+        - name: TICK_BUDGET
+          value: "8"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cns_litigator
+  namespace: cns-forge
+spec:
+  selector:
+    app: cns_litigator
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: LoadBalancer

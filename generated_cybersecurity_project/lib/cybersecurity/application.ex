@@ -6,13 +6,7 @@ defmodule Cybersecurity.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Database repo
-      Cybersecurity.Repo,
-      
-      # Telemetry
-      CybersecurityWeb.Telemetry,
-      
-      # Registry for dynamic processes
+      # Registry for dynamic processes (80/20: minimal supervision tree)
       {Registry, keys: :unique, name: Cybersecurity.Registry}
     ]
 

@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.PrivilegeEscalationTest do
         status: :active
       }
       
-      assert {:ok, privilegeescalation} = Ash.create(PrivilegeEscalation, attrs)
+      PrivilegeEscalation.init_storage()
+      assert {:ok, privilegeescalation} = PrivilegeEscalation.create(attrs)
       assert privilegeescalation.name == "Test PrivilegeEscalation"
       assert privilegeescalation.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.PrivilegeEscalationTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(PrivilegeEscalation, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = PrivilegeEscalation.create(PrivilegeEscalation, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.PrivilegeEscalationTest do
     test "reads existing privilegeescalation" do
       privilegeescalation = TestHelper.create_test_data(PrivilegeEscalation)
       
-      assert {:ok, found_privilegeescalation} = Ash.get(PrivilegeEscalation, privilegeescalation.id)
+      assert {:ok, found_privilegeescalation} = PrivilegeEscalation.get(PrivilegeEscalation, privilegeescalation.id)
       assert found_privilegeescalation.id == privilegeescalation.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.PrivilegeEscalationTest do
       TestHelper.create_test_data(PrivilegeEscalation, %{name: "PrivilegeEscalation 1"})
       TestHelper.create_test_data(PrivilegeEscalation, %{name: "PrivilegeEscalation 2"})
       
-      assert {:ok, privilegeescalations} = Ash.read(PrivilegeEscalation)
+      assert {:ok, privilegeescalations} = PrivilegeEscalation.list(PrivilegeEscalation)
       assert length(privilegeescalations) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.PrivilegeEscalationTest do
       active_privilegeescalation = TestHelper.create_test_data(PrivilegeEscalation, %{status: :active})
       _inactive_privilegeescalation = TestHelper.create_test_data(PrivilegeEscalation, %{status: :inactive})
       
-      assert {:ok, [privilegeescalation]} = Ash.read(PrivilegeEscalation, action: :by_status, status: :active)
+      assert {:ok, [privilegeescalation]} = PrivilegeEscalation.list(PrivilegeEscalation, action: :by_status, status: :active)
       assert privilegeescalation.id == active_privilegeescalation.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.PrivilegeEscalationTest do
     test "updates privilegeescalation attributes" do
       privilegeescalation = TestHelper.create_test_data(PrivilegeEscalation)
       
-      assert {:ok, updated_privilegeescalation} = Ash.update(privilegeescalation, %{name: "Updated Name"})
+      assert {:ok, updated_privilegeescalation} = PrivilegeEscalation.update(privilegeescalation, %{name: "Updated Name"})
       assert updated_privilegeescalation.name == "Updated Name"
     end
     
     test "activates privilegeescalation" do
       privilegeescalation = TestHelper.create_test_data(PrivilegeEscalation, %{status: :inactive})
       
-      assert {:ok, activated_privilegeescalation} = Ash.update(privilegeescalation, action: :activate)
+      assert {:ok, activated_privilegeescalation} = PrivilegeEscalation.update(privilegeescalation, action: :activate)
       assert activated_privilegeescalation.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.PrivilegeEscalationTest do
     test "destroys existing privilegeescalation" do
       privilegeescalation = TestHelper.create_test_data(PrivilegeEscalation)
       
-      assert :ok = Ash.destroy(privilegeescalation)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(PrivilegeEscalation, privilegeescalation.id)
+      assert :ok = PrivilegeEscalation.delete(privilegeescalation)
+      assert {:error, %Ash.Error.Invalid{}} = PrivilegeEscalation.get(PrivilegeEscalation, privilegeescalation.id)
     end
   end
 end

@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.ThreatTest do
         status: :active
       }
       
-      assert {:ok, threat} = Ash.create(Threat, attrs)
+      Threat.init_storage()
+      assert {:ok, threat} = Threat.create(attrs)
       assert threat.name == "Test Threat"
       assert threat.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.ThreatTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(Threat, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = Threat.create(Threat, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.ThreatTest do
     test "reads existing threat" do
       threat = TestHelper.create_test_data(Threat)
       
-      assert {:ok, found_threat} = Ash.get(Threat, threat.id)
+      assert {:ok, found_threat} = Threat.get(Threat, threat.id)
       assert found_threat.id == threat.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.ThreatTest do
       TestHelper.create_test_data(Threat, %{name: "Threat 1"})
       TestHelper.create_test_data(Threat, %{name: "Threat 2"})
       
-      assert {:ok, threats} = Ash.read(Threat)
+      assert {:ok, threats} = Threat.list(Threat)
       assert length(threats) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.ThreatTest do
       active_threat = TestHelper.create_test_data(Threat, %{status: :active})
       _inactive_threat = TestHelper.create_test_data(Threat, %{status: :inactive})
       
-      assert {:ok, [threat]} = Ash.read(Threat, action: :by_status, status: :active)
+      assert {:ok, [threat]} = Threat.list(Threat, action: :by_status, status: :active)
       assert threat.id == active_threat.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.ThreatTest do
     test "updates threat attributes" do
       threat = TestHelper.create_test_data(Threat)
       
-      assert {:ok, updated_threat} = Ash.update(threat, %{name: "Updated Name"})
+      assert {:ok, updated_threat} = Threat.update(threat, %{name: "Updated Name"})
       assert updated_threat.name == "Updated Name"
     end
     
     test "activates threat" do
       threat = TestHelper.create_test_data(Threat, %{status: :inactive})
       
-      assert {:ok, activated_threat} = Ash.update(threat, action: :activate)
+      assert {:ok, activated_threat} = Threat.update(threat, action: :activate)
       assert activated_threat.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.ThreatTest do
     test "destroys existing threat" do
       threat = TestHelper.create_test_data(Threat)
       
-      assert :ok = Ash.destroy(threat)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(Threat, threat.id)
+      assert :ok = Threat.delete(threat)
+      assert {:error, %Ash.Error.Invalid{}} = Threat.get(Threat, threat.id)
     end
   end
 end

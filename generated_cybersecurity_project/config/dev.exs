@@ -1,14 +1,6 @@
 import Config
 
-# Database configuration for development
-config :cybersecurity, Cybersecurity.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "cybersecurity_dev",
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+# 80/20: No database configuration needed for ETS-based resources
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"

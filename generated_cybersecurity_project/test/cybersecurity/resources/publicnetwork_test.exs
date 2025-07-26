@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.PublicNetworkTest do
         status: :active
       }
       
-      assert {:ok, publicnetwork} = Ash.create(PublicNetwork, attrs)
+      PublicNetwork.init_storage()
+      assert {:ok, publicnetwork} = PublicNetwork.create(attrs)
       assert publicnetwork.name == "Test PublicNetwork"
       assert publicnetwork.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.PublicNetworkTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(PublicNetwork, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = PublicNetwork.create(PublicNetwork, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.PublicNetworkTest do
     test "reads existing publicnetwork" do
       publicnetwork = TestHelper.create_test_data(PublicNetwork)
       
-      assert {:ok, found_publicnetwork} = Ash.get(PublicNetwork, publicnetwork.id)
+      assert {:ok, found_publicnetwork} = PublicNetwork.get(PublicNetwork, publicnetwork.id)
       assert found_publicnetwork.id == publicnetwork.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.PublicNetworkTest do
       TestHelper.create_test_data(PublicNetwork, %{name: "PublicNetwork 1"})
       TestHelper.create_test_data(PublicNetwork, %{name: "PublicNetwork 2"})
       
-      assert {:ok, publicnetworks} = Ash.read(PublicNetwork)
+      assert {:ok, publicnetworks} = PublicNetwork.list(PublicNetwork)
       assert length(publicnetworks) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.PublicNetworkTest do
       active_publicnetwork = TestHelper.create_test_data(PublicNetwork, %{status: :active})
       _inactive_publicnetwork = TestHelper.create_test_data(PublicNetwork, %{status: :inactive})
       
-      assert {:ok, [publicnetwork]} = Ash.read(PublicNetwork, action: :by_status, status: :active)
+      assert {:ok, [publicnetwork]} = PublicNetwork.list(PublicNetwork, action: :by_status, status: :active)
       assert publicnetwork.id == active_publicnetwork.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.PublicNetworkTest do
     test "updates publicnetwork attributes" do
       publicnetwork = TestHelper.create_test_data(PublicNetwork)
       
-      assert {:ok, updated_publicnetwork} = Ash.update(publicnetwork, %{name: "Updated Name"})
+      assert {:ok, updated_publicnetwork} = PublicNetwork.update(publicnetwork, %{name: "Updated Name"})
       assert updated_publicnetwork.name == "Updated Name"
     end
     
     test "activates publicnetwork" do
       publicnetwork = TestHelper.create_test_data(PublicNetwork, %{status: :inactive})
       
-      assert {:ok, activated_publicnetwork} = Ash.update(publicnetwork, action: :activate)
+      assert {:ok, activated_publicnetwork} = PublicNetwork.update(publicnetwork, action: :activate)
       assert activated_publicnetwork.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.PublicNetworkTest do
     test "destroys existing publicnetwork" do
       publicnetwork = TestHelper.create_test_data(PublicNetwork)
       
-      assert :ok = Ash.destroy(publicnetwork)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(PublicNetwork, publicnetwork.id)
+      assert :ok = PublicNetwork.delete(publicnetwork)
+      assert {:error, %Ash.Error.Invalid{}} = PublicNetwork.get(PublicNetwork, publicnetwork.id)
     end
   end
 end

@@ -1,0 +1,371 @@
+{
+  "timestamp": "2025-07-25T15:43:17.210870",
+  "reactor_validation": {
+    "reactor_id": "26c837c6-990b-4b0c-8d90-d0b5de8921d3",
+    "reactor_name": "ExampleCreatePostReactor",
+    "validation_timestamp": "2025-07-25T15:43:17.210601",
+    "workflow_analysis": {
+      "total_steps": 3,
+      "step_types": {
+        "read_one": 1,
+        "create": 1,
+        "update": 1
+      },
+      "dependency_depth": 1,
+      "parallelism_opportunities": 1,
+      "transaction_steps": 0,
+      "compensation_enabled_steps": 2,
+      "complexity_score": 0.95
+    },
+    "step_validations": [
+      {
+        "step_id": "get_author",
+        "step_name": "get_author",
+        "step_type": "read_one",
+        "validation_timestamp": "2025-07-25T15:43:17.210667",
+        "checks_performed": [
+          "step_definition",
+          "step_execution",
+          "otel_instrumentation",
+          "performance_validation",
+          "dependency_validation"
+        ],
+        "issues_found": [],
+        "performance_metrics": {
+          "execution_duration_ms": 75.6256632435686,
+          "performance_tier": "excellent",
+          "efficiency_score": 1.0,
+          "resource_utilization": {
+            "cpu_percentage": 65.73314108421204,
+            "memory_mb": 75.76435115945169,
+            "database_connections": 3
+          },
+          "bottleneck_indicators": []
+        },
+        "otel_traces": [
+          {
+            "trace_id": "8fa08389-ba17-468b-bacc-cb2e4438ac45",
+            "span_id": "9ed64052-8903-411d-9f3e-d8e3da6dc802",
+            "parent_span_id": "26c837c6-990b-4b0c-8d90-d0b5de8921d3_root",
+            "operation_name": "ash.reactor.step.read_one",
+            "start_time": "2025-07-25T15:43:17.210627",
+            "end_time": "2025-07-25T15:43:17.286253",
+            "duration_ms": 75.6256632435686,
+            "status": "completed",
+            "tags": {
+              "reactor.id": "26c837c6-990b-4b0c-8d90-d0b5de8921d3",
+              "step.name": "get_author",
+              "step.type": "read_one",
+              "resource": "MyBlog.Author",
+              "action": "get_author_by_email",
+              "undo": "never"
+            },
+            "events": [
+              {
+                "timestamp": "2025-07-25T15:43:17.210627",
+                "name": "step.started",
+                "attributes": {
+                  "inputs_count": 1
+                }
+              },
+              {
+                "timestamp": "2025-07-25T15:43:17.286253",
+                "name": "step.completed",
+                "attributes": {
+                  "result_type": "dict"
+                }
+              }
+            ]
+          },
+          {
+            "trace_id": "8fa08389-ba17-468b-bacc-cb2e4438ac45",
+            "span_id": "9ed64052-8903-411d-9f3e-d8e3da6dc802_input_resolution",
+            "parent_span_id": "9ed64052-8903-411d-9f3e-d8e3da6dc802",
+            "operation_name": "ash.reactor.step.input_resolution",
+            "start_time": "2025-07-25T15:43:17.210627",
+            "duration_ms": 8.770075101663533,
+            "status": "completed",
+            "tags": {
+              "inputs_count": 1,
+              "resolved_count": 1
+            }
+          },
+          {
+            "trace_id": "8fa08389-ba17-468b-bacc-cb2e4438ac45",
+            "span_id": "9ed64052-8903-411d-9f3e-d8e3da6dc802_resource_operation",
+            "parent_span_id": "9ed64052-8903-411d-9f3e-d8e3da6dc802",
+            "operation_name": "ash.resource.read_one",
+            "start_time": "2025-07-25T15:43:17.210627",
+            "duration_ms": 60.50053059485488,
+            "status": "completed",
+            "tags": {
+              "resource": "MyBlog.Author",
+              "action": "get_author_by_email",
+              "domain": "ExampleDomain"
+            }
+          }
+        ],
+        "recommendations": [
+          "Consider handling not_found cases gracefully in upstream steps"
+        ]
+      },
+      {
+        "step_id": "create_post",
+        "step_name": "create_post",
+        "step_type": "create",
+        "validation_timestamp": "2025-07-25T15:43:17.210742",
+        "checks_performed": [
+          "step_definition",
+          "step_execution",
+          "otel_instrumentation",
+          "performance_validation",
+          "dependency_validation",
+          "compensation_validation"
+        ],
+        "issues_found": [],
+        "performance_metrics": {
+          "execution_duration_ms": 284.1229868006462,
+          "performance_tier": "good",
+          "efficiency_score": 0.8,
+          "resource_utilization": {
+            "cpu_percentage": 46.762836522187904,
+            "memory_mb": 434.31435303501803,
+            "database_connections": 4
+          },
+          "bottleneck_indicators": []
+        },
+        "otel_traces": [
+          {
+            "trace_id": "6c624576-4d40-4b2f-b182-18365276f67b",
+            "span_id": "5d9f2ce5-e263-4f40-aa67-01c5b154c568",
+            "parent_span_id": "26c837c6-990b-4b0c-8d90-d0b5de8921d3_root",
+            "operation_name": "ash.reactor.step.create",
+            "start_time": "2025-07-25T15:43:17.210712",
+            "end_time": "2025-07-25T15:43:17.494835",
+            "duration_ms": 284.1229868006462,
+            "status": "completed",
+            "tags": {
+              "reactor.id": "26c837c6-990b-4b0c-8d90-d0b5de8921d3",
+              "step.name": "create_post",
+              "step.type": "create",
+              "resource": "MyBlog.Post",
+              "action": "create",
+              "undo": "outside_transaction"
+            },
+            "events": [
+              {
+                "timestamp": "2025-07-25T15:43:17.210712",
+                "name": "step.started",
+                "attributes": {
+                  "inputs_count": 3
+                }
+              },
+              {
+                "timestamp": "2025-07-25T15:43:17.494835",
+                "name": "step.completed",
+                "attributes": {
+                  "result_type": "dict"
+                }
+              }
+            ]
+          },
+          {
+            "trace_id": "6c624576-4d40-4b2f-b182-18365276f67b",
+            "span_id": "5d9f2ce5-e263-4f40-aa67-01c5b154c568_input_resolution",
+            "parent_span_id": "5d9f2ce5-e263-4f40-aa67-01c5b154c568",
+            "operation_name": "ash.reactor.step.input_resolution",
+            "start_time": "2025-07-25T15:43:17.210712",
+            "duration_ms": 3.359545868475558,
+            "status": "completed",
+            "tags": {
+              "inputs_count": 3,
+              "resolved_count": 3
+            }
+          },
+          {
+            "trace_id": "6c624576-4d40-4b2f-b182-18365276f67b",
+            "span_id": "5d9f2ce5-e263-4f40-aa67-01c5b154c568_resource_operation",
+            "parent_span_id": "5d9f2ce5-e263-4f40-aa67-01c5b154c568",
+            "operation_name": "ash.resource.create",
+            "start_time": "2025-07-25T15:43:17.210712",
+            "duration_ms": 227.29838944051696,
+            "status": "completed",
+            "tags": {
+              "resource": "MyBlog.Post",
+              "action": "create",
+              "domain": "ExampleDomain"
+            }
+          }
+        ],
+        "recommendations": []
+      },
+      {
+        "step_id": "update_author_post_count",
+        "step_name": "update_author_post_count",
+        "step_type": "update",
+        "validation_timestamp": "2025-07-25T15:43:17.210801",
+        "checks_performed": [
+          "step_definition",
+          "step_execution",
+          "otel_instrumentation",
+          "performance_validation",
+          "dependency_validation",
+          "compensation_validation"
+        ],
+        "issues_found": [
+          {
+            "severity": "warning",
+            "category": "execution",
+            "description": "No inputs were resolved for this step"
+          }
+        ],
+        "performance_metrics": {
+          "execution_duration_ms": 93.50913201397503,
+          "performance_tier": "excellent",
+          "efficiency_score": 1.0,
+          "resource_utilization": {
+            "cpu_percentage": 53.69798381783971,
+            "memory_mb": 148.3918989349723,
+            "database_connections": 3
+          },
+          "bottleneck_indicators": []
+        },
+        "otel_traces": [
+          {
+            "trace_id": "1320dbbc-de1d-4b98-aadc-6681d4e3477d",
+            "span_id": "694a656c-41ed-41cb-a158-80aba5447dfd",
+            "parent_span_id": "26c837c6-990b-4b0c-8d90-d0b5de8921d3_root",
+            "operation_name": "ash.reactor.step.update",
+            "start_time": "2025-07-25T15:43:17.210779",
+            "end_time": "2025-07-25T15:43:17.304288",
+            "duration_ms": 93.50913201397503,
+            "status": "completed",
+            "tags": {
+              "reactor.id": "26c837c6-990b-4b0c-8d90-d0b5de8921d3",
+              "step.name": "update_author_post_count",
+              "step.type": "update",
+              "resource": "MyBlog.Author",
+              "action": "update_post_count",
+              "undo": "outside_transaction"
+            },
+            "events": [
+              {
+                "timestamp": "2025-07-25T15:43:17.210779",
+                "name": "step.started",
+                "attributes": {
+                  "inputs_count": 0
+                }
+              },
+              {
+                "timestamp": "2025-07-25T15:43:17.304288",
+                "name": "step.completed",
+                "attributes": {
+                  "result_type": "dict"
+                }
+              }
+            ]
+          },
+          {
+            "trace_id": "1320dbbc-de1d-4b98-aadc-6681d4e3477d",
+            "span_id": "694a656c-41ed-41cb-a158-80aba5447dfd_input_resolution",
+            "parent_span_id": "694a656c-41ed-41cb-a158-80aba5447dfd",
+            "operation_name": "ash.reactor.step.input_resolution",
+            "start_time": "2025-07-25T15:43:17.210779",
+            "duration_ms": 6.666702541203729,
+            "status": "completed",
+            "tags": {
+              "inputs_count": 0,
+              "resolved_count": 0
+            }
+          },
+          {
+            "trace_id": "1320dbbc-de1d-4b98-aadc-6681d4e3477d",
+            "span_id": "694a656c-41ed-41cb-a158-80aba5447dfd_resource_operation",
+            "parent_span_id": "694a656c-41ed-41cb-a158-80aba5447dfd",
+            "operation_name": "ash.resource.update",
+            "start_time": "2025-07-25T15:43:17.210779",
+            "duration_ms": 74.80730561118003,
+            "status": "completed",
+            "tags": {
+              "resource": "MyBlog.Author",
+              "action": "update_post_count",
+              "domain": "ExampleDomain"
+            }
+          }
+        ],
+        "recommendations": []
+      }
+    ],
+    "integration_tests": {
+      "dependency_resolution_test": "passed",
+      "input_output_mapping_test": "passed",
+      "transaction_isolation_test": "passed",
+      "compensation_chain_test": "passed",
+      "notification_batching_test": "passed",
+      "error_propagation_test": "passed",
+      "issues_found": []
+    },
+    "performance_analysis": {
+      "total_sequential_duration_ms": 453.25778205818983,
+      "estimated_parallel_duration_ms": 284.1229868006462,
+      "parallelism_efficiency_percent": 62.6846351121601,
+      "average_step_efficiency": 0.9333333333333332,
+      "bottleneck_steps": [],
+      "performance_tier": "good",
+      "scalability_indicators": [
+        "high_database_dependency"
+      ]
+    },
+    "otel_coverage": {
+      "coverage_score_percent": 100.0,
+      "total_otel_checks": 17,
+      "otel_issues_found": 0,
+      "instrumented_steps": 3,
+      "trace_continuity": "complete",
+      "metric_completeness": {
+        "duration": {
+          "coverage_percent": 97.90912656939645,
+          "status": "complete"
+        },
+        "execution_count": {
+          "coverage_percent": 81.08313029892606,
+          "status": "partial"
+        },
+        "error_rate": {
+          "coverage_percent": 75.02866675528036,
+          "status": "partial"
+        },
+        "resource_utilization": {
+          "coverage_percent": 82.74791588486957,
+          "status": "partial"
+        }
+      },
+      "recommendations": [
+        "Implement custom business metrics for domain-specific insights",
+        "Configure appropriate sampling rates for production workloads",
+        "Set up alerting based on OTEL metrics and traces"
+      ]
+    },
+    "recommendations": [
+      "Consider handling not_found cases gracefully in upstream steps"
+    ],
+    "overall_score": 92.05
+  },
+  "swarm_coordination": {
+    "agents_deployed": 4,
+    "validation_coverage": "comprehensive",
+    "ai_insights_generated": true
+  },
+  "otel_instrumentation": {
+    "step_instruments": 10,
+    "reactor_instruments": 8,
+    "trace_coverage": "complete",
+    "metric_coverage": "comprehensive"
+  },
+  "production_readiness": {
+    "overall_score": 92.05,
+    "ready_for_production": true,
+    "critical_issues": 0,
+    "recommendations_count": 1
+  }
+}

@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.NetworkDeviceTest do
         status: :active
       }
       
-      assert {:ok, networkdevice} = Ash.create(NetworkDevice, attrs)
+      NetworkDevice.init_storage()
+      assert {:ok, networkdevice} = NetworkDevice.create(attrs)
       assert networkdevice.name == "Test NetworkDevice"
       assert networkdevice.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.NetworkDeviceTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(NetworkDevice, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = NetworkDevice.create(NetworkDevice, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.NetworkDeviceTest do
     test "reads existing networkdevice" do
       networkdevice = TestHelper.create_test_data(NetworkDevice)
       
-      assert {:ok, found_networkdevice} = Ash.get(NetworkDevice, networkdevice.id)
+      assert {:ok, found_networkdevice} = NetworkDevice.get(NetworkDevice, networkdevice.id)
       assert found_networkdevice.id == networkdevice.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.NetworkDeviceTest do
       TestHelper.create_test_data(NetworkDevice, %{name: "NetworkDevice 1"})
       TestHelper.create_test_data(NetworkDevice, %{name: "NetworkDevice 2"})
       
-      assert {:ok, networkdevices} = Ash.read(NetworkDevice)
+      assert {:ok, networkdevices} = NetworkDevice.list(NetworkDevice)
       assert length(networkdevices) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.NetworkDeviceTest do
       active_networkdevice = TestHelper.create_test_data(NetworkDevice, %{status: :active})
       _inactive_networkdevice = TestHelper.create_test_data(NetworkDevice, %{status: :inactive})
       
-      assert {:ok, [networkdevice]} = Ash.read(NetworkDevice, action: :by_status, status: :active)
+      assert {:ok, [networkdevice]} = NetworkDevice.list(NetworkDevice, action: :by_status, status: :active)
       assert networkdevice.id == active_networkdevice.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.NetworkDeviceTest do
     test "updates networkdevice attributes" do
       networkdevice = TestHelper.create_test_data(NetworkDevice)
       
-      assert {:ok, updated_networkdevice} = Ash.update(networkdevice, %{name: "Updated Name"})
+      assert {:ok, updated_networkdevice} = NetworkDevice.update(networkdevice, %{name: "Updated Name"})
       assert updated_networkdevice.name == "Updated Name"
     end
     
     test "activates networkdevice" do
       networkdevice = TestHelper.create_test_data(NetworkDevice, %{status: :inactive})
       
-      assert {:ok, activated_networkdevice} = Ash.update(networkdevice, action: :activate)
+      assert {:ok, activated_networkdevice} = NetworkDevice.update(networkdevice, action: :activate)
       assert activated_networkdevice.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.NetworkDeviceTest do
     test "destroys existing networkdevice" do
       networkdevice = TestHelper.create_test_data(NetworkDevice)
       
-      assert :ok = Ash.destroy(networkdevice)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(NetworkDevice, networkdevice.id)
+      assert :ok = NetworkDevice.delete(networkdevice)
+      assert {:error, %Ash.Error.Invalid{}} = NetworkDevice.get(NetworkDevice, networkdevice.id)
     end
   end
 end

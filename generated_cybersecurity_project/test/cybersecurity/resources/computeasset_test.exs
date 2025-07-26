@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.ComputeAssetTest do
         status: :active
       }
       
-      assert {:ok, computeasset} = Ash.create(ComputeAsset, attrs)
+      ComputeAsset.init_storage()
+      assert {:ok, computeasset} = ComputeAsset.create(attrs)
       assert computeasset.name == "Test ComputeAsset"
       assert computeasset.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.ComputeAssetTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(ComputeAsset, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = ComputeAsset.create(ComputeAsset, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.ComputeAssetTest do
     test "reads existing computeasset" do
       computeasset = TestHelper.create_test_data(ComputeAsset)
       
-      assert {:ok, found_computeasset} = Ash.get(ComputeAsset, computeasset.id)
+      assert {:ok, found_computeasset} = ComputeAsset.get(ComputeAsset, computeasset.id)
       assert found_computeasset.id == computeasset.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.ComputeAssetTest do
       TestHelper.create_test_data(ComputeAsset, %{name: "ComputeAsset 1"})
       TestHelper.create_test_data(ComputeAsset, %{name: "ComputeAsset 2"})
       
-      assert {:ok, computeassets} = Ash.read(ComputeAsset)
+      assert {:ok, computeassets} = ComputeAsset.list(ComputeAsset)
       assert length(computeassets) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.ComputeAssetTest do
       active_computeasset = TestHelper.create_test_data(ComputeAsset, %{status: :active})
       _inactive_computeasset = TestHelper.create_test_data(ComputeAsset, %{status: :inactive})
       
-      assert {:ok, [computeasset]} = Ash.read(ComputeAsset, action: :by_status, status: :active)
+      assert {:ok, [computeasset]} = ComputeAsset.list(ComputeAsset, action: :by_status, status: :active)
       assert computeasset.id == active_computeasset.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.ComputeAssetTest do
     test "updates computeasset attributes" do
       computeasset = TestHelper.create_test_data(ComputeAsset)
       
-      assert {:ok, updated_computeasset} = Ash.update(computeasset, %{name: "Updated Name"})
+      assert {:ok, updated_computeasset} = ComputeAsset.update(computeasset, %{name: "Updated Name"})
       assert updated_computeasset.name == "Updated Name"
     end
     
     test "activates computeasset" do
       computeasset = TestHelper.create_test_data(ComputeAsset, %{status: :inactive})
       
-      assert {:ok, activated_computeasset} = Ash.update(computeasset, action: :activate)
+      assert {:ok, activated_computeasset} = ComputeAsset.update(computeasset, action: :activate)
       assert activated_computeasset.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.ComputeAssetTest do
     test "destroys existing computeasset" do
       computeasset = TestHelper.create_test_data(ComputeAsset)
       
-      assert :ok = Ash.destroy(computeasset)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(ComputeAsset, computeasset.id)
+      assert :ok = ComputeAsset.delete(computeasset)
+      assert {:error, %Ash.Error.Invalid{}} = ComputeAsset.get(ComputeAsset, computeasset.id)
     end
   end
 end

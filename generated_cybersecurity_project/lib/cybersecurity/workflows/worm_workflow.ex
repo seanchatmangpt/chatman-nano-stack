@@ -3,73 +3,56 @@ defmodule Cybersecurity.Workflows.WormWorkflow do
   Workflow for Worm resource operations
   """
 
-  use Ash.Reactor
-
-  input :action
-  input :resource_data, default: %{}
-  input :resource_id, default: nil
-
-  step :validate_action do
-    argument :action, input(:action)
-    
-    run fn %{action: action} ->
-      if action in [:create, :read, :update, :delete, :list] do
-        {:ok, %{validated_action: action}}
-      else
-        {:error, :invalid_action}
-      end
+  # 80/20: Plain Elixir workflow for Worm resource operations
+  
+  @doc """
+  Execute a worm resource action
+  """
+  def execute(action, resource_data \\ %{}, resource_id \\ nil) do
+    with {:ok, validated_action} <- validate_action(action),
+         {:ok, result} <- execute_resource_action(validated_action, resource_data, resource_id) do
+      format_result(result, validated_action)
     end
   end
-
-  step :execute_resource_action do
-    argument :action, result(:validate_action, [:validated_action])
-    argument :data, input(:resource_data)
-    argument :id, input(:resource_id)
-    
-    run fn %{action: action, data: data, id: id} ->
-      resource = Cybersecurity.Resources.Worm
-      
-      case action do
-        :create ->
-          Ash.create(resource, data)
-          
-        :read when not is_nil(id) ->
-          Ash.get(resource, id)
-          
-        :list ->
-          Ash.read(resource)
-          
-        :update when not is_nil(id) ->
-          case Ash.get(resource, id) do
-            {:ok, record} -> Ash.update(record, data)
-            error -> error
-          end
-          
-        :delete when not is_nil(id) ->
-          case Ash.get(resource, id) do
-            {:ok, record} -> Ash.destroy(record)
-            error -> error
-          end
-          
-        _ ->
-          {:error, :invalid_action_combination}
-      end
+  
+  defp validate_action(action) do
+    if action in [:create, :read, :update, :delete, :list] do
+      {:ok, action}
+    else
+      {:error, :invalid_action}
     end
   end
-
-  step :format_result do
-    argument :result, result(:execute_resource_action)
-    argument :action, result(:validate_action, [:validated_action])
+  
+  defp execute_resource_action(action, data, id) do
+    resource = Cybersecurity.Resources.Worm
     
-    run fn %{result: result, action: action} ->
-      {:ok, %{
-        resource: "worm",
-        action: action,
-        result: result,
-        timestamp: DateTime.utc_now()
-      }}
+    case action do
+      :create ->
+        resource.create(data)
+        
+      :read when not is_nil(id) ->
+        resource.get(id)
+        
+      :list ->
+        resource.list()
+        
+      :update when not is_nil(id) ->
+        resource.update(id, data)
+        
+      :delete when not is_nil(id) ->
+        resource.delete(id)
+        
+      _ ->
+        {:error, :invalid_action_combination}
     end
   end
-
-  return :format_result
+  
+  defp format_result(result, action) do
+    {:ok, %{
+      resource: "worm",
+      action: action,
+      result: result,
+      timestamp: DateTime.utc_now()
+    }}
+  end
 end

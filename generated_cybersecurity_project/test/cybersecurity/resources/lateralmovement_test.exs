@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.LateralMovementTest do
         status: :active
       }
       
-      assert {:ok, lateralmovement} = Ash.create(LateralMovement, attrs)
+      LateralMovement.init_storage()
+      assert {:ok, lateralmovement} = LateralMovement.create(attrs)
       assert lateralmovement.name == "Test LateralMovement"
       assert lateralmovement.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.LateralMovementTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(LateralMovement, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = LateralMovement.create(LateralMovement, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.LateralMovementTest do
     test "reads existing lateralmovement" do
       lateralmovement = TestHelper.create_test_data(LateralMovement)
       
-      assert {:ok, found_lateralmovement} = Ash.get(LateralMovement, lateralmovement.id)
+      assert {:ok, found_lateralmovement} = LateralMovement.get(LateralMovement, lateralmovement.id)
       assert found_lateralmovement.id == lateralmovement.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.LateralMovementTest do
       TestHelper.create_test_data(LateralMovement, %{name: "LateralMovement 1"})
       TestHelper.create_test_data(LateralMovement, %{name: "LateralMovement 2"})
       
-      assert {:ok, lateralmovements} = Ash.read(LateralMovement)
+      assert {:ok, lateralmovements} = LateralMovement.list(LateralMovement)
       assert length(lateralmovements) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.LateralMovementTest do
       active_lateralmovement = TestHelper.create_test_data(LateralMovement, %{status: :active})
       _inactive_lateralmovement = TestHelper.create_test_data(LateralMovement, %{status: :inactive})
       
-      assert {:ok, [lateralmovement]} = Ash.read(LateralMovement, action: :by_status, status: :active)
+      assert {:ok, [lateralmovement]} = LateralMovement.list(LateralMovement, action: :by_status, status: :active)
       assert lateralmovement.id == active_lateralmovement.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.LateralMovementTest do
     test "updates lateralmovement attributes" do
       lateralmovement = TestHelper.create_test_data(LateralMovement)
       
-      assert {:ok, updated_lateralmovement} = Ash.update(lateralmovement, %{name: "Updated Name"})
+      assert {:ok, updated_lateralmovement} = LateralMovement.update(lateralmovement, %{name: "Updated Name"})
       assert updated_lateralmovement.name == "Updated Name"
     end
     
     test "activates lateralmovement" do
       lateralmovement = TestHelper.create_test_data(LateralMovement, %{status: :inactive})
       
-      assert {:ok, activated_lateralmovement} = Ash.update(lateralmovement, action: :activate)
+      assert {:ok, activated_lateralmovement} = LateralMovement.update(lateralmovement, action: :activate)
       assert activated_lateralmovement.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.LateralMovementTest do
     test "destroys existing lateralmovement" do
       lateralmovement = TestHelper.create_test_data(LateralMovement)
       
-      assert :ok = Ash.destroy(lateralmovement)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(LateralMovement, lateralmovement.id)
+      assert :ok = LateralMovement.delete(lateralmovement)
+      assert {:error, %Ash.Error.Invalid{}} = LateralMovement.get(LateralMovement, lateralmovement.id)
     end
   end
 end

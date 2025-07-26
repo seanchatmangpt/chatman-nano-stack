@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.ThreatIntelligenceTest do
         status: :active
       }
       
-      assert {:ok, threatintelligence} = Ash.create(ThreatIntelligence, attrs)
+      ThreatIntelligence.init_storage()
+      assert {:ok, threatintelligence} = ThreatIntelligence.create(attrs)
       assert threatintelligence.name == "Test ThreatIntelligence"
       assert threatintelligence.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.ThreatIntelligenceTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(ThreatIntelligence, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = ThreatIntelligence.create(ThreatIntelligence, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.ThreatIntelligenceTest do
     test "reads existing threatintelligence" do
       threatintelligence = TestHelper.create_test_data(ThreatIntelligence)
       
-      assert {:ok, found_threatintelligence} = Ash.get(ThreatIntelligence, threatintelligence.id)
+      assert {:ok, found_threatintelligence} = ThreatIntelligence.get(ThreatIntelligence, threatintelligence.id)
       assert found_threatintelligence.id == threatintelligence.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.ThreatIntelligenceTest do
       TestHelper.create_test_data(ThreatIntelligence, %{name: "ThreatIntelligence 1"})
       TestHelper.create_test_data(ThreatIntelligence, %{name: "ThreatIntelligence 2"})
       
-      assert {:ok, threatintelligences} = Ash.read(ThreatIntelligence)
+      assert {:ok, threatintelligences} = ThreatIntelligence.list(ThreatIntelligence)
       assert length(threatintelligences) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.ThreatIntelligenceTest do
       active_threatintelligence = TestHelper.create_test_data(ThreatIntelligence, %{status: :active})
       _inactive_threatintelligence = TestHelper.create_test_data(ThreatIntelligence, %{status: :inactive})
       
-      assert {:ok, [threatintelligence]} = Ash.read(ThreatIntelligence, action: :by_status, status: :active)
+      assert {:ok, [threatintelligence]} = ThreatIntelligence.list(ThreatIntelligence, action: :by_status, status: :active)
       assert threatintelligence.id == active_threatintelligence.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.ThreatIntelligenceTest do
     test "updates threatintelligence attributes" do
       threatintelligence = TestHelper.create_test_data(ThreatIntelligence)
       
-      assert {:ok, updated_threatintelligence} = Ash.update(threatintelligence, %{name: "Updated Name"})
+      assert {:ok, updated_threatintelligence} = ThreatIntelligence.update(threatintelligence, %{name: "Updated Name"})
       assert updated_threatintelligence.name == "Updated Name"
     end
     
     test "activates threatintelligence" do
       threatintelligence = TestHelper.create_test_data(ThreatIntelligence, %{status: :inactive})
       
-      assert {:ok, activated_threatintelligence} = Ash.update(threatintelligence, action: :activate)
+      assert {:ok, activated_threatintelligence} = ThreatIntelligence.update(threatintelligence, action: :activate)
       assert activated_threatintelligence.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.ThreatIntelligenceTest do
     test "destroys existing threatintelligence" do
       threatintelligence = TestHelper.create_test_data(ThreatIntelligence)
       
-      assert :ok = Ash.destroy(threatintelligence)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(ThreatIntelligence, threatintelligence.id)
+      assert :ok = ThreatIntelligence.delete(threatintelligence)
+      assert {:error, %Ash.Error.Invalid{}} = ThreatIntelligence.get(ThreatIntelligence, threatintelligence.id)
     end
   end
 end

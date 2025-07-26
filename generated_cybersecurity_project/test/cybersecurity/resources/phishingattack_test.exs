@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.PhishingAttackTest do
         status: :active
       }
       
-      assert {:ok, phishingattack} = Ash.create(PhishingAttack, attrs)
+      PhishingAttack.init_storage()
+      assert {:ok, phishingattack} = PhishingAttack.create(attrs)
       assert phishingattack.name == "Test PhishingAttack"
       assert phishingattack.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.PhishingAttackTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(PhishingAttack, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = PhishingAttack.create(PhishingAttack, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.PhishingAttackTest do
     test "reads existing phishingattack" do
       phishingattack = TestHelper.create_test_data(PhishingAttack)
       
-      assert {:ok, found_phishingattack} = Ash.get(PhishingAttack, phishingattack.id)
+      assert {:ok, found_phishingattack} = PhishingAttack.get(PhishingAttack, phishingattack.id)
       assert found_phishingattack.id == phishingattack.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.PhishingAttackTest do
       TestHelper.create_test_data(PhishingAttack, %{name: "PhishingAttack 1"})
       TestHelper.create_test_data(PhishingAttack, %{name: "PhishingAttack 2"})
       
-      assert {:ok, phishingattacks} = Ash.read(PhishingAttack)
+      assert {:ok, phishingattacks} = PhishingAttack.list(PhishingAttack)
       assert length(phishingattacks) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.PhishingAttackTest do
       active_phishingattack = TestHelper.create_test_data(PhishingAttack, %{status: :active})
       _inactive_phishingattack = TestHelper.create_test_data(PhishingAttack, %{status: :inactive})
       
-      assert {:ok, [phishingattack]} = Ash.read(PhishingAttack, action: :by_status, status: :active)
+      assert {:ok, [phishingattack]} = PhishingAttack.list(PhishingAttack, action: :by_status, status: :active)
       assert phishingattack.id == active_phishingattack.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.PhishingAttackTest do
     test "updates phishingattack attributes" do
       phishingattack = TestHelper.create_test_data(PhishingAttack)
       
-      assert {:ok, updated_phishingattack} = Ash.update(phishingattack, %{name: "Updated Name"})
+      assert {:ok, updated_phishingattack} = PhishingAttack.update(phishingattack, %{name: "Updated Name"})
       assert updated_phishingattack.name == "Updated Name"
     end
     
     test "activates phishingattack" do
       phishingattack = TestHelper.create_test_data(PhishingAttack, %{status: :inactive})
       
-      assert {:ok, activated_phishingattack} = Ash.update(phishingattack, action: :activate)
+      assert {:ok, activated_phishingattack} = PhishingAttack.update(phishingattack, action: :activate)
       assert activated_phishingattack.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.PhishingAttackTest do
     test "destroys existing phishingattack" do
       phishingattack = TestHelper.create_test_data(PhishingAttack)
       
-      assert :ok = Ash.destroy(phishingattack)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(PhishingAttack, phishingattack.id)
+      assert :ok = PhishingAttack.delete(phishingattack)
+      assert {:error, %Ash.Error.Invalid{}} = PhishingAttack.get(PhishingAttack, phishingattack.id)
     end
   end
 end

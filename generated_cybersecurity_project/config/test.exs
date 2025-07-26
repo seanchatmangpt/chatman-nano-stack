@@ -1,13 +1,6 @@
 import Config
 
-# Database configuration for test
-config :cybersecurity, Cybersecurity.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "cybersecurity_test#{System.get_env(\"MIX_TEST_PARTITION\")}",
-  pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 10
+# 80/20: No database configuration needed for ETS-based resources
 
 # Print only warnings and errors during test
 config :logger, level: :warning

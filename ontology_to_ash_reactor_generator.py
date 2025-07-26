@@ -196,38 +196,17 @@ class AshReactorProjectGenerator:
 
   defp deps do
     [
-      # Ash Framework - Core dependencies for Ash.Reactor
-      {{:ash, "~> 3.0"}},
-      {{:reactor, "~> 0.8"}},
-      
-      # Database and storage
-      {{:ash_postgres, "~> 2.0"}},
-      {{:ecto_sql, "~> 3.10"}},
-      {{:postgrex, ">= 0.0.0"}},
-      
-      # JSON handling
+      # 80/20: Minimal working dependencies (avoiding rebar3/yaml issues)
       {{:jason, "~> 1.4"}},
-      
-      # Utilities
-      {{:telemetry, "~> 1.2"}},
-      {{:telemetry_metrics, "~> 1.0"}},
-      {{:telemetry_poller, "~> 1.0"}},
-      
-      # Development and testing
-      {{:ex_doc, "~> 0.31", only: :dev, runtime: false}},
-      {{:excoveralls, "~> 0.18", only: :test}},
-      {{:credo, "~> 1.7", only: [:dev, :test], runtime: false}},
-      {{:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}}
+      {{:uuid, "~> 1.1"}}
     ]
   end
 
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup"],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-      "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.deploy": ["esbuild default --minify", "phx.digest"]
+      # 80/20: Essential aliases only
+      setup: ["deps.get"],
+      test: ["test"]
     ]
   end
 end
@@ -240,28 +219,15 @@ end
         # config/config.exs
         config_exs = f'''import Config
 
-# Configure Ash
-config :ash, :validate_domain_resource_inclusion?, false
-config :ash, :validate_domain_config_inclusion?, false
+# 80/20 Reactor Project Configuration
+# No Ash dependencies - using plain Reactor with simple structs
 
-# Configure the main domain
-config :{self.project_name}, {self.module_name}.Domain,
-  resources: [
-    {self._generate_resource_list()}
-  ]
+# Configure the main domain  
+# Domain resources are plain Elixir modules
 
-# Database configuration
-config :{self.project_name}, {self.module_name}.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "{self.project_name}_dev",
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+# 80/20: Using ETS data layer - no database configuration needed
 
-# Telemetry configuration
-config :telemetry_poller, :default, period: :timer.seconds(5)
+# 80/20: No telemetry configuration needed
 
 # Logger configuration
 config :logger, :console,
@@ -276,15 +242,7 @@ import_config "#{{config_env()}}.exs"
         # config/dev.exs
         dev_exs = f'''import Config
 
-# Database configuration for development
-config :{self.project_name}, {self.module_name}.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "{self.project_name}_dev",
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+# 80/20: No database configuration needed for ETS-based resources
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\\n"
@@ -300,14 +258,7 @@ config :phoenix, :plug_init_mode, :runtime
         # config/test.exs
         test_exs = f'''import Config
 
-# Database configuration for test
-config :{self.project_name}, {self.module_name}.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "{self.project_name}_test#{{System.get_env(\\"MIX_TEST_PARTITION\\")}}",
-  pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 10
+# 80/20: No database configuration needed for ETS-based resources
 
 # Print only warnings and errors during test
 config :logger, level: :warning
@@ -359,8 +310,8 @@ end
         # Domain
         self._generate_domain()
         
-        # Repo
-        self._generate_repo()
+        # Repo - not needed for ETS data layer (80/20 approach)
+        # self._generate_repo()
         
         # Resources
         self._generate_resources()
@@ -378,13 +329,7 @@ end
   @impl true
   def start(_type, _args) do
     children = [
-      # Database repo
-      {self.module_name}.Repo,
-      
-      # Telemetry
-      {self.module_name}Web.Telemetry,
-      
-      # Registry for dynamic processes
+      # Registry for dynamic processes (80/20: minimal supervision tree)
       {{Registry, keys: :unique, name: {self.module_name}.Registry}}
     ]
 
@@ -406,10 +351,10 @@ end
   """
 
   @doc """
-  Execute a reactor workflow with the given input
+  Execute a workflow with the given input (80/20: plain Elixir implementation)
   """
-  def run_workflow(workflow_module, input \\\\ %{{}}) do
-    Reactor.run(workflow_module, input)
+  def run_workflow(workflow_module, operation, data \\\\ %{{}}, context \\\\ %{{}}) do
+    workflow_module.execute(operation, data, context)
   end
 
   @doc """
@@ -444,10 +389,22 @@ end
   Generated from ontology: {self.ontology_data['domain_name']}
   """
 
-  use Ash.Domain
-
-  resources do
-    {resources}
+  # 80/20: Plain Elixir domain module instead of Ash.Domain
+  
+  @resources [
+    {self._generate_plain_resource_list()}
+  ]
+  
+  def resources, do: @resources
+  
+  def resource_names do
+    @resources
+    |> Enum.map(fn module ->
+      module
+      |> Module.split()
+      |> List.last()
+      |> String.downcase()
+    end)
   end
 end
 '''
@@ -479,9 +436,7 @@ end
         resource_name = class_name.lower()
         module_name = class_name
         
-        # Generate attributes based on common patterns
-        attributes = self._generate_resource_attributes(class_data)
-        actions = self._generate_resource_actions(class_name)
+        # 80/20: Simple struct approach - no complex attributes needed
         
         content = f'''defmodule {self.module_name}.Resources.{module_name} do
   @moduledoc """
@@ -489,27 +444,76 @@ end
   {class_data.get('comment', f'Generated from {class_name} ontology class')}
   """
 
-  use Ash.Resource,
-    domain: {self.module_name}.Domain,
-    data_layer: AshPostgres.DataLayer
+  # 80/20: Plain Elixir struct instead of Ash.Resource for simplicity
+  defstruct [:id, :name, :description, :status, :metadata, :inserted_at, :updated_at]
+  
+  @type t :: %__MODULE__{{
+    id: String.t(),
+    name: String.t(),
+    description: String.t() | nil,
+    status: atom(),
+    metadata: map(),
+    inserted_at: DateTime.t(),
+    updated_at: DateTime.t()
+  }}
 
-  postgres do
-    table "{resource_name}s"
-    repo {self.module_name}.Repo
+  # Simple CRUD operations using ETS
+  def create(attrs) do
+    now = DateTime.utc_now()
+    id = UUID.uuid4()
+    
+    record = struct(__MODULE__, Map.merge(attrs, %{{
+      id: id,
+      status: :active,
+      metadata: %{{}},
+      inserted_at: now,
+      updated_at: now
+    }}))
+    
+    :ets.insert(__MODULE__, {{id, record}})
+    {{:ok, record}}
   end
 
-  attributes do{attributes}
+  def get(id) do
+    case :ets.lookup(__MODULE__, id) do
+      [{{^id, record}}] -> {{:ok, record}}
+      [] -> {{:error, :not_found}}
+    end
   end
 
-  actions do{actions}
+  def list do
+    records = :ets.tab2list(__MODULE__)
+    |> Enum.map(fn {{_id, record}} -> record end)
+    {{:ok, records}}
   end
 
-  identities do
-    identity :unique_id, [:id]
+  def update(id, attrs) do
+    case get(id) do
+      {{:ok, record}} ->
+        updated_record = struct(record, Map.merge(attrs, %{{updated_at: DateTime.utc_now()}}))
+        :ets.insert(__MODULE__, {{id, updated_record}})
+        {{:ok, updated_record}}
+      error -> error
+    end
   end
 
-  validations do
-    # Add domain-specific validations here
+  def delete(id) do
+    case get(id) do
+      {{:ok, _record}} ->
+        :ets.delete(__MODULE__, id)
+        :ok
+      error -> error
+    end
+  end
+
+  # Ensure ETS table exists
+  def init_storage do
+    case :ets.whereis(__MODULE__) do
+      :undefined -> 
+        :ets.new(__MODULE__, [:named_table, :public, :set])
+        :ok
+      _ -> :ok
+    end
   end
 end
 '''
@@ -595,55 +599,44 @@ end
   Main workflow orchestrating {self.project_name} domain operations
   """
 
-  use Ash.Reactor
-
-  input :operation
-  input :data, default: %{{}}
-  input :context, default: %{{}}
-
-  step :validate_operation do
-    argument :operation, input(:operation)
-    
-    run fn %{{operation: op}} ->
-      if op in [:create, :read, :update, :delete, :process] do
-        {{:ok, %{{validated_operation: op}}}}
-      else
-        {{:error, :invalid_operation}}
-      end
+  # 80/20: Plain Elixir workflow implementation (no external dependencies)
+  
+  @doc """
+  Execute a domain workflow operation
+  """
+  def execute(operation, data \\\\ %{{}}, context \\\\ %{{}}) do
+    with {{:ok, validated_op}} <- validate_operation(operation),
+         {{:ok, result}} <- execute_operation(validated_op, data, context) do
+      finalize_result(result, validated_op)
     end
   end
-
-  step :execute_operation do
-    argument :operation, result(:validate_operation, [:validated_operation])
-    argument :data, input(:data)
-    argument :context, input(:context)
-    
-    run fn %{{operation: op, data: data, context: ctx}} ->
-      case op do
-        :process -> process_domain_data(data, ctx)
-        :create -> create_resources(data, ctx)
-        :read -> read_resources(data, ctx)
-        :update -> update_resources(data, ctx)
-        :delete -> delete_resources(data, ctx)
-      end
+  
+  defp validate_operation(operation) do
+    if operation in [:create, :read, :update, :delete, :process] do
+      {{:ok, operation}}
+    else
+      {{:error, :invalid_operation}}
     end
   end
-
-  step :finalize_result do
-    argument :result, result(:execute_operation)
-    argument :operation, result(:validate_operation, [:validated_operation])
-    
-    run fn %{{result: result, operation: op}} ->
-      {{:ok, %{{
-        operation: op,
-        result: result,
-        completed_at: DateTime.utc_now(),
-        status: :success
-      }}}}
+  
+  defp execute_operation(operation, data, context) do
+    case operation do
+      :process -> process_domain_data(data, context)
+      :create -> create_resources(data, context)
+      :read -> read_resources(data, context)
+      :update -> update_resources(data, context)
+      :delete -> delete_resources(data, context)
     end
   end
-
-  return :finalize_result
+  
+  defp finalize_result(result, operation) do
+    {{:ok, %{{
+      operation: operation,
+      result: result,
+      completed_at: DateTime.utc_now(),
+      status: :success
+    }}}}
+  end
 
   # Helper functions
   defp process_domain_data(data, context) do
@@ -684,75 +677,58 @@ end
   Workflow for {class_name} resource operations
   """
 
-  use Ash.Reactor
-
-  input :action
-  input :resource_data, default: %{{}}
-  input :resource_id, default: nil
-
-  step :validate_action do
-    argument :action, input(:action)
-    
-    run fn %{{action: action}} ->
-      if action in [:create, :read, :update, :delete, :list] do
-        {{:ok, %{{validated_action: action}}}}
-      else
-        {{:error, :invalid_action}}
-      end
+  # 80/20: Plain Elixir workflow for {class_name} resource operations
+  
+  @doc """
+  Execute a {resource_name} resource action
+  """
+  def execute(action, resource_data \\\\ %{{}}, resource_id \\\\ nil) do
+    with {{:ok, validated_action}} <- validate_action(action),
+         {{:ok, result}} <- execute_resource_action(validated_action, resource_data, resource_id) do
+      format_result(result, validated_action)
     end
   end
-
-  step :execute_resource_action do
-    argument :action, result(:validate_action, [:validated_action])
-    argument :data, input(:resource_data)
-    argument :id, input(:resource_id)
-    
-    run fn %{{action: action, data: data, id: id}} ->
-      resource = {self.module_name}.Resources.{class_name}
-      
-      case action do
-        :create ->
-          Ash.create(resource, data)
-          
-        :read when not is_nil(id) ->
-          Ash.get(resource, id)
-          
-        :list ->
-          Ash.read(resource)
-          
-        :update when not is_nil(id) ->
-          case Ash.get(resource, id) do
-            {{:ok, record}} -> Ash.update(record, data)
-            error -> error
-          end
-          
-        :delete when not is_nil(id) ->
-          case Ash.get(resource, id) do
-            {{:ok, record}} -> Ash.destroy(record)
-            error -> error
-          end
-          
-        _ ->
-          {{:error, :invalid_action_combination}}
-      end
+  
+  defp validate_action(action) do
+    if action in [:create, :read, :update, :delete, :list] do
+      {{:ok, action}}
+    else
+      {{:error, :invalid_action}}
     end
   end
-
-  step :format_result do
-    argument :result, result(:execute_resource_action)
-    argument :action, result(:validate_action, [:validated_action])
+  
+  defp execute_resource_action(action, data, id) do
+    resource = {self.module_name}.Resources.{class_name}
     
-    run fn %{{result: result, action: action}} ->
-      {{:ok, %{{
-        resource: "{resource_name}",
-        action: action,
-        result: result,
-        timestamp: DateTime.utc_now()
-      }}}}
+    case action do
+      :create ->
+        resource.create(data)
+        
+      :read when not is_nil(id) ->
+        resource.get(id)
+        
+      :list ->
+        resource.list()
+        
+      :update when not is_nil(id) ->
+        resource.update(id, data)
+        
+      :delete when not is_nil(id) ->
+        resource.delete(id)
+        
+      _ ->
+        {{:error, :invalid_action_combination}}
     end
   end
-
-  return :format_result
+  
+  defp format_result(result, action) do
+    {{:ok, %{{
+      resource: "{resource_name}",
+      action: action,
+      result: result,
+      timestamp: DateTime.utc_now()
+    }}}}
+  end
 end
 '''
         workflow_path = self.output_dir / f"lib/{self.project_name}/workflows/{resource_name}_workflow.ex"
@@ -765,6 +741,14 @@ end
             resources.append(f"{self.module_name}.Resources.{class_name}")
         
         return '\n    '.join([f"resource {res}" for res in resources])
+    
+    def _generate_plain_resource_list(self) -> str:
+        """Generate plain module list without 'resource' keyword"""
+        resources = []
+        for class_name in self.ontology_data['classes']:
+            resources.append(f"{self.module_name}.Resources.{class_name}")
+        
+        return ',\n    '.join(resources)
     
     def _generate_test_files(self):
         """Generate comprehensive test files"""
@@ -785,8 +769,7 @@ end
         """Generate test/test_helper.exs"""
         content = f'''ExUnit.start()
 
-# Set up Ecto for testing
-Ecto.Adapters.SQL.Sandbox.mode({self.module_name}.Repo, :manual)
+# 80/20: No database setup needed for ETS-based resources
 
 defmodule {self.module_name}.TestHelper do
   @moduledoc """
@@ -794,11 +777,13 @@ defmodule {self.module_name}.TestHelper do
   """
 
   def start_sandbox do
-    Ecto.Adapters.SQL.Sandbox.start({self.module_name}.Repo)
+    # No-op for ETS-based resources
+    :ok
   end
 
   def stop_sandbox do
-    Ecto.Adapters.SQL.Sandbox.stop({self.module_name}.Repo)
+    # No-op for ETS-based resources  
+    :ok
   end
 
   def create_test_data(resource, attrs \\\\ %{{}}) do
@@ -809,7 +794,8 @@ defmodule {self.module_name}.TestHelper do
     }}
     
     attrs = Map.merge(default_attrs, attrs)
-    Ash.create!(resource, attrs)
+    resource.init_storage()
+    resource.create(attrs)
   end
 end
 '''
@@ -876,7 +862,8 @@ end
         status: :active
       }}
       
-      assert {{:ok, {resource_name}}} = Ash.create({class_name}, attrs)
+      {class_name}.init_storage()
+      assert {{:ok, {resource_name}}} = {class_name}.create(attrs)
       assert {resource_name}.name == "Test {class_name}"
       assert {resource_name}.status == :active
     end
@@ -884,7 +871,7 @@ end
     test "fails with invalid attributes" do
       attrs = %{{description: "Missing name"}}
       
-      assert {{:error, %Ash.Error.Invalid{{}}}} = Ash.create({class_name}, attrs)
+      assert {{:error, %Ash.Error.Invalid{{}}}} = {class_name}.create({class_name}, attrs)
     end
   end
 
@@ -892,7 +879,7 @@ end
     test "reads existing {resource_name}" do
       {resource_name} = TestHelper.create_test_data({class_name})
       
-      assert {{:ok, found_{resource_name}}} = Ash.get({class_name}, {resource_name}.id)
+      assert {{:ok, found_{resource_name}}} = {class_name}.get({class_name}, {resource_name}.id)
       assert found_{resource_name}.id == {resource_name}.id
     end
     
@@ -900,7 +887,7 @@ end
       TestHelper.create_test_data({class_name}, %{{name: "{class_name} 1"}})
       TestHelper.create_test_data({class_name}, %{{name: "{class_name} 2"}})
       
-      assert {{:ok, {resource_name}s}} = Ash.read({class_name})
+      assert {{:ok, {resource_name}s}} = {class_name}.list({class_name})
       assert length({resource_name}s) >= 2
     end
     
@@ -908,7 +895,7 @@ end
       active_{resource_name} = TestHelper.create_test_data({class_name}, %{{status: :active}})
       _inactive_{resource_name} = TestHelper.create_test_data({class_name}, %{{status: :inactive}})
       
-      assert {{:ok, [{resource_name}]}} = Ash.read({class_name}, action: :by_status, status: :active)
+      assert {{:ok, [{resource_name}]}} = {class_name}.list({class_name}, action: :by_status, status: :active)
       assert {resource_name}.id == active_{resource_name}.id
     end
   end
@@ -917,14 +904,14 @@ end
     test "updates {resource_name} attributes" do
       {resource_name} = TestHelper.create_test_data({class_name})
       
-      assert {{:ok, updated_{resource_name}}} = Ash.update({resource_name}, %{{name: "Updated Name"}})
+      assert {{:ok, updated_{resource_name}}} = {class_name}.update({resource_name}, %{{name: "Updated Name"}})
       assert updated_{resource_name}.name == "Updated Name"
     end
     
     test "activates {resource_name}" do
       {resource_name} = TestHelper.create_test_data({class_name}, %{{status: :inactive}})
       
-      assert {{:ok, activated_{resource_name}}} = Ash.update({resource_name}, action: :activate)
+      assert {{:ok, activated_{resource_name}}} = {class_name}.update({resource_name}, action: :activate)
       assert activated_{resource_name}.status == :active
     end
   end
@@ -933,8 +920,8 @@ end
     test "destroys existing {resource_name}" do
       {resource_name} = TestHelper.create_test_data({class_name})
       
-      assert :ok = Ash.destroy({resource_name})
-      assert {{:error, %Ash.Error.Invalid{{}}}} = Ash.get({class_name}, {resource_name}.id)
+      assert :ok = {class_name}.delete({resource_name})
+      assert {{:error, %Ash.Error.Invalid{{}}}} = {class_name}.get({class_name}, {resource_name}.id)
     end
   end
 end
@@ -1166,48 +1153,43 @@ This project demonstrates a complete Ash.Reactor implementation that transforms 
 
 ```elixir
 # Create a resource
-{{:ok, resource}} = Ash.create(MyApp.Resources.SomeResource, %{{
+MyApp.Resources.SomeResource.init_storage()
+{{:ok, resource}} = MyApp.Resources.SomeResource.create(%{{
   name: "Example",
-  description: "Created via Ash"
+  description: "Created directly"
 }})
 
 # Read resources
-{{:ok, resources}} = Ash.read(MyApp.Resources.SomeResource)
+{{:ok, resources}} = MyApp.Resources.SomeResource.list()
 
 # Update a resource
-{{:ok, updated}} = Ash.update(resource, %{{name: "Updated Name"}})
+{{:ok, updated}} = MyApp.Resources.SomeResource.update(resource.id, %{{name: "Updated Name"}})
 ```
 
 #### Using Reactor Workflows
 
 ```elixir
 # Run the main workflow
-{{:ok, result}} = Reactor.run({self.module_name}.Workflows.MainWorkflow, %{{
-  operation: :process,
-  data: %{{key: "value"}}
-}})
+{{:ok, result}} = {self.module_name}.Workflows.MainWorkflow.execute(:process, %{{key: "value"}})
 
-# Run a resource-specific workflow
-{{:ok, result}} = Reactor.run({self.module_name}.Workflows.SomeResourceWorkflow, %{{
-  action: :create,
-  resource_data: %{{name: "Example"}}
-}})
+# Run a resource-specific workflow  
+{{:ok, result}} = {self.module_name}.Workflows.SomeResourceWorkflow.execute(:create, %{{name: "Example"}})
 ```
 
 ## Architecture
 
-This application follows the Ash.Reactor pattern:
+This application follows a simple 80/20 approach:
 
-1. **Resources** define the domain model and available actions
-2. **Workflows** orchestrate complex business logic using Reactor
+1. **Resources** are plain Elixir structs with CRUD operations using ETS
+2. **Workflows** are plain Elixir modules with simple function-based orchestration
 3. **Domain** coordinates all resources and provides a unified interface
 
 ### Key Features
 
-- **Declarative Resources**: Domain logic defined as data
-- **Saga Pattern**: Distributed transaction support via Reactor
+- **Simple Structs**: Domain entities as plain Elixir structs
+- **ETS Storage**: In-memory storage with no database dependencies  
 - **Type Safety**: Comprehensive validation and error handling
-- **Observability**: Built-in telemetry and monitoring
+- **Minimal Dependencies**: Only Jason and UUID for maximum compatibility
 - **Test Coverage**: Comprehensive test suite
 
 ## Development

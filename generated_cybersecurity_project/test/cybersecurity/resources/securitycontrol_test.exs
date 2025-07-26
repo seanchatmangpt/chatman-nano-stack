@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.SecurityControlTest do
         status: :active
       }
       
-      assert {:ok, securitycontrol} = Ash.create(SecurityControl, attrs)
+      SecurityControl.init_storage()
+      assert {:ok, securitycontrol} = SecurityControl.create(attrs)
       assert securitycontrol.name == "Test SecurityControl"
       assert securitycontrol.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.SecurityControlTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(SecurityControl, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = SecurityControl.create(SecurityControl, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.SecurityControlTest do
     test "reads existing securitycontrol" do
       securitycontrol = TestHelper.create_test_data(SecurityControl)
       
-      assert {:ok, found_securitycontrol} = Ash.get(SecurityControl, securitycontrol.id)
+      assert {:ok, found_securitycontrol} = SecurityControl.get(SecurityControl, securitycontrol.id)
       assert found_securitycontrol.id == securitycontrol.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.SecurityControlTest do
       TestHelper.create_test_data(SecurityControl, %{name: "SecurityControl 1"})
       TestHelper.create_test_data(SecurityControl, %{name: "SecurityControl 2"})
       
-      assert {:ok, securitycontrols} = Ash.read(SecurityControl)
+      assert {:ok, securitycontrols} = SecurityControl.list(SecurityControl)
       assert length(securitycontrols) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.SecurityControlTest do
       active_securitycontrol = TestHelper.create_test_data(SecurityControl, %{status: :active})
       _inactive_securitycontrol = TestHelper.create_test_data(SecurityControl, %{status: :inactive})
       
-      assert {:ok, [securitycontrol]} = Ash.read(SecurityControl, action: :by_status, status: :active)
+      assert {:ok, [securitycontrol]} = SecurityControl.list(SecurityControl, action: :by_status, status: :active)
       assert securitycontrol.id == active_securitycontrol.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.SecurityControlTest do
     test "updates securitycontrol attributes" do
       securitycontrol = TestHelper.create_test_data(SecurityControl)
       
-      assert {:ok, updated_securitycontrol} = Ash.update(securitycontrol, %{name: "Updated Name"})
+      assert {:ok, updated_securitycontrol} = SecurityControl.update(securitycontrol, %{name: "Updated Name"})
       assert updated_securitycontrol.name == "Updated Name"
     end
     
     test "activates securitycontrol" do
       securitycontrol = TestHelper.create_test_data(SecurityControl, %{status: :inactive})
       
-      assert {:ok, activated_securitycontrol} = Ash.update(securitycontrol, action: :activate)
+      assert {:ok, activated_securitycontrol} = SecurityControl.update(securitycontrol, action: :activate)
       assert activated_securitycontrol.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.SecurityControlTest do
     test "destroys existing securitycontrol" do
       securitycontrol = TestHelper.create_test_data(SecurityControl)
       
-      assert :ok = Ash.destroy(securitycontrol)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(SecurityControl, securitycontrol.id)
+      assert :ok = SecurityControl.delete(securitycontrol)
+      assert {:error, %Ash.Error.Invalid{}} = SecurityControl.get(SecurityControl, securitycontrol.id)
     end
   end
 end

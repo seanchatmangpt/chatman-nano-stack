@@ -17,7 +17,8 @@ defmodule Cybersecurity.Resources.XSSTest do
         status: :active
       }
       
-      assert {:ok, xss} = Ash.create(XSS, attrs)
+      XSS.init_storage()
+      assert {:ok, xss} = XSS.create(attrs)
       assert xss.name == "Test XSS"
       assert xss.status == :active
     end
@@ -25,7 +26,7 @@ defmodule Cybersecurity.Resources.XSSTest do
     test "fails with invalid attributes" do
       attrs = %{description: "Missing name"}
       
-      assert {:error, %Ash.Error.Invalid{}} = Ash.create(XSS, attrs)
+      assert {:error, %Ash.Error.Invalid{}} = XSS.create(XSS, attrs)
     end
   end
 
@@ -33,7 +34,7 @@ defmodule Cybersecurity.Resources.XSSTest do
     test "reads existing xss" do
       xss = TestHelper.create_test_data(XSS)
       
-      assert {:ok, found_xss} = Ash.get(XSS, xss.id)
+      assert {:ok, found_xss} = XSS.get(XSS, xss.id)
       assert found_xss.id == xss.id
     end
     
@@ -41,7 +42,7 @@ defmodule Cybersecurity.Resources.XSSTest do
       TestHelper.create_test_data(XSS, %{name: "XSS 1"})
       TestHelper.create_test_data(XSS, %{name: "XSS 2"})
       
-      assert {:ok, xsss} = Ash.read(XSS)
+      assert {:ok, xsss} = XSS.list(XSS)
       assert length(xsss) >= 2
     end
     
@@ -49,7 +50,7 @@ defmodule Cybersecurity.Resources.XSSTest do
       active_xss = TestHelper.create_test_data(XSS, %{status: :active})
       _inactive_xss = TestHelper.create_test_data(XSS, %{status: :inactive})
       
-      assert {:ok, [xss]} = Ash.read(XSS, action: :by_status, status: :active)
+      assert {:ok, [xss]} = XSS.list(XSS, action: :by_status, status: :active)
       assert xss.id == active_xss.id
     end
   end
@@ -58,14 +59,14 @@ defmodule Cybersecurity.Resources.XSSTest do
     test "updates xss attributes" do
       xss = TestHelper.create_test_data(XSS)
       
-      assert {:ok, updated_xss} = Ash.update(xss, %{name: "Updated Name"})
+      assert {:ok, updated_xss} = XSS.update(xss, %{name: "Updated Name"})
       assert updated_xss.name == "Updated Name"
     end
     
     test "activates xss" do
       xss = TestHelper.create_test_data(XSS, %{status: :inactive})
       
-      assert {:ok, activated_xss} = Ash.update(xss, action: :activate)
+      assert {:ok, activated_xss} = XSS.update(xss, action: :activate)
       assert activated_xss.status == :active
     end
   end
@@ -74,8 +75,8 @@ defmodule Cybersecurity.Resources.XSSTest do
     test "destroys existing xss" do
       xss = TestHelper.create_test_data(XSS)
       
-      assert :ok = Ash.destroy(xss)
-      assert {:error, %Ash.Error.Invalid{}} = Ash.get(XSS, xss.id)
+      assert :ok = XSS.delete(xss)
+      assert {:error, %Ash.Error.Invalid{}} = XSS.get(XSS, xss.id)
     end
   end
 end
