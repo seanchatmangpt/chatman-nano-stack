@@ -1,0 +1,213 @@
+---
+# Ash.Reactor 80/20 Kubernetes Deployment
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ash-reactor-80-20
+  labels:
+    app: ash-reactor
+    approach: "80-20"
+    pod-security.kubernetes.io/enforce: baseline
+---
+# ConfigMap for application configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ash-reactor-config
+  namespace: ash-reactor-80-20
+data:
+  # Core configuration
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.opentelemetry:4317"
+  OTEL_SERVICE_NAME: "ash-reactor-80-20"
+  LOG_LEVEL: "info"
+  
+  # Ash.Reactor specific
+  TTL_PROCESSING_ENABLED: "true"
+  REACTOR_MAX_CONCURRENCY: "10"
+  REACTOR_TIMEOUT_MS: "5000"
+  
+  # Performance tuning
+  ETS_MAX_TABLES: "1000"
+  BEAM_SCHEDULER_BIND: "true"
+---
+# Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ash-reactor
+  namespace: ash-reactor-80-20
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ash-reactor
+  namespace: ash-reactor-80-20
+  labels:
+    app: ash-reactor
+    version: "0.1.0"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ash-reactor
+  template:
+    metadata:
+      labels:
+        app: ash-reactor
+        version: "0.1.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: ash-reactor
+      containers:
+      - name: ash-reactor
+        image: ash-reactor-80-20:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 4000
+          name: http
+          protocol: TCP
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: ash-reactor-config
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 4000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ash-reactor
+  namespace: ash-reactor-80-20
+  labels:
+    app: ash-reactor
+spec:
+  type: ClusterIP
+  selector:
+    app: ash-reactor
+  ports:
+  - name: http
+    port: 80
+    targetPort: 4000
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+---
+# HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ash-reactor
+  namespace: ash-reactor-80-20
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ash-reactor
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+# NetworkPolicy for security
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ash-reactor-network-policy
+  namespace: ash-reactor-80-20
+spec:
+  podSelector:
+    matchLabels:
+      app: ash-reactor
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow from ingress controller
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 4000
+  # Allow from Prometheus
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: prometheus
+    ports:
+    - protocol: TCP
+      port: 9090
+  egress:
+  # Allow to OpenTelemetry collector
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: opentelemetry
+    ports:
+    - protocol: TCP
+      port: 4317
+  # Allow DNS
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: UDP
+      port: 53

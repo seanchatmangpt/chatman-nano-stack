@@ -1,0 +1,147 @@
+---
+# OpenTelemetry Collector for Ash.Reactor
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: opentelemetry
+  labels:
+    name: opentelemetry
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  namespace: opentelemetry
+data:
+  otel-collector-config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+    
+    processors:
+      batch:
+        timeout: 1s
+        send_batch_size: 1024
+      
+      attributes:
+        actions:
+          - key: service.namespace
+            value: ash-reactor
+            action: upsert
+          - key: deployment.environment
+            value: production
+            action: upsert
+    
+    exporters:
+      logging:
+        loglevel: info
+      
+      prometheus:
+        endpoint: "0.0.0.0:8889"
+        namespace: ash_reactor
+        const_labels:
+          environment: production
+      
+      # Add your preferred backend here (Jaeger, Zipkin, etc)
+      # jaeger:
+      #   endpoint: jaeger-collector:14250
+      #   tls:
+      #     insecure: true
+    
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133
+      pprof:
+        endpoint: 0.0.0.0:1777
+      zpages:
+        endpoint: 0.0.0.0:55679
+    
+    service:
+      extensions: [health_check, pprof, zpages]
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [batch, attributes]
+          exporters: [logging]
+        metrics:
+          receivers: [otlp]
+          processors: [batch, attributes]
+          exporters: [logging, prometheus]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  namespace: opentelemetry
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      containers:
+      - name: otel-collector
+        image: otel/opentelemetry-collector-contrib:0.91.0
+        ports:
+        - containerPort: 4317  # OTLP gRPC
+          name: otlp-grpc
+        - containerPort: 4318  # OTLP HTTP
+          name: otlp-http
+        - containerPort: 8889  # Prometheus metrics
+          name: prometheus
+        - containerPort: 13133 # Health check
+          name: health
+        volumeMounts:
+        - name: config
+          mountPath: /etc/otelcol-contrib/config.yaml
+          subPath: otel-collector-config.yaml
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 13133
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 13133
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: otel-collector-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: opentelemetry
+spec:
+  selector:
+    app: otel-collector
+  ports:
+  - name: otlp-grpc
+    port: 4317
+    targetPort: 4317
+  - name: otlp-http
+    port: 4318
+    targetPort: 4318
+  - name: prometheus
+    port: 8889
+    targetPort: 8889
