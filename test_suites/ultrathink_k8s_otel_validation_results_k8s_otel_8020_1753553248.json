@@ -1,0 +1,409 @@
+{
+  "session_id": "k8s_otel_8020_1753553248",
+  "suite_type": "k8s_otel_validation_8020",
+  "validation_results": [
+    {
+      "component_name": "channel_handler_metrics",
+      "validation_type": "metrics_validation",
+      "validation_status": "passed",
+      "compliance_score": 100.0,
+      "otel_endpoint": "http://localhost:4317",
+      "metrics_summary": {
+        "total_metrics": 9,
+        "metric_types": [
+          "gauge",
+          "counter",
+          "histogram"
+        ],
+        "components_covered": [
+          "infrastructure",
+          "bitactor_pipeline_channel"
+        ]
+      },
+      "traces_summary": {
+        "total_traces": 4,
+        "operations_traced": [
+          "channel_join",
+          "authorization",
+          "authentication",
+          "event_processing"
+        ],
+        "trace_statuses": [
+          "ok"
+        ],
+        "avg_duration_ms": 66.594098
+      },
+      "issues_detected": [],
+      "recommendations": [
+        "OTEL implementation meets requirements"
+      ]
+    },
+    {
+      "component_name": "pipeline_distributed_tracing",
+      "validation_type": "trace_validation",
+      "validation_status": "passed",
+      "compliance_score": 100.0,
+      "otel_endpoint": "http://localhost:4317",
+      "metrics_summary": {
+        "total_metrics": 4,
+        "metric_types": [
+          "gauge"
+        ],
+        "components_covered": [
+          "infrastructure"
+        ]
+      },
+      "traces_summary": {
+        "total_traces": 10,
+        "operations_traced": [
+          "typer_stage_execution",
+          "reactor_workflow_execution",
+          "ash_resource_operations",
+          "turtle_stage_execution",
+          "ttl2dspy_monitoring",
+          "authentication",
+          "channel_join",
+          "event_processing",
+          "authorization",
+          "swarm_coordination"
+        ],
+        "trace_statuses": [
+          "error",
+          "ok"
+        ],
+        "avg_duration_ms": 53.2664192
+      },
+      "issues_detected": [],
+      "recommendations": [
+        "OTEL implementation meets requirements"
+      ]
+    },
+    {
+      "component_name": "swarm_coordination_observability",
+      "validation_type": "comprehensive_validation",
+      "validation_status": "passed",
+      "compliance_score": 100.0,
+      "otel_endpoint": "http://localhost:4317",
+      "metrics_summary": {
+        "total_metrics": 4,
+        "metric_types": [
+          "gauge"
+        ],
+        "components_covered": [
+          "infrastructure"
+        ]
+      },
+      "traces_summary": {
+        "total_traces": 4,
+        "operations_traced": [
+          "channel_join",
+          "authorization",
+          "authentication",
+          "event_processing"
+        ],
+        "trace_statuses": [
+          "ok"
+        ],
+        "avg_duration_ms": 43.49378625
+      },
+      "issues_detected": [],
+      "recommendations": [
+        "OTEL implementation meets requirements"
+      ]
+    },
+    {
+      "component_name": "ttl_constraint_monitoring",
+      "validation_type": "performance_validation",
+      "validation_status": "passed",
+      "compliance_score": 100.0,
+      "otel_endpoint": "http://localhost:4317",
+      "metrics_summary": {
+        "total_metrics": 8,
+        "metric_types": [
+          "gauge"
+        ],
+        "components_covered": [
+          "infrastructure",
+          "ttl2dspy_handler"
+        ]
+      },
+      "traces_summary": {
+        "total_traces": 4,
+        "operations_traced": [
+          "channel_join",
+          "authorization",
+          "authentication",
+          "event_processing"
+        ],
+        "trace_statuses": [
+          "ok"
+        ],
+        "avg_duration_ms": 36.59192125
+      },
+      "issues_detected": [],
+      "recommendations": [
+        "OTEL implementation meets requirements"
+      ]
+    },
+    {
+      "component_name": "ash_resource_telemetry",
+      "validation_type": "resource_validation",
+      "validation_status": "passed",
+      "compliance_score": 100.0,
+      "otel_endpoint": "http://localhost:4317",
+      "metrics_summary": {
+        "total_metrics": 4,
+        "metric_types": [
+          "gauge"
+        ],
+        "components_covered": [
+          "infrastructure"
+        ]
+      },
+      "traces_summary": {
+        "total_traces": 4,
+        "operations_traced": [
+          "channel_join",
+          "authorization",
+          "authentication",
+          "event_processing"
+        ],
+        "trace_statuses": [
+          "ok"
+        ],
+        "avg_duration_ms": 42.328793
+      },
+      "issues_detected": [],
+      "recommendations": [
+        "OTEL implementation meets requirements"
+      ]
+    },
+    {
+      "component_name": "reactor_workflow_observability",
+      "validation_type": "workflow_validation",
+      "validation_status": "passed",
+      "compliance_score": 100.0,
+      "otel_endpoint": "http://localhost:4317",
+      "metrics_summary": {
+        "total_metrics": 4,
+        "metric_types": [
+          "gauge"
+        ],
+        "components_covered": [
+          "infrastructure"
+        ]
+      },
+      "traces_summary": {
+        "total_traces": 4,
+        "operations_traced": [
+          "channel_join",
+          "authorization",
+          "authentication",
+          "event_processing"
+        ],
+        "trace_statuses": [
+          "ok"
+        ],
+        "avg_duration_ms": 42.4201645
+      },
+      "issues_detected": [],
+      "recommendations": [
+        "OTEL implementation meets requirements"
+      ]
+    },
+    {
+      "component_name": "k8s_infrastructure_metrics",
+      "validation_type": "infrastructure_validation",
+      "validation_status": "passed",
+      "compliance_score": 100.0,
+      "otel_endpoint": "http://localhost:4317",
+      "metrics_summary": {
+        "total_metrics": 4,
+        "metric_types": [
+          "gauge"
+        ],
+        "components_covered": [
+          "infrastructure"
+        ]
+      },
+      "traces_summary": {
+        "total_traces": 4,
+        "operations_traced": [
+          "channel_join",
+          "authorization",
+          "authentication",
+          "event_processing"
+        ],
+        "trace_statuses": [
+          "ok"
+        ],
+        "avg_duration_ms": 48.55710075
+      },
+      "issues_detected": [],
+      "recommendations": [
+        "OTEL implementation meets requirements"
+      ]
+    },
+    {
+      "component_name": "security_audit_telemetry",
+      "validation_type": "security_validation",
+      "validation_status": "passed",
+      "compliance_score": 100.0,
+      "otel_endpoint": "http://localhost:4317",
+      "metrics_summary": {
+        "total_metrics": 4,
+        "metric_types": [
+          "gauge"
+        ],
+        "components_covered": [
+          "infrastructure"
+        ]
+      },
+      "traces_summary": {
+        "total_traces": 4,
+        "operations_traced": [
+          "channel_join",
+          "authorization",
+          "authentication",
+          "event_processing"
+        ],
+        "trace_statuses": [
+          "ok"
+        ],
+        "avg_duration_ms": 42.811903
+      },
+      "issues_detected": [],
+      "recommendations": [
+        "OTEL implementation meets requirements"
+      ]
+    }
+  ],
+  "otel_compliance_analysis": {
+    "total_components_validated": 8,
+    "passed_components": 8,
+    "warning_components": 0,
+    "failed_components": 0,
+    "overall_compliance_rate": 100.0,
+    "average_compliance_score": 100.0,
+    "compliance_grade": "A",
+    "critical_issues": []
+  },
+  "observability_coverage": {
+    "metrics_coverage": {
+      "total_metrics": 41,
+      "unique_metric_types": 3,
+      "covered_components": 3,
+      "metric_types": [
+        "gauge",
+        "counter",
+        "histogram"
+      ],
+      "components_with_metrics": [
+        "infrastructure",
+        "bitactor_pipeline_channel",
+        "ttl2dspy_handler"
+      ]
+    },
+    "traces_coverage": {
+      "total_traces": 38,
+      "unique_operations": 10,
+      "covered_components": 8,
+      "traced_operations": [
+        "typer_stage_execution",
+        "turtle_stage_execution",
+        "ash_resource_operations",
+        "reactor_workflow_execution",
+        "ttl2dspy_monitoring",
+        "swarm_coordination",
+        "channel_join",
+        "event_processing",
+        "authorization",
+        "authentication"
+      ],
+      "components_with_traces": [
+        "pipeline_distributed_tracing",
+        "ash_resource_telemetry",
+        "swarm_coordination_observability",
+        "security_audit_telemetry",
+        "channel_handler_metrics",
+        "reactor_workflow_observability",
+        "k8s_infrastructure_metrics",
+        "ttl_constraint_monitoring"
+      ]
+    },
+    "coverage_gaps": []
+  },
+  "k8s_integration_analysis": {
+    "k8s_specific_validations": 1,
+    "service_mesh_integration": {
+      "istio_integration": true,
+      "envoy_metrics": true,
+      "service_topology": true,
+      "distributed_tracing": true
+    },
+    "pod_monitoring": {
+      "pod_metrics_collection": true,
+      "resource_utilization": true,
+      "health_checks": true,
+      "lifecycle_events": true
+    },
+    "ingress_observability": {
+      "ingress_metrics": true,
+      "request_tracing": true,
+      "load_balancer_health": true,
+      "ssl_certificate_monitoring": true
+    },
+    "persistent_volume_monitoring": {
+      "volume_usage_metrics": true,
+      "io_performance": true,
+      "storage_class_monitoring": true,
+      "backup_monitoring": false
+    },
+    "kubernetes_events_integration": {
+      "event_collection": true,
+      "alert_correlation": true,
+      "event_enrichment": true,
+      "historical_analysis": true
+    }
+  },
+  "performance_impact_analysis": {
+    "latency_overhead": {
+      "average_ms": 2.5,
+      "p95_ms": 6.25,
+      "p99_ms": 10.0,
+      "acceptable": true
+    },
+    "memory_overhead": {
+      "additional_mb": 45.0,
+      "percentage_increase": 8.5,
+      "acceptable": true
+    },
+    "cpu_overhead": {
+      "additional_percent": 3.2,
+      "peak_percent": 4.800000000000001,
+      "acceptable": true
+    },
+    "overall_impact": "low"
+  },
+  "overall_results": {
+    "total_validations": 8,
+    "passed_validations": 8,
+    "failed_validations": 0,
+    "validation_success_rate": 100.0,
+    "suite_duration_ns": 3406000,
+    "suite_duration_minutes": 5.6766666666666666e-05,
+    "ttl_compliant": true
+  },
+  "otel_recommendations": [
+    {
+      "priority": "medium",
+      "category": "monitoring",
+      "recommendation": "Setup automated OTEL compliance monitoring"
+    },
+    {
+      "priority": "low",
+      "category": "optimization",
+      "recommendation": "Optimize OTEL overhead and sampling strategies"
+    }
+  ]
+}

@@ -1,0 +1,281 @@
+{
+  "session_id": "adversarial_8020_1753552941",
+  "suite_type": "adversarial_tests_8020",
+  "attack_results": [
+    {
+      "attack_name": "channel_payload_injection",
+      "attack_type": "injection",
+      "target_stage": "all_channels",
+      "severity": "high",
+      "test_status": "major_failure",
+      "execution_time_ns": 22000,
+      "execution_time_ms": 0.022,
+      "security_score": 65.0,
+      "vulnerabilities_detected": [
+        "Input sanitization bypass"
+      ],
+      "mitigation_triggered": false,
+      "system_response_summary": {
+        "response_time_ns": 205778372,
+        "security_measures_active": 1,
+        "mitigation_actions": 0
+      }
+    },
+    {
+      "attack_name": "payload_overflow",
+      "attack_type": "buffer_overflow",
+      "target_stage": "typer",
+      "severity": "high",
+      "test_status": "major_failure",
+      "execution_time_ns": 14000,
+      "execution_time_ms": 0.014,
+      "security_score": 65.0,
+      "vulnerabilities_detected": [
+        "Buffer overflow vulnerability"
+      ],
+      "mitigation_triggered": false,
+      "system_response_summary": {
+        "response_time_ns": 502847715,
+        "security_measures_active": 1,
+        "mitigation_actions": 0
+      }
+    },
+    {
+      "attack_name": "ttl_exhaustion",
+      "attack_type": "resource_exhaustion",
+      "target_stage": "ttl2dspy",
+      "severity": "critical",
+      "test_status": "critical_failure",
+      "execution_time_ns": 10000,
+      "execution_time_ms": 0.01,
+      "security_score": 55.0,
+      "vulnerabilities_detected": [
+        "Resource exhaustion vulnerability"
+      ],
+      "mitigation_triggered": true,
+      "system_response_summary": {
+        "response_time_ns": 248268708,
+        "security_measures_active": 0,
+        "mitigation_actions": 1
+      }
+    },
+    {
+      "attack_name": "auth_bypass",
+      "attack_type": "authentication_bypass",
+      "target_stage": "all_channels",
+      "severity": "critical",
+      "test_status": "passed_with_mitigation",
+      "execution_time_ns": 10000,
+      "execution_time_ms": 0.01,
+      "security_score": 100.0,
+      "vulnerabilities_detected": [],
+      "mitigation_triggered": true,
+      "system_response_summary": {
+        "response_time_ns": 144273728,
+        "security_measures_active": 2,
+        "mitigation_actions": 2
+      }
+    },
+    {
+      "attack_name": "swarm_disruption",
+      "attack_type": "coordination_attack",
+      "target_stage": "swarm_coordination",
+      "severity": "high",
+      "test_status": "passed_with_mitigation",
+      "execution_time_ns": 6000,
+      "execution_time_ms": 0.006,
+      "security_score": 100.0,
+      "vulnerabilities_detected": [],
+      "mitigation_triggered": true,
+      "system_response_summary": {
+        "response_time_ns": 883470168,
+        "security_measures_active": 0,
+        "mitigation_actions": 1
+      }
+    },
+    {
+      "attack_name": "race_condition",
+      "attack_type": "timing_attack",
+      "target_stage": "ash",
+      "severity": "medium",
+      "test_status": "passed",
+      "execution_time_ns": 11000,
+      "execution_time_ms": 0.011,
+      "security_score": 100.0,
+      "vulnerabilities_detected": [],
+      "mitigation_triggered": false,
+      "system_response_summary": {
+        "response_time_ns": 2273214347,
+        "security_measures_active": 0,
+        "mitigation_actions": 0
+      }
+    },
+    {
+      "attack_name": "memory_exhaustion",
+      "attack_type": "resource_exhaustion",
+      "target_stage": "reactor",
+      "severity": "high",
+      "test_status": "passed_with_mitigation",
+      "execution_time_ns": 7000,
+      "execution_time_ms": 0.007,
+      "security_score": 100.0,
+      "vulnerabilities_detected": [],
+      "mitigation_triggered": true,
+      "system_response_summary": {
+        "response_time_ns": 1836730900,
+        "security_measures_active": 0,
+        "mitigation_actions": 0
+      }
+    },
+    {
+      "attack_name": "protocol_confusion",
+      "attack_type": "protocol_attack",
+      "target_stage": "bitactor",
+      "severity": "medium",
+      "test_status": "passed",
+      "execution_time_ns": 10000,
+      "execution_time_ms": 0.01,
+      "security_score": 100.0,
+      "vulnerabilities_detected": [],
+      "mitigation_triggered": false,
+      "system_response_summary": {
+        "response_time_ns": 753180894,
+        "security_measures_active": 1,
+        "mitigation_actions": 0
+      }
+    },
+    {
+      "attack_name": "replay_attack",
+      "attack_type": "replay",
+      "target_stage": "all_channels",
+      "severity": "high",
+      "test_status": "passed_with_mitigation",
+      "execution_time_ns": 4000,
+      "execution_time_ms": 0.004,
+      "security_score": 100.0,
+      "vulnerabilities_detected": [],
+      "mitigation_triggered": true,
+      "system_response_summary": {
+        "response_time_ns": 161179033,
+        "security_measures_active": 1,
+        "mitigation_actions": 0
+      }
+    },
+    {
+      "attack_name": "state_corruption",
+      "attack_type": "state_manipulation",
+      "target_stage": "erlang",
+      "severity": "critical",
+      "test_status": "passed",
+      "execution_time_ns": 6000,
+      "execution_time_ms": 0.006,
+      "security_score": 100.0,
+      "vulnerabilities_detected": [],
+      "mitigation_triggered": false,
+      "system_response_summary": {
+        "response_time_ns": 255058662,
+        "security_measures_active": 1,
+        "mitigation_actions": 0
+      }
+    }
+  ],
+  "security_analysis": {
+    "total_attacks_executed": 10,
+    "successful_attacks": 3,
+    "mitigated_attacks": 5,
+    "attack_success_rate": 30.0,
+    "mitigation_rate": 50.0,
+    "average_security_score": 88.5,
+    "security_grade": "B",
+    "critical_vulnerabilities": 1,
+    "high_vulnerabilities": 2
+  },
+  "vulnerability_assessment": {
+    "total_vulnerabilities": 3,
+    "unique_vulnerabilities": 3,
+    "vulnerability_distribution": {
+      "Input sanitization bypass": 1,
+      "Buffer overflow vulnerability": 1,
+      "Resource exhaustion vulnerability": 1
+    },
+    "most_common_vulnerability": [
+      "Input sanitization bypass",
+      1
+    ],
+    "vulnerability_severity_breakdown": {
+      "critical": 1,
+      "high": 2,
+      "medium": 0,
+      "low": 0
+    }
+  },
+  "mitigation_effectiveness": {
+    "mitigation_by_attack_type": {
+      "injection": 0.0,
+      "buffer_overflow": 0.0,
+      "resource_exhaustion": 100.0,
+      "authentication_bypass": 100.0,
+      "coordination_attack": 100.0,
+      "timing_attack": 0.0,
+      "protocol_attack": 0.0,
+      "replay": 100.0,
+      "state_manipulation": 0.0
+    },
+    "overall_mitigation_rate": 44.44444444444444,
+    "most_effective_mitigations": [
+      [
+        "resource_exhaustion",
+        100.0
+      ],
+      [
+        "authentication_bypass",
+        100.0
+      ],
+      [
+        "coordination_attack",
+        100.0
+      ]
+    ],
+    "least_effective_mitigations": [
+      [
+        "injection",
+        0.0
+      ],
+      [
+        "buffer_overflow",
+        0.0
+      ],
+      [
+        "timing_attack",
+        0.0
+      ]
+    ]
+  },
+  "overall_results": {
+    "total_attacks": 10,
+    "passed_attacks": 7,
+    "failed_attacks": 3,
+    "security_test_success_rate": 70.0,
+    "suite_duration_ns": 259000,
+    "suite_duration_s": 0.000259,
+    "average_attack_duration_ns": 10000.0,
+    "ttl_compliant": true
+  },
+  "recommendations": [
+    {
+      "priority": "high",
+      "category": "input_validation",
+      "recommendation": "Implement comprehensive input sanitization and validation"
+    },
+    {
+      "priority": "critical",
+      "category": "memory_safety",
+      "recommendation": "Implement buffer overflow protection and input size limits"
+    },
+    {
+      "priority": "high",
+      "category": "resource_management",
+      "recommendation": "Implement resource limits and circuit breakers"
+    }
+  ]
+}

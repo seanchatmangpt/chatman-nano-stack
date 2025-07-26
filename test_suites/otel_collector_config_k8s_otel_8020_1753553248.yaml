@@ -1,0 +1,42 @@
+exporters:
+  jaeger:
+    endpoint: jaeger:14250
+    tls:
+      insecure: true
+  prometheus:
+    endpoint: 0.0.0.0:8889
+processors:
+  batch: {}
+  resource:
+    attributes:
+    - action: upsert
+      key: service.name
+      value: bitactor-pipeline
+    - action: upsert
+      key: service.version
+      value: 1.0.0
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+service:
+  pipelines:
+    metrics:
+      exporters:
+      - prometheus
+      processors:
+      - batch
+      - resource
+      receivers:
+      - otlp
+    traces:
+      exporters:
+      - jaeger
+      processors:
+      - batch
+      - resource
+      receivers:
+      - otlp

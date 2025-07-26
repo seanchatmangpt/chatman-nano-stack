@@ -1,0 +1,6 @@
+# Simplified CLI requirements (no pydantic)
+typer==0.9.0
+rich==13.7.0
+pyyaml==6.0.1
+requests==2.31.0
+click==8.1.7

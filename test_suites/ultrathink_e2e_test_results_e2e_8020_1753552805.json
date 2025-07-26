@@ -1,0 +1,184 @@
+{
+  "session_id": "e2e_8020_1753552805",
+  "suite_type": "e2e_tests_8020",
+  "scenarios": [
+    {
+      "scenario_name": "basic_pipeline_flow",
+      "overall_status": "failed",
+      "total_duration_ns": 4000,
+      "total_duration_ms": 0.004,
+      "stages_completed": 0,
+      "stages_passed": 0,
+      "stages_failed": 0,
+      "data_continuity": false,
+      "ttl_violations": 1,
+      "bottlenecks": [
+        "Scenario execution error: cannot access local variable 'time' where it is not associated with a value"
+      ],
+      "stage_details": []
+    },
+    {
+      "scenario_name": "complex_workflow_e2e",
+      "overall_status": "failed",
+      "total_duration_ns": 2000,
+      "total_duration_ms": 0.002,
+      "stages_completed": 0,
+      "stages_passed": 0,
+      "stages_failed": 0,
+      "data_continuity": false,
+      "ttl_violations": 1,
+      "bottlenecks": [
+        "Scenario execution error: cannot access local variable 'time' where it is not associated with a value"
+      ],
+      "stage_details": []
+    },
+    {
+      "scenario_name": "swarm_coordination_e2e",
+      "overall_status": "failed",
+      "total_duration_ns": 1000,
+      "total_duration_ms": 0.001,
+      "stages_completed": 0,
+      "stages_passed": 0,
+      "stages_failed": 0,
+      "data_continuity": false,
+      "ttl_violations": 1,
+      "bottlenecks": [
+        "Scenario execution error: cannot access local variable 'time' where it is not associated with a value"
+      ],
+      "stage_details": []
+    },
+    {
+      "scenario_name": "high_load_e2e",
+      "overall_status": "failed",
+      "total_duration_ns": 2000,
+      "total_duration_ms": 0.002,
+      "stages_completed": 0,
+      "stages_passed": 0,
+      "stages_failed": 0,
+      "data_continuity": false,
+      "ttl_violations": 1,
+      "bottlenecks": [
+        "Scenario execution error: cannot access local variable 'time' where it is not associated with a value"
+      ],
+      "stage_details": []
+    },
+    {
+      "scenario_name": "error_recovery_e2e",
+      "overall_status": "failed",
+      "total_duration_ns": 1000,
+      "total_duration_ms": 0.001,
+      "stages_completed": 0,
+      "stages_passed": 0,
+      "stages_failed": 0,
+      "data_continuity": false,
+      "ttl_violations": 1,
+      "bottlenecks": [
+        "Scenario execution error: cannot access local variable 'time' where it is not associated with a value"
+      ],
+      "stage_details": []
+    },
+    {
+      "scenario_name": "ttl_constraint_e2e",
+      "overall_status": "failed",
+      "total_duration_ns": 1000,
+      "total_duration_ms": 0.001,
+      "stages_completed": 0,
+      "stages_passed": 0,
+      "stages_failed": 0,
+      "data_continuity": false,
+      "ttl_violations": 1,
+      "bottlenecks": [
+        "Scenario execution error: cannot access local variable 'time' where it is not associated with a value"
+      ],
+      "stage_details": []
+    },
+    {
+      "scenario_name": "cross_stage_communication",
+      "overall_status": "failed",
+      "total_duration_ns": 2000,
+      "total_duration_ms": 0.002,
+      "stages_completed": 0,
+      "stages_passed": 0,
+      "stages_failed": 0,
+      "data_continuity": false,
+      "ttl_violations": 1,
+      "bottlenecks": [
+        "Scenario execution error: cannot access local variable 'time' where it is not associated with a value"
+      ],
+      "stage_details": []
+    },
+    {
+      "scenario_name": "security_e2e",
+      "overall_status": "failed",
+      "total_duration_ns": 1000,
+      "total_duration_ms": 0.001,
+      "stages_completed": 0,
+      "stages_passed": 0,
+      "stages_failed": 0,
+      "data_continuity": false,
+      "ttl_violations": 1,
+      "bottlenecks": [
+        "Scenario execution error: cannot access local variable 'time' where it is not associated with a value"
+      ],
+      "stage_details": []
+    }
+  ],
+  "overall_results": {
+    "total_scenarios": 8,
+    "passed_scenarios": 0,
+    "failed_scenarios": 8,
+    "success_rate": 0.0,
+    "suite_duration_ns": 163000,
+    "suite_duration_s": 0.000163,
+    "average_scenario_duration_ns": 1750.0,
+    "ttl_compliant": true
+  },
+  "pipeline_analysis": {},
+  "bottleneck_analysis": [],
+  "data_continuity_analysis": {
+    "scenarios_with_continuity": 0,
+    "total_scenarios": 8,
+    "continuity_rate": 0.0,
+    "continuity_breaks": [
+      {
+        "scenario": "basic_pipeline_flow",
+        "failed_stages": []
+      },
+      {
+        "scenario": "complex_workflow_e2e",
+        "failed_stages": []
+      },
+      {
+        "scenario": "swarm_coordination_e2e",
+        "failed_stages": []
+      },
+      {
+        "scenario": "high_load_e2e",
+        "failed_stages": []
+      },
+      {
+        "scenario": "error_recovery_e2e",
+        "failed_stages": []
+      },
+      {
+        "scenario": "ttl_constraint_e2e",
+        "failed_stages": []
+      },
+      {
+        "scenario": "cross_stage_communication",
+        "failed_stages": []
+      },
+      {
+        "scenario": "security_e2e",
+        "failed_stages": []
+      }
+    ]
+  },
+  "ttl_compliance_analysis": {
+    "total_ttl_violations": 8,
+    "total_stage_executions": 0,
+    "violation_rate": 0,
+    "compliant_scenarios": 0,
+    "compliance_rate": 0.0
+  }
+}
