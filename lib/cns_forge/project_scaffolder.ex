@@ -55,6 +55,7 @@ defmodule CNSForge.ProjectScaffolder do
          {:ok, _} <- generate_project_files(project_spec),
          {:ok, _} <- generate_ash_reactor_workflows(project_spec),
          {:ok, _} <- generate_tests(project_spec),
+         {:ok, _} <- generate_step_tests(project_spec),
          {:ok, _} <- generate_deployment_config(project_spec),
          {:ok, _} <- generate_documentation(project_spec) do
       
@@ -635,6 +636,29 @@ defmodule CNSForge.ProjectScaffolder do
     {:ok, :workflow_tests}
   end
 
+  defp generate_step_tests(project_spec) do
+    Logger.info("Generating step tests...")
+    
+    steps_test_dir = Path.join([project_spec.output_directory, "test", project_spec.app_name, "steps"])
+    File.mkdir_p!(steps_test_dir)
+    
+    # Collect all steps from all reactors
+    all_steps = project_spec.reactors
+    |> Enum.flat_map(fn reactor -> reactor.steps || [] end)
+    |> Enum.uniq_by(fn step -> step.name end)
+    
+    step_test_files = generate_step_test_files(project_spec, all_steps)
+    
+    Enum.each(step_test_files, fn test_file ->
+      file_path = Path.join(steps_test_dir, test_file.name)
+      File.write!(file_path, test_file.content)
+      Logger.info("Generated step test: #{test_file.name}")
+    end)
+    
+    Logger.info("Generated #{length(step_test_files)} step test files")
+    {:ok, :step_tests}
+  end
+
   defp generate_integration_tests(project_spec) do
     content = TemplateEngine.render_integration_tests(project_spec)
     test_dir = Path.join([project_spec.output_directory, "test", "integration"])
@@ -736,6 +760,22 @@ defmodule CNSForge.ProjectScaffolder do
     steps
     |> Enum.map(&TemplateEngine.render_step(&1, project_spec.module_name))
     |> Enum.join("\n\n      ")
+  end
+
+  defp generate_step_test_files(project_spec, steps) do
+    steps
+    |> Enum.map(fn step ->
+      step_name = step.name || "sample_step"
+      test_file_name = "#{step_name}_step_test.exs"
+      test_content = CNSForge.TemplateEngine.render_step_test(step, project_spec.module_name)
+      
+      %{
+        name: test_file_name,
+        path: "test/#{project_spec.app_name}/steps/#{test_file_name}",
+        content: test_content,
+        type: :step_test
+      }
+    end)
   end
 
   defp generate_secret_key, do: Base.encode64(:crypto.strong_rand_bytes(32))

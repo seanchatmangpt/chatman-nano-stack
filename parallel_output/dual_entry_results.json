@@ -1,0 +1,52 @@
+{
+  "architecture": "dual_entry",
+  "execution_time": 0.701214,
+  "entry_1_result": {
+    "entry": "direct_performance",
+    "path": [
+      "TurtleRDF",
+      "BitActor",
+      "Kubernetes"
+    ],
+    "latency": "< 1ms",
+    "throughput": "1M ops/sec"
+  },
+  "entry_2_result": {
+    "entry": "api_focused",
+    "path": [
+      "TTL2DSPy",
+      "AshResources",
+      "ReactorWorkflows"
+    ],
+    "endpoints": 15,
+    "response_time": "< 100ms"
+  },
+  "converged_output": {
+    "convergence_method": "kubernetes_deployment",
+    "combined_latency": "< 1ms + < 100ms",
+    "combined_features": {
+      "performance": {
+        "entry": "direct_performance",
+        "path": [
+          "TurtleRDF",
+          "BitActor",
+          "Kubernetes"
+        ],
+        "latency": "< 1ms",
+        "throughput": "1M ops/sec"
+      },
+      "api_capabilities": {
+        "entry": "api_focused",
+        "path": [
+          "TTL2DSPy",
+          "AshResources",
+          "ReactorWorkflows"
+        ],
+        "endpoints": 15,
+        "response_time": "< 100ms"
+      }
+    },
+    "deployment_ready": true
+  },
+  "timestamp": "2025-07-25T21:19:54.110753"
+}

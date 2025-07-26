@@ -1,0 +1,36 @@
+{
+  "entry_point": "reactor_first",
+  "starting_requirement": "Complex multi-step business workflows with error handling",
+  "use_case": "Process orchestration, workflow management systems",
+  "workflow_driven_flow": {
+    "step_1": {
+      "action": "Define Reactor workflows and steps",
+      "output": "process_workflows.ex"
+    },
+    "step_2": {
+      "action": "Infer required Ash resources from workflow steps",
+      "output": "workflow_resources.ex"
+    },
+    "step_3": {
+      "action": "Generate semantic model from process flow",
+      "output": "process_ontology.ttl"
+    },
+    "step_4": {
+      "action": "Optimize critical paths with BitActor",
+      "output": "orchestration_system"
+    }
+  },
+  "workflow_metrics": {
+    "workflows_defined": 12,
+    "steps_per_workflow": 8,
+    "error_handlers": 24,
+    "compensation_actions": 15,
+    "success_rate": "99.7%"
+  },
+  "advantages": [
+    "Process-centric design",
+    "Built-in error handling",
+    "Compensation patterns",
+    "Visual workflow modeling"
+  ]
+}

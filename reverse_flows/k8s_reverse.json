@@ -1,0 +1,40 @@
+{
+  "reverse_flow": "k8s_to_semantics",
+  "input": "kubernetes_manifests.yaml",
+  "output": "inferred_domain_ontology.ttl",
+  "reverse_steps": {
+    "step_1": {
+      "action": "Parse K8s resource definitions",
+      "analysis": "Found 15 pods, 8 services, 3 ingress rules",
+      "inferred": "Microservices architecture with API gateway"
+    },
+    "step_2": {
+      "action": "Analyze service dependencies",
+      "analysis": "Service mesh with 12 inter-service calls",
+      "inferred": "Event-driven communication patterns"
+    },
+    "step_3": {
+      "action": "Extract semantic relationships",
+      "analysis": "Pod labels reveal domain structure",
+      "inferred": "Three main domains: Users, Orders, Inventory"
+    },
+    "step_4": {
+      "action": "Generate domain ontology",
+      "analysis": "Create TTL from infrastructure patterns",
+      "inferred": "Complete semantic model with 45 classes"
+    }
+  },
+  "reverse_engineering_metrics": {
+    "containers_analyzed": 15,
+    "services_mapped": 8,
+    "relationships_discovered": 23,
+    "semantic_classes_inferred": 45,
+    "confidence_level": "85%"
+  },
+  "use_cases": [
+    "Legacy system documentation",
+    "Compliance and governance",
+    "System understanding and migration",
+    "Architecture discovery"
+  ]
+}

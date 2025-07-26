@@ -1,0 +1,36 @@
+{
+  "entry_point": "kubernetes_first",
+  "starting_requirement": "Cloud-native deployment on K8s with auto-scaling",
+  "use_case": "Infrastructure-first, cloud-native applications",
+  "infrastructure_driven_flow": {
+    "step_1": {
+      "action": "Define K8s deployment requirements",
+      "output": "k8s_manifests.yaml"
+    },
+    "step_2": {
+      "action": "Infer application architecture from deployment",
+      "output": "app_architecture.json"
+    },
+    "step_3": {
+      "action": "Generate Reactor workflows for container orchestration",
+      "output": "k8s_workflows.ex"
+    },
+    "step_4": {
+      "action": "Create semantic model for cloud resources",
+      "output": "cloud_native_system"
+    }
+  },
+  "infrastructure_metrics": {
+    "pods": 15,
+    "services": 8,
+    "ingress_rules": 5,
+    "auto_scaling_groups": 3,
+    "availability": "99.9%"
+  },
+  "advantages": [
+    "Cloud-native by design",
+    "Auto-scaling built-in",
+    "Infrastructure as code",
+    "Microservices ready"
+  ]
+}

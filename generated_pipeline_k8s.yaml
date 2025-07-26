@@ -1,0 +1,53 @@
+# Kubernetes Deployment Manifests
+# Generated from Ash.Reactor workflows
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ontology-reactor
+  labels:
+    app: ontology-reactor
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ontology-reactor
+  template:
+    metadata:
+      labels:
+        app: ontology-reactor
+    spec:
+      containers:
+      - name: reactor
+        image: ontology-reactor:latest
+        ports:
+        - containerPort: 4000
+        env:
+        - name: REACTOR_NAME
+          value: "CnsForge.TTLMainReactor"
+        - name: BEAM_NODES
+          value: "reactor@node1,reactor@node2,reactor@node3"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ontology-reactor-service
+spec:
+  selector:
+    app: ontology-reactor
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 4000
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: reactor-config
+data:
+  reactor.exs: |
+    # Reactor configuration
+    config :reactor,
+      modules: ["CnsForge.TTLMainReactor"],
+      distributed: true

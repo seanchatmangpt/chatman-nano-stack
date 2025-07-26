@@ -1,0 +1,36 @@
+{
+  "entry_point": "ash_first",
+  "starting_requirement": "GraphQL API with 15 resources, REST endpoints",
+  "use_case": "Rapid API development, domain-driven design",
+  "forward_flow": {
+    "step_1": {
+      "action": "Define Ash resources and domains",
+      "output": "api_resources.ex"
+    },
+    "step_2": {
+      "action": "Generate TTL from Ash schema",
+      "output": "api_derived.ttl"
+    },
+    "step_3": {
+      "action": "Create Reactor workflows for business logic",
+      "output": "business_workflows.ex"
+    },
+    "step_4": {
+      "action": "Optional BitActor optimization for hot paths",
+      "output": "hybrid_api_system"
+    }
+  },
+  "api_metrics": {
+    "endpoints_generated": 45,
+    "graphql_queries": 23,
+    "mutations": 12,
+    "subscriptions": 10,
+    "response_time": "< 50ms"
+  },
+  "advantages": [
+    "Rapid API development",
+    "Domain modeling first",
+    "GraphQL + REST out of box",
+    "Elixir ecosystem benefits"
+  ]
+}

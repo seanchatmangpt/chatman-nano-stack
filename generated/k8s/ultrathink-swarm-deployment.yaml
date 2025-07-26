@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ultrathink-swarm-pipeline
+  labels:
+    app: ultrathink-swarm
+    pipeline: complete
+    version: v1.0.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ultrathink-swarm
+  template:
+    metadata:
+      labels:
+        app: ultrathink-swarm
+        pipeline: complete
+    spec:
+      containers:
+      - name: pipeline-orchestrator
+        image: cns-forge:latest
+        ports:
+        - containerPort: 4000
+        env:
+        - name: PIPELINE_TTL
+          value: "8000"
+        - name: SWARM_ENABLED
+          value: "true"
+        - name: REACTORS_COUNT
+          value: "4"
+        - name: ERLANG_COOKIE
+          value: "ultrathink_swarm"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 4000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ultrathink-swarm-service
+  labels:
+    app: ultrathink-swarm
+spec:
+  selector:
+    app: ultrathink-swarm
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 4000
+    name: http
+  type: LoadBalancer
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ultrathink-swarm-hpa
+  labels:
+    app: ultrathink-swarm
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ultrathink-swarm-pipeline
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ultrathink-swarm-config
+  labels:
+    app: ultrathink-swarm
+data:
+  pipeline_config.yaml: |
+    pipeline:
+      stages:
+        - typer
+        - turtle
+        - ttl2dspy
+        - bitactor
+        - erlang
+        - ash
+        - reactor
+        - k8s
+      ttl_budgets:
+        typer: 500
+        turtle: 300
+        ttl2dspy: 1000
+        bitactor: 2000
+        erlang: 1000
+        ash: 1500
+        reactor: 1000
+        k8s: 700
+      swarm:
+        enabled: true
+        agents_per_stage: 2
+        emergence_threshold: 0.8
+        telemetry_interval: 1000

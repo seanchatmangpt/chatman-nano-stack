@@ -1,0 +1,40 @@
+{
+  "reverse_flow": "ash_to_ttl",
+  "input": "ash_resources.ex",
+  "output": "api_domain_ontology.ttl",
+  "reverse_steps": {
+    "step_1": {
+      "action": "Parse Ash resource definitions",
+      "analysis": "15 resources, 45 attributes, 23 relationships",
+      "inferred": "Rich domain model with complex relationships"
+    },
+    "step_2": {
+      "action": "Extract attribute types and constraints",
+      "analysis": "Type information and validation rules",
+      "inferred": "SHACL shapes for data validation"
+    },
+    "step_3": {
+      "action": "Analyze GraphQL schema generation",
+      "analysis": "Query and mutation patterns",
+      "inferred": "API usage patterns and access control"
+    },
+    "step_4": {
+      "action": "Generate comprehensive TTL",
+      "analysis": "Include OWL classes and properties",
+      "inferred": "W3C compliant domain ontology"
+    }
+  },
+  "api_analysis": {
+    "graphql_queries": 34,
+    "rest_endpoints": 67,
+    "mutations": 23,
+    "subscriptions": 12,
+    "semantic_accuracy": "94%"
+  },
+  "benefits": [
+    "API documentation from code",
+    "Schema evolution tracking",
+    "Interoperability with semantic web",
+    "Automated API testing"
+  ]
+}

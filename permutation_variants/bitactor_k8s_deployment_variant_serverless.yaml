@@ -1,0 +1,762 @@
+# BitActor Kubernetes Deployment Variant: Serverless/Knative
+# This variant explores serverless patterns with:
+# - Knative Serving for auto-scaling BitActors
+# - Event-driven architecture with Knative Eventing
+# - Function-as-a-Service TTL enforcement
+# - Cold start optimization for TTL constraints
+# - Event-sourced scaling decisions
+# - Cost-optimized resource allocation
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bitactor-serverless
+  labels:
+    app: bitactor
+    deployment-variant: serverless
+    ttl-enforcement: nanosecond
+---
+# BitActor Serverless Function ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bitactor-serverless-config
+  namespace: bitactor-serverless
+data:
+  # Serverless-specific TTL configuration
+  ttl_constraints.yaml: |
+    # Cold start TTL adjustments
+    cold_start_overhead_ms: 50
+    warm_start_overhead_ms: 1
+    
+    # Function execution limits
+    function_timeout_ms: 300000  # 5 minutes max
+    ttl_budget_ms: 8
+    ttl_precision: nanosecond
+    
+    # Auto-scaling TTL considerations
+    scale_to_zero_ttl_threshold_ms: 100
+    scale_up_ttl_budget_multiplier: 1.5
+    
+    # Event-driven scaling
+    enable_event_driven_scaling: true
+    scaling_metric: "ttl_utilization_percent"
+    scale_up_threshold: 80.0
+    scale_down_threshold: 20.0
+    
+  # Knative function configuration
+  knative_config.yaml: |
+    revision_timeout: "300s"
+    container_concurrency: 100
+    min_scale: 0
+    max_scale: 1000
+    scale_to_zero_grace_period: "30s"
+    
+    # TTL-aware scaling annotations
+    autoscaling_class: "kpa.autoscaling.knative.dev"
+    autoscaling_metric: "concurrency"
+    autoscaling_target: 10
+    
+  # Event sourcing configuration
+  eventing_config.yaml: |
+    broker_name: "bitactor-events"
+    trigger_filters:
+      - type: "signal.processed"
+      - type: "ttl.violation"
+      - type: "actor.scaled"
+    
+    event_store:
+      backend: "postgresql"
+      connection_pool_size: 20
+      event_retention_days: 30
+---
+# BitActor Knative Service
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: bitactor-serverless-function
+  namespace: bitactor-serverless
+  annotations:
+    # Auto-scaling configuration
+    autoscaling.knative.dev/class: "kpa.autoscaling.knative.dev"
+    autoscaling.knative.dev/metric: "concurrency"
+    autoscaling.knative.dev/target: "10"
+    autoscaling.knative.dev/minScale: "0"
+    autoscaling.knative.dev/maxScale: "1000"
+    autoscaling.knative.dev/scaleToZeroGracePeriod: "30s"
+    
+    # TTL-specific annotations
+    bitactor.io/ttl-budget-ms: "8"
+    bitactor.io/cold-start-optimization: "enabled"
+    bitactor.io/ttl-precision: "nanosecond"
+spec:
+  template:
+    metadata:
+      annotations:
+        # Container resource optimization for TTL
+        autoscaling.knative.dev/containerConcurrency: "100"
+        run.googleapis.com/cpu-throttling: "false"  # Prevent CPU throttling for TTL precision
+        
+        # Custom metrics for TTL-aware scaling
+        autoscaling.knative.dev/class: "kpa.autoscaling.knative.dev"
+        autoscaling.knative.dev/metric: "rps"  # Requests per second
+    spec:
+      containerConcurrency: 100
+      timeoutSeconds: 300
+      containers:
+      - name: bitactor-function
+        image: gcr.io/bitactor/serverless-function:latest
+        ports:
+        - name: http1
+          containerPort: 8080
+        env:
+        # TTL Configuration
+        - name: TTL_BUDGET_MS
+          value: "8"
+        - name: TTL_PRECISION
+          value: "nanosecond"
+        - name: COLD_START_OPTIMIZATION
+          value: "true"
+        
+        # Serverless runtime configuration
+        - name: FUNCTION_RUNTIME
+          value: "knative"
+        - name: CONCURRENCY_LIMIT
+          value: "100"
+        - name: SCALE_TO_ZERO
+          value: "true"
+        
+        # Event sourcing configuration
+        - name: EVENT_STORE_URL
+          value: "postgresql://bitactor-events:5432/events"
+        - name: ENABLE_EVENT_SOURCING
+          value: "true"
+        
+        # Performance optimization
+        - name: ELIXIR_ERL_OPTIONS
+          value: "+K true +A 64 +P 1048576"
+        - name: BEAM_CPU_SCHEDULERS
+          value: "4"
+        
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"  # Allow burst for TTL-critical operations
+        
+        # Startup optimization for cold start reduction
+        startupProbe:
+          httpGet:
+            path: /health/startup
+            port: 8080
+          initialDelaySeconds: 1
+          periodSeconds: 1
+          timeoutSeconds: 1
+          failureThreshold: 10
+        
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 1
+        
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 1
+          periodSeconds: 1
+          timeoutSeconds: 1
+        
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/bitactor
+      
+      volumes:
+      - name: config-volume
+        configMap:
+          name: bitactor-serverless-config
+---
+# Event Store for Serverless BitActor Events
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bitactor-event-store
+  namespace: bitactor-serverless
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: bitactor-event-store
+  template:
+    metadata:
+      labels:
+        app: bitactor-event-store
+    spec:
+      containers:
+      - name: postgresql
+        image: postgres:14
+        env:
+        - name: POSTGRES_DB
+          value: "bitactor_events"
+        - name: POSTGRES_USER
+          value: "bitactor"
+        - name: POSTGRES_PASSWORD
+          value: "serverless-events-password"
+        - name: POSTGRES_SHARED_PRELOAD_LIBRARIES
+          value: "pg_stat_statements"
+        ports:
+        - containerPort: 5432
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: bitactor-event-store-pvc
+---
+# Persistent storage for event store
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bitactor-event-store-pvc
+  namespace: bitactor-serverless
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: fast-ssd
+---
+# Event Store Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitactor-events
+  namespace: bitactor-serverless
+spec:
+  selector:
+    app: bitactor-event-store
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+  type: ClusterIP
+---
+# Knative Eventing Broker for BitActor Events
+apiVersion: eventing.knative.dev/v1
+kind: Broker
+metadata:
+  name: bitactor-events
+  namespace: bitactor-serverless
+  annotations:
+    eventing.knative.dev/broker.class: "MTChannelBasedBroker"
+spec:
+  config:
+    apiVersion: v1
+    kind: ConfigMap
+    name: config-br-default-channel
+    namespace: knative-eventing
+---
+# Event Trigger for Signal Processing Events
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: signal-processed-trigger
+  namespace: bitactor-serverless
+spec:
+  broker: bitactor-events
+  filter:
+    attributes:
+      type: signal.processed
+      source: bitactor.serverless
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: bitactor-metrics-collector
+---
+# Event Trigger for TTL Violations
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: ttl-violation-trigger
+  namespace: bitactor-serverless
+spec:
+  broker: bitactor-events
+  filter:
+    attributes:
+      type: ttl.violation
+      source: bitactor.serverless
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: bitactor-violation-handler
+---
+# Knative Service for Metrics Collection
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: bitactor-metrics-collector
+  namespace: bitactor-serverless
+  annotations:
+    autoscaling.knative.dev/minScale: "1"  # Keep warm for metrics
+    autoscaling.knative.dev/maxScale: "5"
+spec:
+  template:
+    spec:
+      containers:
+      - name: metrics-collector
+        image: gcr.io/bitactor/metrics-collector:latest
+        env:
+        - name: EVENT_STORE_URL
+          value: "postgresql://bitactor-events:5432/events"
+        - name: METRICS_INTERVAL_MS
+          value: "1000"
+        - name: TTL_METRICS_ENABLED
+          value: "true"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+---
+# Knative Service for TTL Violation Handling
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: bitactor-violation-handler
+  namespace: bitactor-serverless
+  annotations:
+    autoscaling.knative.dev/minScale: "0"
+    autoscaling.knative.dev/maxScale: "10"
+spec:
+  template:
+    spec:
+      containers:
+      - name: violation-handler
+        image: gcr.io/bitactor/violation-handler:latest
+        env:
+        - name: VIOLATION_SEVERITY_THRESHOLD
+          value: "warning"
+        - name: AUTO_SCALING_ENABLED
+          value: "true"
+        - name: COMPENSATION_STRATEGY
+          value: "scale_up"
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "25m"
+          limits:
+            memory: "128Mi"
+            cpu: "250m"
+---
+# BitActor Serverless Event Source
+apiVersion: sources.knative.dev/v1
+kind: ApiServerSource
+metadata:
+  name: bitactor-k8s-events
+  namespace: bitactor-serverless
+spec:
+  serviceAccountName: bitactor-events-sa
+  mode: Resource
+  resources:
+  - apiVersion: v1
+    kind: Pod
+    labelSelector:
+      app: bitactor-serverless-function
+  - apiVersion: apps/v1
+    kind: ReplicaSet
+    labelSelector:
+      app: bitactor-serverless-function
+  sink:
+    ref:
+      apiVersion: eventing.knative.dev/v1
+      kind: Broker
+      name: bitactor-events
+---
+# Service Account for Event Source
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bitactor-events-sa
+  namespace: bitactor-serverless
+---
+# ClusterRole for Event Source
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: bitactor-events-watcher
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["replicasets"]  
+  verbs: ["get", "list", "watch"]
+---
+# ClusterRoleBinding for Event Source
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: bitactor-events-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: bitactor-events-watcher
+subjects:
+- kind: ServiceAccount
+  name: bitactor-events-sa
+  namespace: bitactor-serverless
+---
+# Horizontal Pod Autoscaler for Event Store
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: bitactor-event-store-hpa
+  namespace: bitactor-serverless
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: bitactor-event-store
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+# Prometheus ServiceMonitor for Serverless Metrics
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: bitactor-serverless-monitor
+  namespace: bitactor-serverless
+  labels:
+    app: bitactor-serverless
+spec:
+  selector:
+    matchLabels:
+      app: bitactor-serverless-function
+  endpoints:
+  - port: http-metrics
+    interval: 15s
+    path: /metrics
+    scrapeTimeout: 10s
+---
+# BitActor Serverless Custom Resource Definition
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: bitactorserverless.bitactor.io
+spec:
+  group: bitactor.io
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              # TTL Configuration
+              ttlBudgetMs:
+                type: integer
+                minimum: 1
+                maximum: 1000
+                default: 8
+              ttlPrecision:
+                type: string
+                enum: ["nanosecond", "microsecond", "millisecond"]
+                default: "nanosecond"
+              coldStartOptimization:
+                type: boolean
+                default: true
+              
+              # Serverless Configuration
+              minScale:
+                type: integer
+                minimum: 0
+                default: 0
+              maxScale:
+                type: integer
+                minimum: 1
+                default: 1000
+              concurrencyLimit:
+                type: integer
+                minimum: 1
+                default: 100
+              
+              # Event Configuration
+              eventSourcing:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                    default: true
+                  retention:
+                    type: string
+                    default: "30d"
+                  broker:
+                    type: string
+                    default: "bitactor-events"
+              
+              # Performance Configuration
+              resources:
+                type: object
+                properties:
+                  requests:
+                    type: object
+                    properties:
+                      memory:
+                        type: string
+                        default: "128Mi"
+                      cpu:
+                        type: string
+                        default: "100m"
+                  limits:
+                    type: object
+                    properties:
+                      memory:
+                        type: string
+                        default: "512Mi"
+                      cpu:
+                        type: string
+                        default: "1000m"
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+                enum: ["Pending", "Running", "Succeeded", "Failed"]
+              conditions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    status:
+                      type: string
+                    reason:
+                      type: string
+                    message:
+                      type: string
+              replicas:
+                type: integer
+              readyReplicas:
+                type: integer
+              ttlViolations:
+                type: integer
+              averageProcessingTimeMs:
+                type: number
+  scope: Namespaced
+  names:
+    plural: bitactorserverless
+    singular: bitactorserverless
+    kind: BitActorServerless
+    shortNames:
+    - bas
+---
+# Example BitActor Serverless Custom Resource
+apiVersion: bitactor.io/v1
+kind: BitActorServerless
+metadata:
+  name: threat-detector-serverless
+  namespace: bitactor-serverless
+spec:
+  ttlBudgetMs: 10
+  ttlPrecision: "nanosecond"
+  coldStartOptimization: true
+  
+  minScale: 0
+  maxScale: 500
+  concurrencyLimit: 50
+  
+  eventSourcing:
+    enabled: true
+    retention: "7d"
+    broker: "bitactor-events"
+  
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "1Gi"
+      cpu: "2000m"
+---
+# Knative Domain Mapping for Custom Domain
+apiVersion: serving.knative.dev/v1alpha1
+kind: DomainMapping
+metadata:
+  name: bitactor-api.serverless.local
+  namespace: bitactor-serverless
+spec:
+  ref:
+    name: bitactor-serverless-function
+    kind: Service
+    apiVersion: serving.knative.dev/v1
+---
+# Network Policy for Serverless Security
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: bitactor-serverless-netpol
+  namespace: bitactor-serverless
+spec:
+  podSelector:
+    matchLabels:
+      app: bitactor-serverless-function
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: knative-serving
+    - namespaceSelector:
+        matchLabels:
+          name: istio-system
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: bitactor-serverless
+    ports:
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+  - to: []  # Allow external HTTP(S)
+    ports:
+    - protocol: TCP
+      port: 80
+    - protocol: TCP  
+      port: 443
+---
+# Pod Disruption Budget for Event Store
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: bitactor-event-store-pdb
+  namespace: bitactor-serverless
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: bitactor-event-store
+---
+# Serverless Cold Start Optimization Job
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bitactor-warmup-job
+  namespace: bitactor-serverless
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: warmup
+        image: gcr.io/bitactor/warmup:latest
+        env:
+        - name: TARGET_SERVICE
+          value: "bitactor-serverless-function.bitactor-serverless.svc.cluster.local"
+        - name: WARMUP_REQUESTS
+          value: "10"
+        - name: WARMUP_INTERVAL_MS
+          value: "100"
+        - name: TTL_BUDGET_MS
+          value: "8"
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Starting BitActor serverless warmup..."
+          for i in $(seq 1 $WARMUP_REQUESTS); do
+            curl -s -H "Content-Type: application/json" \
+                 -d '{"signal_type":"warmup","ttl_budget_ms":'$TTL_BUDGET_MS'}' \
+                 http://$TARGET_SERVICE/process-signal
+            sleep $(echo "scale=3; $WARMUP_INTERVAL_MS / 1000" | bc)
+          done
+          echo "Warmup completed"
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "25m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+---
+# CronJob for Regular Warmup to Prevent Cold Starts
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: bitactor-periodic-warmup
+  namespace: bitactor-serverless
+spec:
+  schedule: "*/5 * * * *"  # Every 5 minutes
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: periodic-warmup
+            image: gcr.io/bitactor/warmup:latest
+            env:
+            - name: TARGET_SERVICE
+              value: "bitactor-serverless-function.bitactor-serverless.svc.cluster.local"
+            - name: WARMUP_REQUESTS
+              value: "3"
+            - name: TTL_BUDGET_MS
+              value: "8"
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Periodic warmup for BitActor serverless..."
+              for i in $(seq 1 $WARMUP_REQUESTS); do
+                curl -s -H "Content-Type: application/json" \
+                     -d '{"signal_type":"keepalive","ttl_budget_ms":'$TTL_BUDGET_MS'}' \
+                     http://$TARGET_SERVICE/health/warmup || true
+                sleep 1
+              done
+            resources:
+              requests:
+                memory: "16Mi"
+                cpu: "10m"
+              limits:
+                memory: "32Mi"
+                cpu: "50m"

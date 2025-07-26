@@ -1,0 +1,213 @@
+{
+  "total_entry_points": 6,
+  "total_execution_time": 0.70182,
+  "results": {
+    "ttl_first": {
+      "entry_point": "ttl_first",
+      "starting_artifact": "domain_ontology.ttl",
+      "use_case": "Existing ontology to implementation",
+      "parallel_paths": {
+        "path_1_dspy": {
+          "flow": "TTL \u2192 TTL2DSPy \u2192 BitActor \u2192 Kubernetes",
+          "output": "high_performance_llm_system",
+          "time": 0.8
+        },
+        "path_2_ash": {
+          "flow": "TTL \u2192 AshResources \u2192 ReactorWorkflows \u2192 Kubernetes",
+          "output": "api_driven_system",
+          "time": 1.2
+        },
+        "path_3_direct": {
+          "flow": "TTL \u2192 BitActor \u2192 ErlangOTP \u2192 Kubernetes",
+          "output": "minimal_performance_system",
+          "time": 0.6
+        }
+      },
+      "advantages": [
+        "Leverages existing domain knowledge",
+        "Standard W3C format",
+        "Multiple implementation options",
+        "Interoperable with semantic web tools"
+      ]
+    },
+    "bitactor_first": {
+      "entry_point": "bitactor_first",
+      "starting_requirement": "< 1\u03bcs latency, 1M+ ops/sec",
+      "use_case": "Performance-critical systems, reverse engineering semantics",
+      "reverse_flow": {
+        "step_1": {
+          "action": "Define BitActor message patterns",
+          "output": "optimized_c_actors.c"
+        },
+        "step_2": {
+          "action": "Infer semantic model from actor interactions",
+          "output": "inferred_semantics.json"
+        },
+        "step_3": {
+          "action": "Generate TTL from inferred model",
+          "output": "reverse_engineered.ttl"
+        },
+        "step_4": {
+          "action": "Create Ash/Reactor wrappers",
+          "output": "performance_first_system"
+        }
+      },
+      "performance_metrics": {
+        "latency": "800ns",
+        "throughput": "1.2M ops/sec",
+        "memory_usage": "minimal",
+        "cpu_efficiency": "95%"
+      },
+      "advantages": [
+        "Optimized for performance from start",
+        "Direct hardware utilization",
+        "Minimal overhead",
+        "Can reverse-engineer semantics later"
+      ]
+    },
+    "ash_first": {
+      "entry_point": "ash_first",
+      "starting_requirement": "GraphQL API with 15 resources, REST endpoints",
+      "use_case": "Rapid API development, domain-driven design",
+      "forward_flow": {
+        "step_1": {
+          "action": "Define Ash resources and domains",
+          "output": "api_resources.ex"
+        },
+        "step_2": {
+          "action": "Generate TTL from Ash schema",
+          "output": "api_derived.ttl"
+        },
+        "step_3": {
+          "action": "Create Reactor workflows for business logic",
+          "output": "business_workflows.ex"
+        },
+        "step_4": {
+          "action": "Optional BitActor optimization for hot paths",
+          "output": "hybrid_api_system"
+        }
+      },
+      "api_metrics": {
+        "endpoints_generated": 45,
+        "graphql_queries": 23,
+        "mutations": 12,
+        "subscriptions": 10,
+        "response_time": "< 50ms"
+      },
+      "advantages": [
+        "Rapid API development",
+        "Domain modeling first",
+        "GraphQL + REST out of box",
+        "Elixir ecosystem benefits"
+      ]
+    },
+    "reactor_first": {
+      "entry_point": "reactor_first",
+      "starting_requirement": "Complex multi-step business workflows with error handling",
+      "use_case": "Process orchestration, workflow management systems",
+      "workflow_driven_flow": {
+        "step_1": {
+          "action": "Define Reactor workflows and steps",
+          "output": "process_workflows.ex"
+        },
+        "step_2": {
+          "action": "Infer required Ash resources from workflow steps",
+          "output": "workflow_resources.ex"
+        },
+        "step_3": {
+          "action": "Generate semantic model from process flow",
+          "output": "process_ontology.ttl"
+        },
+        "step_4": {
+          "action": "Optimize critical paths with BitActor",
+          "output": "orchestration_system"
+        }
+      },
+      "workflow_metrics": {
+        "workflows_defined": 12,
+        "steps_per_workflow": 8,
+        "error_handlers": 24,
+        "compensation_actions": 15,
+        "success_rate": "99.7%"
+      },
+      "advantages": [
+        "Process-centric design",
+        "Built-in error handling",
+        "Compensation patterns",
+        "Visual workflow modeling"
+      ]
+    },
+    "dspy_first": {
+      "entry_point": "dspy_first",
+      "starting_requirement": "LLM-powered application with type-safe signatures",
+      "use_case": "AI/ML applications, LLM integration, prompt optimization",
+      "ai_driven_flow": {
+        "step_1": {
+          "action": "Define DSPy signatures for AI tasks",
+          "output": "ai_signatures.py"
+        },
+        "step_2": {
+          "action": "Generate TTL from signature semantics",
+          "output": "ai_ontology.ttl"
+        },
+        "step_3": {
+          "action": "Create Ash resources for AI data management",
+          "output": "ai_resources.ex"
+        },
+        "step_4": {
+          "action": "BitActor for high-performance inference",
+          "output": "ai_optimized_system"
+        }
+      },
+      "ai_metrics": {
+        "signatures_defined": 18,
+        "llm_providers": 3,
+        "prompt_templates": 25,
+        "inference_speed": "< 200ms",
+        "accuracy_improvement": "15%"
+      },
+      "advantages": [
+        "Type-safe LLM integration",
+        "Prompt optimization built-in",
+        "Multiple LLM provider support",
+        "AI-first architecture"
+      ]
+    },
+    "k8s_first": {
+      "entry_point": "kubernetes_first",
+      "starting_requirement": "Cloud-native deployment on K8s with auto-scaling",
+      "use_case": "Infrastructure-first, cloud-native applications",
+      "infrastructure_driven_flow": {
+        "step_1": {
+          "action": "Define K8s deployment requirements",
+          "output": "k8s_manifests.yaml"
+        },
+        "step_2": {
+          "action": "Infer application architecture from deployment",
+          "output": "app_architecture.json"
+        },
+        "step_3": {
+          "action": "Generate Reactor workflows for container orchestration",
+          "output": "k8s_workflows.ex"
+        },
+        "step_4": {
+          "action": "Create semantic model for cloud resources",
+          "output": "cloud_native_system"
+        }
+      },
+      "infrastructure_metrics": {
+        "pods": 15,
+        "services": 8,
+        "ingress_rules": 5,
+        "auto_scaling_groups": 3,
+        "availability": "99.9%"
+      },
+      "advantages": [
+        "Cloud-native by design",
+        "Auto-scaling built-in",
+        "Infrastructure as code",
+        "Microservices ready"
+      ]
+    }
+  }
+}

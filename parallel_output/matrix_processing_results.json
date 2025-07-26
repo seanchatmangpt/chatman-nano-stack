@@ -1,0 +1,78 @@
+{
+  "architecture": "matrix_processing",
+  "execution_time": 0.901375,
+  "matrix_size": "3x3",
+  "total_executions": 9,
+  "organized_results": {
+    "E-commerce platform": {
+      "bitactor_optimized": {
+        "task_id": "concept_0_path_0",
+        "concept": "E-commerce platform",
+        "path": "bitactor_optimized",
+        "status": "completed",
+        "output_quality": "bitactor_optimized_output_for_E-commerce_platform.generated"
+      },
+      "ash_api_focused": {
+        "task_id": "concept_0_path_1",
+        "concept": "E-commerce platform",
+        "path": "ash_api_focused",
+        "status": "completed",
+        "output_quality": "ash_api_focused_output_for_E-commerce_platform.generated"
+      },
+      "reactor_workflow_heavy": {
+        "task_id": "concept_0_path_2",
+        "concept": "E-commerce platform",
+        "path": "reactor_workflow_heavy",
+        "status": "completed",
+        "output_quality": "reactor_workflow_heavy_output_for_E-commerce_platform.generated"
+      }
+    },
+    "IoT sensor network": {
+      "bitactor_optimized": {
+        "task_id": "concept_1_path_0",
+        "concept": "IoT sensor network",
+        "path": "bitactor_optimized",
+        "status": "completed",
+        "output_quality": "bitactor_optimized_output_for_IoT_sensor_network.generated"
+      },
+      "ash_api_focused": {
+        "task_id": "concept_1_path_1",
+        "concept": "IoT sensor network",
+        "path": "ash_api_focused",
+        "status": "completed",
+        "output_quality": "ash_api_focused_output_for_IoT_sensor_network.generated"
+      },
+      "reactor_workflow_heavy": {
+        "task_id": "concept_1_path_2",
+        "concept": "IoT sensor network",
+        "path": "reactor_workflow_heavy",
+        "status": "completed",
+        "output_quality": "reactor_workflow_heavy_output_for_IoT_sensor_network.generated"
+      }
+    },
+    "Financial trading system": {
+      "bitactor_optimized": {
+        "task_id": "concept_2_path_0",
+        "concept": "Financial trading system",
+        "path": "bitactor_optimized",
+        "status": "completed",
+        "output_quality": "bitactor_optimized_output_for_Financial_trading_system.generated"
+      },
+      "ash_api_focused": {
+        "task_id": "concept_2_path_1",
+        "concept": "Financial trading system",
+        "path": "ash_api_focused",
+        "status": "completed",
+        "output_quality": "ash_api_focused_output_for_Financial_trading_system.generated"
+      },
+      "reactor_workflow_heavy": {
+        "task_id": "concept_2_path_2",
+        "concept": "Financial trading system",
+        "path": "reactor_workflow_heavy",
+        "status": "completed",
+        "output_quality": "reactor_workflow_heavy_output_for_Financial_trading_system.generated"
+      }
+    }
+  },
+  "timestamp": "2025-07-25T21:19:55.012524"
+}

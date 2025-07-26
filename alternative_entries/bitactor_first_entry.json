@@ -1,0 +1,35 @@
+{
+  "entry_point": "bitactor_first",
+  "starting_requirement": "< 1\u03bcs latency, 1M+ ops/sec",
+  "use_case": "Performance-critical systems, reverse engineering semantics",
+  "reverse_flow": {
+    "step_1": {
+      "action": "Define BitActor message patterns",
+      "output": "optimized_c_actors.c"
+    },
+    "step_2": {
+      "action": "Infer semantic model from actor interactions",
+      "output": "inferred_semantics.json"
+    },
+    "step_3": {
+      "action": "Generate TTL from inferred model",
+      "output": "reverse_engineered.ttl"
+    },
+    "step_4": {
+      "action": "Create Ash/Reactor wrappers",
+      "output": "performance_first_system"
+    }
+  },
+  "performance_metrics": {
+    "latency": "800ns",
+    "throughput": "1.2M ops/sec",
+    "memory_usage": "minimal",
+    "cpu_efficiency": "95%"
+  },
+  "advantages": [
+    "Optimized for performance from start",
+    "Direct hardware utilization",
+    "Minimal overhead",
+    "Can reverse-engineer semantics later"
+  ]
+}

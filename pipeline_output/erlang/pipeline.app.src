@@ -1,0 +1,8 @@
+{application, pipeline,
+ [{description, "Pipeline Application"},
+  {vsn, "1.0.0"},
+  {registered, [pipeline_sup]},
+  {mod, {pipeline_app, []}},
+  {applications, [kernel, stdlib]},
+  {env, []},
+  {modules, []}]}.

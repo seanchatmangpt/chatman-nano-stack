@@ -1,0 +1,40 @@
+{
+  "stages": {
+    "turtle": "\u2705 Complete",
+    "ttl2dspy": "\u2705 Complete",
+    "bitactor": "\u2705 Complete",
+    "erlang": "\u2705 Complete",
+    "ash": "\u2705 Complete",
+    "reactor": "\u2705 Complete",
+    "k8s": "\u2705 Complete"
+  },
+  "files": {
+    "turtle": "/Users/sac/cns/pipeline_output/ontology.ttl",
+    "dspy": "/Users/sac/cns/pipeline_output/signatures.py",
+    "bitactor": {
+      "header": "/Users/sac/cns/pipeline_output/bitactor/pipeline_bitactor.h",
+      "impl": "/Users/sac/cns/pipeline_output/bitactor/pipeline_bitactor.c"
+    },
+    "erlang": {
+      "app.src": "/Users/sac/cns/pipeline_output/erlang/pipeline.app.src",
+      "app": "/Users/sac/cns/pipeline_output/erlang/pipeline_app.erl",
+      "supervisor": "/Users/sac/cns/pipeline_output/erlang/pipeline_sup.erl",
+      "pipeline_datastream.erl": "/Users/sac/cns/pipeline_output/erlang/pipeline_datastream.erl",
+      "pipeline_processor.erl": "/Users/sac/cns/pipeline_output/erlang/pipeline_processor.erl",
+      "pipeline_pattern.erl": "/Users/sac/cns/pipeline_output/erlang/pipeline_pattern.erl",
+      "pipeline_alert.erl": "/Users/sac/cns/pipeline_output/erlang/pipeline_alert.erl"
+    },
+    "ash": {
+      "status": "generated_by_tool",
+      "output": "Parsed 0 classes and 0 properties\nGenerated: /Users/sac/cns/pipeline_output/ash/generate_ash_resources.sh\n\nGeneration complete! Files written to: /Users/sac/cns/pipeline_output/ash\n\nTo create the Ash resources, run:\n  cd /Users/sac/cns/pipeline_output/ash && ./generate_ash_resources.sh\n"
+    },
+    "reactor": {
+      "main": "/Users/sac/cns/pipeline_output/reactor/main_process.ex",
+      "error": "/Users/sac/cns/pipeline_output/reactor/error_handler.ex"
+    },
+    "k8s": {
+      "deployment": "/Users/sac/cns/pipeline_output/k8s/deployment.yaml"
+    }
+  },
+  "status": "completed"
+}

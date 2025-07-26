@@ -1,0 +1,48 @@
+{
+  "architecture": "fan_out",
+  "execution_time": 0.801471,
+  "performance_path": {
+    "path": "performance",
+    "components": [
+      "TurtleRDF",
+      "BitActor",
+      "ErlangOTP"
+    ],
+    "output_type": "high_performance_c_code",
+    "performance_rating": 9.5,
+    "files_generated": [
+      "bitactor_optimized.c",
+      "nif_interface.so"
+    ]
+  },
+  "api_path": {
+    "path": "api_development",
+    "components": [
+      "EightyTwentyTyper",
+      "TurtleRDF",
+      "AshResources"
+    ],
+    "output_type": "graphql_rest_apis",
+    "api_endpoints": 12,
+    "files_generated": [
+      "domain.ex",
+      "resources/*.ex",
+      "schema.ex"
+    ]
+  },
+  "workflow_path": {
+    "path": "workflow_orchestration",
+    "components": [
+      "ReactorWorkflows",
+      "ErlangOTP",
+      "Kubernetes"
+    ],
+    "output_type": "orchestration_workflows",
+    "workflow_count": 8,
+    "files_generated": [
+      "workflows/*.ex",
+      "deployment.yaml"
+    ]
+  },
+  "timestamp": "2025-07-25T21:19:53.409074"
+}

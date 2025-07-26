@@ -1,0 +1,28 @@
+{
+  "entry_point": "ttl_first",
+  "starting_artifact": "domain_ontology.ttl",
+  "use_case": "Existing ontology to implementation",
+  "parallel_paths": {
+    "path_1_dspy": {
+      "flow": "TTL \u2192 TTL2DSPy \u2192 BitActor \u2192 Kubernetes",
+      "output": "high_performance_llm_system",
+      "time": 0.8
+    },
+    "path_2_ash": {
+      "flow": "TTL \u2192 AshResources \u2192 ReactorWorkflows \u2192 Kubernetes",
+      "output": "api_driven_system",
+      "time": 1.2
+    },
+    "path_3_direct": {
+      "flow": "TTL \u2192 BitActor \u2192 ErlangOTP \u2192 Kubernetes",
+      "output": "minimal_performance_system",
+      "time": 0.6
+    }
+  },
+  "advantages": [
+    "Leverages existing domain knowledge",
+    "Standard W3C format",
+    "Multiple implementation options",
+    "Interoperable with semantic web tools"
+  ]
+}

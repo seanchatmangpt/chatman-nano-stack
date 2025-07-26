@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: working-swarm-pipeline
+  labels:
+    app: working-swarm
+    intelligence: swarm
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: working-swarm
+  template:
+    metadata:
+      labels:
+        app: working-swarm
+    spec:
+      containers:
+      - name: swarm-orchestrator
+        image: cns-forge-swarm:latest
+        ports:
+        - containerPort: 4000
+        env:
+        - name: SWARM_INTELLIGENCE
+          value: "enabled"
+        - name: PIPELINE_TTL
+          value: "8000"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: working-swarm-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: working-swarm-pipeline
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60

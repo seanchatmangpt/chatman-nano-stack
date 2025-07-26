@@ -1,0 +1,36 @@
+{
+  "entry_point": "dspy_first",
+  "starting_requirement": "LLM-powered application with type-safe signatures",
+  "use_case": "AI/ML applications, LLM integration, prompt optimization",
+  "ai_driven_flow": {
+    "step_1": {
+      "action": "Define DSPy signatures for AI tasks",
+      "output": "ai_signatures.py"
+    },
+    "step_2": {
+      "action": "Generate TTL from signature semantics",
+      "output": "ai_ontology.ttl"
+    },
+    "step_3": {
+      "action": "Create Ash resources for AI data management",
+      "output": "ai_resources.ex"
+    },
+    "step_4": {
+      "action": "BitActor for high-performance inference",
+      "output": "ai_optimized_system"
+    }
+  },
+  "ai_metrics": {
+    "signatures_defined": 18,
+    "llm_providers": 3,
+    "prompt_templates": 25,
+    "inference_speed": "< 200ms",
+    "accuracy_improvement": "15%"
+  },
+  "advantages": [
+    "Type-safe LLM integration",
+    "Prompt optimization built-in",
+    "Multiple LLM provider support",
+    "AI-first architecture"
+  ]
+}

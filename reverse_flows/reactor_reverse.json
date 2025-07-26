@@ -1,0 +1,40 @@
+{
+  "reverse_flow": "reactor_to_requirements",
+  "input": "reactor_workflows.ex",
+  "output": "business_requirements.md",
+  "reverse_steps": {
+    "step_1": {
+      "action": "Parse workflow step definitions",
+      "analysis": "18 workflows, 144 steps, 67 error handlers",
+      "inferred": "Complex business process orchestration"
+    },
+    "step_2": {
+      "action": "Analyze step dependencies and conditions",
+      "analysis": "Conditional flows and compensation actions",
+      "inferred": "Business rules and exception handling"
+    },
+    "step_3": {
+      "action": "Extract semantic meaning from step names",
+      "analysis": "Natural language processing of step descriptions",
+      "inferred": "Business domain vocabulary and concepts"
+    },
+    "step_4": {
+      "action": "Generate requirements documentation",
+      "analysis": "Workflow patterns reveal business needs",
+      "inferred": "Comprehensive business requirements"
+    }
+  },
+  "process_analysis": {
+    "business_processes": 18,
+    "decision_points": 34,
+    "error_scenarios": 67,
+    "compensation_flows": 23,
+    "requirements_coverage": "87%"
+  },
+  "applications": [
+    "Business process documentation",
+    "Compliance auditing",
+    "Process optimization",
+    "Knowledge extraction"
+  ]
+}

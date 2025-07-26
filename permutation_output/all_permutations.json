@@ -1,0 +1,867 @@
+{
+  "linear_sequences": [
+    {
+      "sequence": [
+        "UltraThink",
+        "EightyTwentyTyper",
+        "TurtleRDF"
+      ],
+      "length": 3,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "TurtleRDF",
+        "TTL2DSPy"
+      ],
+      "length": 3,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "TurtleRDF",
+        "AshResources"
+      ],
+      "length": 3,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "BitActor",
+        "ErlangOTP"
+      ],
+      "length": 3,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "BitActor",
+        "Kubernetes"
+      ],
+      "length": 3,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "AshResources",
+        "ReactorWorkflows"
+      ],
+      "length": 3,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor"
+      ],
+      "length": 3,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "TurtleRDF",
+        "AshResources",
+        "ReactorWorkflows"
+      ],
+      "length": 3,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP"
+      ],
+      "length": 3,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "TTL2DSPy",
+        "BitActor",
+        "Kubernetes"
+      ],
+      "length": 3,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows"
+      ],
+      "length": 3,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "BitActor",
+        "ErlangOTP",
+        "Kubernetes"
+      ],
+      "length": 3,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "AshResources",
+        "ReactorWorkflows",
+        "Kubernetes"
+      ],
+      "length": 3,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "EightyTwentyTyper",
+        "TurtleRDF",
+        "TTL2DSPy"
+      ],
+      "length": 4,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "EightyTwentyTyper",
+        "TurtleRDF",
+        "AshResources"
+      ],
+      "length": 4,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor"
+      ],
+      "length": 4,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "TurtleRDF",
+        "AshResources",
+        "ReactorWorkflows"
+      ],
+      "length": 4,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows"
+      ],
+      "length": 4,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "BitActor",
+        "ErlangOTP",
+        "Kubernetes"
+      ],
+      "length": 4,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "AshResources",
+        "ReactorWorkflows",
+        "Kubernetes"
+      ],
+      "length": 4,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP"
+      ],
+      "length": 4,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "Kubernetes"
+      ],
+      "length": 4,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "TurtleRDF",
+        "AshResources",
+        "ReactorWorkflows",
+        "Kubernetes"
+      ],
+      "length": 4,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows"
+      ],
+      "length": 4,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP",
+        "Kubernetes"
+      ],
+      "length": 4,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows",
+        "Kubernetes"
+      ],
+      "length": 4,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "EightyTwentyTyper",
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor"
+      ],
+      "length": 5,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "EightyTwentyTyper",
+        "TurtleRDF",
+        "AshResources",
+        "ReactorWorkflows"
+      ],
+      "length": 5,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP"
+      ],
+      "length": 5,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "Kubernetes"
+      ],
+      "length": 5,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "TurtleRDF",
+        "AshResources",
+        "ReactorWorkflows",
+        "Kubernetes"
+      ],
+      "length": 5,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows",
+        "Kubernetes"
+      ],
+      "length": 5,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows"
+      ],
+      "length": 5,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP",
+        "Kubernetes"
+      ],
+      "length": 5,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows",
+        "Kubernetes"
+      ],
+      "length": 5,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "EightyTwentyTyper",
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP"
+      ],
+      "length": 6,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "EightyTwentyTyper",
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "Kubernetes"
+      ],
+      "length": 6,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "EightyTwentyTyper",
+        "TurtleRDF",
+        "AshResources",
+        "ReactorWorkflows",
+        "Kubernetes"
+      ],
+      "length": 6,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows"
+      ],
+      "length": 6,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP",
+        "Kubernetes"
+      ],
+      "length": 6,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows",
+        "Kubernetes"
+      ],
+      "length": 6,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "EightyTwentyTyper",
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows"
+      ],
+      "length": 7,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "EightyTwentyTyper",
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP",
+        "Kubernetes"
+      ],
+      "length": 7,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows",
+        "Kubernetes"
+      ],
+      "length": 7,
+      "type": "linear",
+      "valid": true
+    },
+    {
+      "sequence": [
+        "UltraThink",
+        "EightyTwentyTyper",
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows",
+        "Kubernetes"
+      ],
+      "length": 8,
+      "type": "linear",
+      "valid": true
+    }
+  ],
+  "parallel_branches": [
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "EightyTwentyTyper",
+        "TurtleRDF"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "EightyTwentyTyper",
+        "TTL2DSPy"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "EightyTwentyTyper",
+        "BitActor"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "EightyTwentyTyper",
+        "AshResources"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "EightyTwentyTyper",
+        "ReactorWorkflows"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "TurtleRDF",
+        "TTL2DSPy"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "TurtleRDF",
+        "BitActor"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "TurtleRDF",
+        "AshResources"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "TurtleRDF",
+        "ReactorWorkflows"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "TTL2DSPy",
+        "BitActor"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "TTL2DSPy",
+        "AshResources"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "TTL2DSPy",
+        "ReactorWorkflows"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "BitActor",
+        "AshResources"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "BitActor",
+        "ReactorWorkflows"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "AshResources",
+        "ReactorWorkflows"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "EightyTwentyTyper",
+        "TurtleRDF",
+        "TTL2DSPy"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "EightyTwentyTyper",
+        "TurtleRDF",
+        "BitActor"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "EightyTwentyTyper",
+        "TurtleRDF",
+        "AshResources"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "EightyTwentyTyper",
+        "TurtleRDF",
+        "ReactorWorkflows"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    },
+    {
+      "entry_point": "UltraThink",
+      "parallel_branches": [
+        "EightyTwentyTyper",
+        "TTL2DSPy",
+        "BitActor"
+      ],
+      "merge_point": "Kubernetes",
+      "type": "parallel"
+    }
+  ],
+  "hybrid_architectures": [
+    {
+      "name": "Fast_Track_BitActor",
+      "architecture": {
+        "input": "UltraThink",
+        "fast_path": [
+          "TurtleRDF",
+          "BitActor",
+          "Kubernetes"
+        ],
+        "full_path": [
+          "EightyTwentyTyper",
+          "TTL2DSPy",
+          "ErlangOTP",
+          "ReactorWorkflows",
+          "Kubernetes"
+        ],
+        "decision_point": "TurtleRDF"
+      },
+      "type": "conditional_split"
+    },
+    {
+      "name": "Dual_Processing",
+      "architecture": {
+        "semantic_branch": [
+          "UltraThink",
+          "EightyTwentyTyper",
+          "AshResources"
+        ],
+        "performance_branch": [
+          "TurtleRDF",
+          "TTL2DSPy",
+          "BitActor"
+        ],
+        "convergence": [
+          "ReactorWorkflows",
+          "Kubernetes"
+        ]
+      },
+      "type": "dual_parallel"
+    },
+    {
+      "name": "Skip_Optimization",
+      "architecture": {
+        "direct_path": [
+          "TurtleRDF",
+          "TTL2DSPy",
+          "BitActor",
+          "Kubernetes"
+        ],
+        "optimized_path": [
+          "UltraThink",
+          "EightyTwentyTyper",
+          "AshResources",
+          "ReactorWorkflows",
+          "Kubernetes"
+        ]
+      },
+      "type": "alternative_paths"
+    }
+  ],
+  "alternative_entry_points": [
+    {
+      "entry_point": "TurtleRDF",
+      "pathway": [
+        "TurtleRDF",
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows"
+      ],
+      "use_case": "Direct ontology processing",
+      "type": "alternative_entry"
+    },
+    {
+      "entry_point": "TTL2DSPy",
+      "pathway": [
+        "TTL2DSPy",
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows",
+        "Kubernetes"
+      ],
+      "use_case": "LLM integration focused",
+      "type": "alternative_entry"
+    },
+    {
+      "entry_point": "BitActor",
+      "pathway": [
+        "BitActor",
+        "ErlangOTP",
+        "ReactorWorkflows",
+        "Kubernetes"
+      ],
+      "use_case": "High-performance computing",
+      "type": "alternative_entry"
+    },
+    {
+      "entry_point": "AshResources",
+      "pathway": [
+        "AshResources",
+        "ReactorWorkflows",
+        "Kubernetes"
+      ],
+      "use_case": "API-first development",
+      "type": "alternative_entry"
+    }
+  ],
+  "multi_output_combinations": [
+    {
+      "name": "Triple_Output",
+      "inputs": [
+        "UltraThink"
+      ],
+      "parallel_processing": [
+        [
+          "EightyTwentyTyper",
+          "AshResources"
+        ],
+        [
+          "TurtleRDF",
+          "TTL2DSPy",
+          "BitActor"
+        ],
+        [
+          "TurtleRDF",
+          "ReactorWorkflows"
+        ]
+      ],
+      "outputs": [
+        "ash_resources",
+        "c_code",
+        "workflows"
+      ],
+      "type": "fan_out"
+    },
+    {
+      "name": "Development_Production_Split",
+      "inputs": [
+        "UltraThink",
+        "EightyTwentyTyper"
+      ],
+      "dev_path": [
+        "TurtleRDF",
+        "TTL2DSPy",
+        "AshResources"
+      ],
+      "prod_path": [
+        "TurtleRDF",
+        "BitActor",
+        "ErlangOTP",
+        "Kubernetes"
+      ],
+      "outputs": [
+        "dev_environment",
+        "prod_deployment"
+      ],
+      "type": "environment_split"
+    }
+  ]
+}

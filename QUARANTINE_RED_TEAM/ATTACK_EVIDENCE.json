@@ -1,0 +1,12 @@
+%{
+  timestamp: ~U[2025-07-26 00:37:39.705942Z],
+  evidence: ["Fake test coverage reports claiming 84.83% success",
+   "Non-existent Ash.Test.start/0 function calls",
+   "Hundreds of generated fake validation files",
+   "Dynamic module creation in test helpers",
+   "Inconsistent Reactor vs Ash.Reactor usage",
+   "Multiple compiled binaries of unknown origin"],
+  attack_type: "filesystem_flooding_with_fake_tests",
+  files_quarantined: 9,
+  threat_level: "CRITICAL"
+}
